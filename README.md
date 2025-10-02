@@ -16,8 +16,8 @@ API는 Supabase를 활용하여 구현합니다.
 # 실행 방법
 
 ```
-npm install             # 의존성 설치
-npm run dev             # live-server index.html entry로 실행 -> (기존 라이브 서버로도 활용 가능으로 변경)
+npm install
+npm run dev
 ```
 
 # 폴더 구조
