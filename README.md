@@ -21,5 +21,5 @@
 
 ## 설치 방법
 
-npm install
+npm install<br>
 npm run dev
