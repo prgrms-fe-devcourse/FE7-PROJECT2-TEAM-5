@@ -3,6 +3,7 @@ import MainLayout from "./layouts/MainLayout";
 import AuthLayout from "./layouts/AuthLayout";
 import HomePage from "./pages/home/HomePage";
 import ProfilePage from "./pages/profile/ProfilePage";
+import RegisterPage from "./pages/auth/RegisterPage";
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
           <Route path="profile" element={<ProfilePage />} />
         </Route>
         <Route path="login" element={<AuthLayout />}></Route>
+        <Route path="register" element={<RegisterPage />} /> 
       </Routes>
     </>
   );

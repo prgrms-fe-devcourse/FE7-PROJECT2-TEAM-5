@@ -3,64 +3,53 @@ import { Link } from "react-router";
 export default function AuthLayout() {
   return (
     <>
-      {/* 전체 */}
-      <div>
-        {/* 컨텐츠 */}
-        <div>
-          {/* Left */}
-          <div>
-            {/* Top */}
-            <div>
-              {/* 로고 */}
-              <div></div>
-              {/* 텍스트 */}
-              <div>StudyHub</div>
-              <div>학생·선생님·학부모가 함께하는 학습 커뮤니티</div>
-            </div>
-            {/* Middle */}
-            <div>
-              <div>환영합니다 - 다시 시작해 볼까요?</div>
-              <div>
-                문제 풀이, 스터디, 피드백을 한 곳에서!
-                <br />
-                계정으로 로그인하여 학습 활동을 이어가세요.
-              </div>
-            </div>
-            {/* Bottom */}
-            <div>
-              {/* 태그 */}
-              <div>오답 노트</div>
-              <div>스터디 그룹</div>
-              <div>실시간 DM</div>
-              <div>역할 기반 피드</div>
-            </div>
-          </div>
-          {/* Right */}
-          <div>
-            {/* 텍스트 */}
-            <div></div>
-            {/* 로그인 */}
-            <form>
-              {/* 아이디 */}
-              <label>
-                아이디
-                <input type="text" placeholder="아이디를 입력하세요" />
-              </label>
+       
+      <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
+        {/* 로그인 카드 */}
+        <div className="rounded-2xl bg-white p-6 md:p-8 w-full max-w-md
++                 ring-1 ring-slate-200 shadow-2xl">
+          <h4 className="text-2xl font-extrabold mb-2 text-violet-500 text-center">로그인</h4>
 
-              {/* 비밀번호 */}
-              <label>
-                비밀번호
-                <input type="password" placeholder="비밀번호를 입력하세요" />
-              </label>
+          <form className="w-full space-y-4">
+            <input
+              id="login-username"
+              type="text"
+              placeholder="이메일"
+              className="block w-full rounded-lg border border-slate-200 bg-white px-4 py-3
+                         outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-200"
+            />
 
-              {/* 제출 버튼 */}
-              <button type="submit">
-                <Link to="/">로그인</Link>
-              </button>
-            </form>
-            {/* 회원가입 이동 */}
-            <Link to="/register">회원가입</Link>
-          </div>
+            <input
+              id="login-password"
+              type="password"
+              placeholder="비밀번호"
+              className="block w-full rounded-lg border border-slate-200 bg-white px-4 py-3
+                         outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-200"
+            />
+
+            <button
+              type="submit"
+              className="w-full h-10 text-white font-bold rounded-xl mb-5 bg-violet-500"
+            >
+              <Link to="/">로그인</Link>
+            </button>
+
+            <span className="block text-sm text-center">또는 소셜 계정으로 로그인</span>
+
+            <button type="submit" className="block w-full h-10 mb-3 text-white rounded-xl bg-blue-500">
+              Google 로그인
+            </button>
+            <button type="submit" className="block w-full h-10 mb-3 rounded-xl bg-yellow-300 font-bold">
+              Kakao 로그인
+            </button>
+            <button type="submit" className="block w-full h-10 text-white rounded-xl mb-3 bg-green-600 font-bold">
+              Naver 로그인
+            </button>
+
+            <span className="block text-sm text-center">
+              <Link to="/register">계정이 없나요? 회원가입</Link>
+            </span>
+          </form>
         </div>
       </div>
     </>
