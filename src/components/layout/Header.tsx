@@ -3,7 +3,7 @@ import { Link } from "react-router";
 export default function Header() {
 	return (
 		<>
-			<header className="w-full h-[70px] px-6 flex flex-row justify-between items-center border-b-1 border-[#E6E9EE] shadow-[0_2px_6px_rgba(0,0,0,0.05)] bg-[#cccccc]">
+			<header className="z-10 w-full h-[70px] px-6 flex justify-between items-center border-b border-[#E6E9EE] shadow-[0_2px_6px_rgba(0,0,0,0.05)]">
 				<Link to="/" className="text-xl font-bold text-[#8B5CF6]">
 					StudyHub
 				</Link>
