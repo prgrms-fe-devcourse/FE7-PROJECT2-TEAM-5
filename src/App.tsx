@@ -3,17 +3,22 @@ import MainLayout from "./layouts/MainLayout";
 import AuthLayout from "./layouts/AuthLayout";
 import HomePage from "./pages/home/HomePage";
 import ProfilePage from "./pages/profile/ProfilePage";
+import RegisterPage from "./pages/auth/RegisterPage";
+import LoginPage from "./pages/auth/LoginPage";
 
 export default function App() {
-  return (
-    <>
-      <Routes>
-        <Route element={<MainLayout />}>
-          <Route index element={<HomePage />} />
-          <Route path="profile" element={<ProfilePage />} />
-        </Route>
-        <Route path="login" element={<AuthLayout />}></Route>
-      </Routes>
-    </>
-  );
+	return (
+		<>
+			<Routes>
+				<Route element={<MainLayout />}>
+					<Route index element={<HomePage />} />
+					<Route path="profile" element={<ProfilePage />} />
+				</Route>
+				<Route element={<AuthLayout />}>
+					<Route index path="login" element={<LoginPage />} />
+					<Route path="register" element={<RegisterPage />} />
+				</Route>
+			</Routes>
+		</>
+	);
 }
