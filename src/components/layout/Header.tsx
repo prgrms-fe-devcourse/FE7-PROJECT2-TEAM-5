@@ -10,7 +10,7 @@ export default function Header() {
 				<div className="flex flex-row gap-6 text-[#6B7280] font-medium">
 					<Link to="/">검색</Link>
 					<Link to="/">알림</Link>
-					<Link to="/">메시지</Link>
+					<Link to="/msg/1">메시지</Link>
 					<Link to="/">프로필</Link>
 					<Link to="/">다크모드</Link>
 				</div>
