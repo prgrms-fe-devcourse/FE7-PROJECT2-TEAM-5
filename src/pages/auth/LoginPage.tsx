@@ -25,7 +25,7 @@ export default function LoginPage() {
 					type="submit"
 					className="cursor-pointer w-full h-11 text-white font-semibold rounded-xl bg-[#8B5CF6]"
 				>
-					<Link to="/">로그인</Link>
+					로그인
 				</button>
 			</form>
 
