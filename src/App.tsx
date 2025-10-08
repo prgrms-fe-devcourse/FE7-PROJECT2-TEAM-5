@@ -5,6 +5,7 @@ import HomePage from "./pages/home/HomePage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import RegisterPage from "./pages/auth/RegisterPage";
 import LoginPage from "./pages/auth/LoginPage";
+import RegisterEmailPage from "./pages/auth/RegisterEmailPage";
 
 export default function App() {
 	return (
@@ -17,6 +18,10 @@ export default function App() {
 				<Route element={<AuthLayout />}>
 					<Route index path="login" element={<LoginPage />} />
 					<Route path="register" element={<RegisterPage />} />
+					<Route
+						path="registerEmail"
+						element={<RegisterEmailPage />}
+					/>
 				</Route>
 			</Routes>
 		</>
