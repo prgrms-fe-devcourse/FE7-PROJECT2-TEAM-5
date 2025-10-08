@@ -8,13 +8,11 @@ export default function MainLayout() {
 			<div className="min-h-screen flex flex-col">
 				{/* 헤더 영역 */}
 				<Header />
-				{/* 메인 + footer */}
-				<div className="flex-1 flex w-[1440px] mx-auto">
-					<main className="flex-1 overflow-auto p-5">
-						<Outlet />
-					</main>
+				{/* 메인 */}
+				<main className="flex-1 flex flex-col justify-between pb-[30px] bg-[#F3F4F6]">
+					<Outlet />
 					<Footer />
-				</div>
+				</main>
 			</div>
 		</>
 	);

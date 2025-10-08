@@ -1,7 +1,9 @@
 export default function Footer() {
 	return (
 		<>
-			<h1>Footer Component</h1>
+			<div className="text-center">
+				© 2025 StudyHub. All rights reserved.
+			</div>
 		</>
 	);
 }
