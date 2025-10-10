@@ -16,7 +16,7 @@ export default function App() {
 			<Routes>
 				<Route element={<MainLayout />}>
 					<Route index element={<HomePage />} />
-					<Route path="read" element={<PostListPage />} />
+					<Route path="read/:id" element={<PostListPage />} />
 					<Route path="profile/:id" element={<ProfilePage />} />
 					<Route path="msg/:id" element={<DmPage />} />
 					<Route path="search" element={<PostSearchPage />} />

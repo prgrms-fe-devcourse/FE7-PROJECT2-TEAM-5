@@ -1,7 +1,7 @@
 export default function PostSearchPage() {
 	return (
 		<>
-			<div className="mt-10 mx-auto ">
+			<div className="mt-10">
 				<h1 className="font-bold text-[24px] text-[#8B5CF6] mb-[15px] text-left text-middle">
 					검색
 				</h1>

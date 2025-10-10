@@ -3,7 +3,7 @@ import { Link } from "react-router";
 export default function HomePage() {
 	return (
 		<>
-			<div className="mt-[160px] flex flex-col items-center">
+			<div className="mt-30 flex flex-col items-center">
 				{/* Top */}
 				<div className="text-center mb-[120px] ">
 					<h2 className="mb-7 font-bold text-[46px] bg-gradient-to-r from-[#8B5CF6] to-[#EA489A] bg-clip-text text-transparent">
