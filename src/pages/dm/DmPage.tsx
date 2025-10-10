@@ -1,7 +1,7 @@
 export default function DmPage() {
 	return (
 		<>
-			<div className="w-[1000px] h-[790px] bg-white rounded-xl mt-10 flex flex-row overflow-hidden">
+			<div className="w-[1000px] h-[790px] bg-white rounded-xl flex flex-row overflow-hidden">
 				{/* 채팅 리스트 */}
 				<div className="w-[250px] border-r border-[#E5E7EB] bg-[#F9FAFB] rounded-l-xl flex flex-col">
 					<div className="h-[60px] border-b border-[#E5E7EB] rounded-t-xl p-4">
