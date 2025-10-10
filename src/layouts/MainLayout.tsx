@@ -9,7 +9,7 @@ export default function MainLayout() {
 				{/* 헤더 영역 */}
 				<Header />
 				{/* 메인 */}
-				<main className="flex-1 flex flex-col justify-between items-center pb-[30px] bg-[#F3F4F6]">
+				<main className="flex-1 flex flex-col justify-between items-center overflow-y-auto pb-[30px] bg-[#F3F4F6]">
 					<Outlet />
 					<Footer />
 				</main>
