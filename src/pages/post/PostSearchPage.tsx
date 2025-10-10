@@ -1,22 +1,22 @@
 export default function PostSearchPage() {
 	return (
 		<>
-			<div>
-				<h1 className="font-bold text-[24px] text-[#8B5CF6] mb-[15px] text-left text-middle">
+			<div className="mt-10 mx-auto">
+				<h1 className="font-bold text-[24px] text-[#8B5CF6] mb-[15px] ">
 					검색
 				</h1>
 				{/*검색 바와 검색 버튼*/}
-				<div className="flex rounded-[12px] shadow-[0_3px_6px_rgba(0,0,0,0.05)] ">
+				<div className="flex rounded-xl shadow-[0_3px_6px_rgba(0,0,0,0.05)] ">
 					<input
 						type="textarea"
 						id="serchBar"
 						placeholder="게시글 제목, @이름, #해시태그 검색 가능..."
-						className="w-[862px] text-[14px] px-6 py-4 focus:outline-none rounded-l-[12px] bg-white"
+						className="w-[862px] text-[14px] px-6 py-4 focus:outline-none rounded-l-xl bg-white"
 					></input>
 					<button
 						type="button"
-						className="p-4 rounded-r-[12px] bg-[#8B5CF6]
-                        text-white font-Medium text-[14px] hover:bg-[#B08DFF]"
+						className="p-4 rounded-r-xl bg-[#8B5CF6]
+                        text-white font-Medium text-[14px] hover:bg-[#B08DFF] cursor-pointer"
 					>
 						검색
 					</button>
@@ -25,7 +25,7 @@ export default function PostSearchPage() {
 				{/* 검색 결과 영역 */}
 				<div className="flex-col mt-[40px] border-t-2 border-[#E5E7EB] pt-2">
 					{/* 사용자 1 */}
-					<div className="mb-4 px-6 py-4 flex justify-between items-center bg-white rounded-[16px] shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+					<div className="mb-4 px-6 py-4 flex justify-between items-center bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
 						<div className="flex ">
 							{/* 유저 프로필 이미지 */}
 							<img
@@ -46,14 +46,14 @@ export default function PostSearchPage() {
 						{/* 팔로우/팔로잉 버튼 */}
 						<button
 							type="button"
-							className="w-[117px] px-4 py-2 rounded-[8px] bg-[#EA489A]
-                        text-white font-Regular text-[12px] align-middle"
+							className="w-[117px] px-4 py-2 rounded-lg bg-[#EA489A]
+                        text-white font-Regular text-[12px] cursor-pointer"
 						>
 							팔로우
 						</button>
 					</div>
 					{/* 사용자 2 */}
-					<div className="w-230 mb-4 px-6 py-4 flex justify-between items-center bg-white rounded-[16px] shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+					<div className="w-230 mb-4 px-6 py-4 flex justify-between items-center bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
 						<div className="flex">
 							{/* 유저 프로필 이미지 */}
 							<img
@@ -72,33 +72,34 @@ export default function PostSearchPage() {
 							</div>
 						</div>
 						{/* 팔로우/팔로잉 버튼 */}
-
-						<button
-							type="button"
-							className="group relative w-[117px] px-4 py-2 rounded-[8px] bg-[#EA489A]
-                        text-white font-Regular text-[12px] 
+						<div className="group relative">
+							<button
+								type="button"
+								className="w-[117px] px-4 py-2 rounded-lg bg-[#EA489A]
+                        text-white font-Regular text-[12px] cursor-pointer
                         "
-						>
-							<p className="inline">팔로잉</p>
-							<img
-								className="inline ml-2"
-								src="/src/assets/Toggle.png"
-							/>
-							<div className="absolute left-0 w-[117px] p-1 rounded-[8px] mt-2 mx-auto border-1 border-[#EA489A] bg-white group-focus:block hidden">
-								<ul>
-									<li className="block px-5 py-2 text-[12px] text-center text-[#EA489A] bg-[#ffffff] rounded-[8px] hover:text-[#ffffff] hover:bg-[#FF81C1]">
-										메세지 보내기
-									</li>
-									<li className="block px-5 py-2 text-[12px] text-center text-[#EA489A] bg-[#ffffff] rounded-[8px] hover:text-[#ffffff] hover:bg-[#FF81C1]">
-										팔로우 취소
-									</li>
-								</ul>
-							</div>
-						</button>
+							>
+								<p className="inline">팔로잉</p>
+								<img
+									className="inline ml-2"
+									src="/src/assets/Toggle.png"
+								/>
+								<div className="absolute left-0 w-[117px] p-1 rounded-lg mt-2 mx-auto border-1 border-[#EA489A] bg-white group-hover:block hidden">
+									<ul>
+										<li className="block px-5 py-2 text-[12px] text-[#EA489A] bg-[#ffffff] rounded-lg hover:text-[#ffffff] hover:bg-[#FF81C1]">
+											DM 보내기
+										</li>
+										<li className="block px-5 py-2 text-[12px] text-[#EA489A] bg-t[#ffffff] rounded-lg hover:text-[#ffffff] hover:bg-[#FF81C1]">
+											팔로우 취소
+										</li>
+									</ul>
+								</div>
+							</button>
+						</div>
 					</div>
 
 					{/* 글 1 */}
-					<div className="w-230 mb-4 px-6 py-4 rounded-[12px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+					<div className="w-230 mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
 						{/* 글 제목과 좋아요, 댓글 수 */}
 						<div className="flex justify-between items-start mb-1">
 							<h2 className=" text-[18px] font-bold text-[#8B5CF6]">
@@ -139,25 +140,25 @@ export default function PostSearchPage() {
 						<div className="flex justify-between items-end">
 							<div className="flex gap-2">
 								<div
-									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
                         text-white font-Regular text-[12px]"
 								>
 									#해시태그
 								</div>
 								<div
-									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
                         text-white font-Regular text-[12px]"
 								>
 									#해시태그
 								</div>
 								<div
-									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
                         text-white font-Regular text-[12px]"
 								>
 									#해시태그
 								</div>
 								<div
-									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
                         text-white font-Regular text-[12px]"
 								>
 									#해시태그
@@ -169,7 +170,7 @@ export default function PostSearchPage() {
 						</div>
 					</div>
 					{/* 글 2 */}
-					<div className="w-230 mb-4 px-6 py-4 rounded-[12px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+					<div className="w-230 mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
 						{/* 글 제목과 좋아요, 댓글 수 */}
 						<div className="flex justify-between items-start mb-1">
 							<h2 className=" text-[18px] font-bold text-[#8B5CF6]">
@@ -210,25 +211,25 @@ export default function PostSearchPage() {
 						<div className="flex justify-between items-end">
 							<div className="flex gap-2">
 								<div
-									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
                         text-white font-Regular text-[12px]"
 								>
 									#해시태그
 								</div>
 								<div
-									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
                         text-white font-Regular text-[12px]"
 								>
 									#해시태그
 								</div>
 								<div
-									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
                         text-white font-Regular text-[12px]"
 								>
 									#해시태그
 								</div>
 								<div
-									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
                         text-white font-Regular text-[12px]"
 								>
 									#해시태그
@@ -240,7 +241,7 @@ export default function PostSearchPage() {
 						</div>
 					</div>
 					{/* 글 3 */}
-					<div className="w-230 mb-4 px-6 py-4 rounded-[12px] bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+					<div className="w-230 mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
 						{/* 글 제목과 좋아요, 댓글 수 */}
 						<div className="flex justify-between items-start mb-1">
 							<h2 className=" text-[18px] font-bold text-[#8B5CF6]">
@@ -281,25 +282,25 @@ export default function PostSearchPage() {
 						<div className="flex justify-between items-end">
 							<div className="flex gap-2">
 								<div
-									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
                         text-white font-Regular text-[12px]"
 								>
 									#해시태그
 								</div>
 								<div
-									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
                         text-white font-Regular text-[12px]"
 								>
 									#해시태그
 								</div>
 								<div
-									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
                         text-white font-Regular text-[12px]"
 								>
 									#해시태그
 								</div>
 								<div
-									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
                         text-white font-Regular text-[12px]"
 								>
 									#해시태그
