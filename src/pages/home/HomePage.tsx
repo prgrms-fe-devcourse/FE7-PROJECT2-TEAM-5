@@ -1,88 +1,148 @@
+import { Link } from "react-router";
+
 export default function HomePage() {
-  return (
-    <>
-      {/* 최근 등록한 게시글 */}
-      <div>
-        <h3>최근 등록한 게시글</h3>
-        {/* 게시글 1개 */}
-        <div>
-          {/* Top */}
-          <div>
-            {/* Left */}
-            <div>
-              <p>게시글 제목</p>
-              <p>작성자: 누구누구</p>
-            </div>
-            {/* Right */}
-            <div>
-              {/* 댓글 */}
-              <div>
-                <svg
-                  width="14"
-                  height="13"
-                  viewBox="0 0 14 13"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M11.8926 6.5C11.8926 3.6677 9.54414 1.37207 6.64746 1.37207C3.75092 1.37224 1.40333 3.66781 1.40332 6.5C1.40332 9.33219 3.75091 11.6278 6.64746 11.6279C7.90145 11.6279 9.05178 11.1987 9.9541 10.4814L10.293 10.2119L10.6895 10.3906L11.582 10.7793C11.8408 10.8874 12.0945 10.9868 12.3262 11.0723C12.0902 10.5159 11.7506 9.82724 11.4355 9.21582L11.2842 8.92188L11.4238 8.62305L11.5303 8.37793C11.7641 7.79711 11.8926 7.16392 11.8926 6.5ZM13.2959 6.5C13.2959 7.34162 13.1309 8.147 12.832 8.88672C13.1138 9.44205 13.4123 10.0489 13.6309 10.5664C13.7577 10.8669 13.8687 11.1607 13.9336 11.4053C13.965 11.524 13.9945 11.6644 13.999 11.8037C14.0018 11.8927 14.0087 12.2189 13.7412 12.4629C13.5115 12.6724 13.2306 12.6819 13.1318 12.6826C12.9964 12.6835 12.8606 12.6626 12.7451 12.6387C12.5088 12.5895 12.2287 12.5006 11.9463 12.3994C11.4954 12.2378 10.9755 12.0177 10.4873 11.8037C9.40262 12.5556 8.07769 13 6.64746 13C2.97614 12.9998 0 10.0897 0 6.5C1.14586e-05 2.91025 2.97614 0.000174196 6.64746 0C10.3189 0 13.2959 2.91014 13.2959 6.5Z"
-                    fill="#222222"
-                  />
-                </svg>
-                <span>0</span>
-              </div>
-              {/* 좋아요 */}
-              <div>
-                <svg
-                  width="15"
-                  height="13"
-                  viewBox="0 0 15 13"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M7.5 13L6.4125 12.079C5.15 11.0046 4.10625 10.0777 3.28125 9.29836C2.45625 8.51907 1.8 7.82245 1.3125 7.20844C0.825 6.58267 0.481252 6.01003 0.28125 5.49046C0.09375 4.97095 0 4.43961 0 3.89646C0 2.78657 0.39375 1.85967 1.18125 1.11581C1.96875 0.371937 2.95 0 4.125 0C4.775 0 5.39375 0.129888 5.98125 0.389646C6.56873 0.649412 7.07498 1.01545 7.5 1.48775C7.92502 1.01545 8.43127 0.649412 9.01875 0.389646C9.60622 0.129888 10.225 0 10.875 0C12.05 0 13.0312 0.371937 13.8187 1.11581C14.6062 1.85967 15 2.78657 15 3.89646C15 4.43961 14.9 4.97095 14.7 5.49046C14.5125 6.01003 14.175 6.58267 13.6875 7.20844C13.2 7.82245 12.5437 8.51907 11.7188 9.29836C10.8938 10.0777 9.84997 11.0046 8.5875 12.079L7.5 13Z"
-                    fill="#FF2929"
-                  />
-                </svg>
-                <span>1</span>
-              </div>
-            </div>
-          </div>
-          {/* Bottom */}
-          <div>
-            {/* 해시태그 */}
-            <div>#해시태그</div>
-            <div>#해시태그</div>
-            <div>#해시태그</div>
-          </div>
-        </div>
-      </div>
-      {/* 내가 등록한 게시글 + 오늘의 명언 + Todo List */}
-      <div>
-        {/* 내가 등록한 게시글 */}
-        <div>
-          <h3>내가 등록한 게시글</h3>
-          <div>로그인 후에 이용 가능</div>
-        </div>
-        {/* 오늘의 명언 */}
-        <div>
-          <h3>오늘의 명언</h3>
-          <div>
-            <div>계획 없는 목표는 그냥 바램에 불과하다.</div>
-            <span>- 릭 워렌 -</span>
-          </div>
-        </div>
-        {/* Todo List */}
-        <div>
-          {/* 제목 */}
-          <div>
-            <h3>Todo List</h3>
-          </div>
-          {/* 컨텐츠 */}
-          <div>로그인 후에 이용 가능</div>
-        </div>
-      </div>
-    </>
-  );
+	return (
+		<>
+			<div className="mt-[160px] flex flex-col items-center">
+				{/* Top */}
+				<div className="text-center mb-[120px] ">
+					<h2 className="mb-7 font-bold text-[46px] bg-gradient-to-r from-[#8B5CF6] to-[#EA489A] bg-clip-text text-transparent">
+						함께 배우고 성장하는 커뮤니티
+					</h2>
+					<p className="text-[#6B7280] text-[18px] mb-10">
+						학생·선생님·학부모가 모여 질문하고 답하며 성장하는 공간,
+						<br />
+						<strong>StudyHub</strong>에 오신 것을 환영합니다.
+					</p>
+					<div className="space-x-4">
+						{/* 로그인x */}
+						{/* <Link
+							to="/register"
+							className="inline-block px-6 py-4 bg-[#8B5CF6] rounded-xl font-bold text-white"
+						>
+							회원가입
+						</Link>
+						<Link
+							to="/login"
+							className="inline-block px-6 py-4 bg-white rounded-xl font-bold text-[#8B5CF6] shadow-[inset_0_0_0_2px_#8B5CF6]"
+						>
+							로그인
+						</Link> */}
+						{/* 로그인o */}
+						<Link
+							to="/login"
+							className="inline-block px-6 py-4 bg-white rounded-xl font-bold text-[#8B5CF6] shadow-[inset_0_0_0_2px_#8B5CF6]"
+						>
+							로그아웃
+						</Link>
+					</div>
+				</div>
+				{/* 카드들 */}
+				<div className="flex items-center flex-nowrap gap-5">
+					{/* 게시판 카드 => Link 태그로 수정할 예정 */}
+					<Link to="/read/1">
+						<div className="w-[320px] h-[187px] px-6 py-7 bg-white rounded-xl">
+							<div className="flex items-center gap-2 mb-4">
+								<div className="w-[18px] h-[18px] bg-[#D9D9D9]">
+									{/* 아이콘 */}
+								</div>
+								<h3 className="font-bold text-xl text-[#8B5CF6]">
+									게시판
+								</h3>
+							</div>
+							<div className="text-[#6B7280] space-y-2 mb-3">
+								<p className="text-sm">
+									질문과 답변, 학습 팁, 경험담을 나누는 공간
+								</p>
+								<p className="text-xs">
+									게시글 120개 · 최근 글 2시간 전 · 💬 8개 ·
+									❤️ 15개
+								</p>
+							</div>
+							<div className="flex flex-row gap-2 text-xs text-[#8B5CF6]">
+								{/* 반복 함수 구현 예정 */}
+								<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
+									#수학
+								</span>
+								<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
+									#스터디
+								</span>
+								<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
+									#중학생
+								</span>
+							</div>
+						</div>
+					</Link>
+					{/* 그룹 카드 */}
+					{/* 그룹 활동 x */}
+					{/* <div className="w-[320px] flex-grow p-6 border-2 border-dashed border-[#8B5CF6] bg-white rounded-xl text-center">
+						<div className="flex flex-col items-center gap-3 mb-4">
+							<div className="w-[32px] h-[32px] bg-[#D9D9D9]">
+								// 아이콘
+							</div>
+							<h3 className="font-bold text-[#8B5CF6] text-xl">
+								가입한 그룹이 없습니다
+							</h3>
+							<p className="text-[#6B7280] text-sm">
+								아직 참여 중인 그룹이 없습니다.
+								<br />
+								관심 있는 그룹을 찾아 가입해보세요!
+							</p>
+						</div>
+						<Link
+							to="/"
+							className="inline-block px-5 py-2.5 bg-[#8B5CF6] text-white font-bold rounded-xl"
+						>
+							그룹 목록 보기
+						</Link>
+					</div> */}
+					{/* 그룹활동 o */}
+					<div className="w-[320px] h-[187px] px-6 py-7 bg-white rounded-xl">
+						<div className="flex items-center gap-2 mb-4">
+							<div className="w-[18px] h-[18px] bg-[#D9D9D9]">
+								{/* 아이콘 */}
+							</div>
+							<h3 className="font-bold text-xl text-[#8B5CF6]">
+								현재 속한 그룹 이름
+							</h3>
+						</div>
+						<div className="text-[#6B7280] space-y-2 mb-3">
+							<p className="text-sm">
+								중학생 수학 공부를 함께하는 그룹
+							</p>
+							<p className="text-xs">
+								멤버 30명 · 최근 글 1시간 전 · 💬 15개
+							</p>
+						</div>
+						<div className="flex flex-row gap-2 text-xs text-[#8B5CF6]">
+							{/* 반복 함수 구현 예정 */}
+							<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
+								#수학
+							</span>
+							<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
+								#스터디
+							</span>
+							<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
+								#중학생
+							</span>
+						</div>
+					</div>
+					{/* 메시지 카드 => Link 태그로 수정할 예정 */}
+					<div className="w-[320px] h-[187px] px-6 py-7 bg-white rounded-xl">
+						<div className="flex items-center gap-2 mb-4">
+							<div className="w-[18px] h-[18px] bg-[#D9D9D9]">
+								{/* 아이콘 */}
+							</div>
+							<h3 className="font-bold text-xl text-[#8B5CF6]">
+								메시지
+							</h3>
+						</div>
+						<p className="text-[#6B7280] space-y-2 mb-3 text-sm">
+							1:1 대화 메시지로 소통하세요
+						</p>
+					</div>
+				</div>
+			</div>
+		</>
+	);
 }

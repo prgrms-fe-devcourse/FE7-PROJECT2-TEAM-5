@@ -1,7 +1,9 @@
 export default function Footer() {
 	return (
 		<>
-			<h1>Footer Component</h1>
+			<footer className="w-full pb-[30px] text-center text-[#6B7280] text-sm">
+				© 2025 StudyHub. All rights reserved.
+			</footer>
 		</>
 	);
 }
