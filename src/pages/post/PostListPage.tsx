@@ -2,7 +2,7 @@
 export default function PostListPage() {
 	return (
 		<>
-			<div className="m-auto px-[40px] py-[30px] ">
+			<div className="mx-auto px-[40px] py-[30px] ">
 				<h1 className="font-bold text-[28px] my-3">게시판</h1>
 				{/*버튼 */}
 				<div className="flex py-1 justify-between">
@@ -88,31 +88,36 @@ export default function PostListPage() {
 							홍길동
 						</p>
 						{/* 해시태그 */}
-						<div className="flex gap-2">
-							<div
-								className="h-[30px] px-4 py-2 rounded-[8px] bg-[#EA489A]
+						<div className="flex justify-between items-end">
+							<div className="flex gap-2">
+								<div
+									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
                         text-white font-Regular text-[12px]"
-							>
-								#해시태그
-							</div>
-							<div
-								className="h-[30px] px-4 py-2 rounded-[8px] bg-[#EA489A]
+								>
+									#해시태그
+								</div>
+								<div
+									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
                         text-white font-Regular text-[12px]"
-							>
-								#해시태그
-							</div>
-							<div
-								className="h-[30px] px-4 py-2 rounded-[8px] bg-[#EA489A]
+								>
+									#해시태그
+								</div>
+								<div
+									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
                         text-white font-Regular text-[12px]"
-							>
-								#해시태그
-							</div>
-							<div
-								className="h-[30px] px-4 py-2 rounded-[8px] bg-[#EA489A]
+								>
+									#해시태그
+								</div>
+								<div
+									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
                         text-white font-Regular text-[12px]"
-							>
-								#해시태그
+								>
+									#해시태그
+								</div>
 							</div>
+							<p className="text-[14px] text-[#6B7280]">
+								2025-10-10
+							</p>
 						</div>
 					</div>
 					{/* 글 2 */}
@@ -154,31 +159,36 @@ export default function PostListPage() {
 							홍길동
 						</p>
 						{/* 해시태그 */}
-						<div className="flex gap-2">
-							<div
-								className="h-[30px] px-4 py-2 rounded-[8px] bg-[#EA489A]
+						<div className="flex justify-between items-end">
+							<div className="flex gap-2">
+								<div
+									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
                         text-white font-Regular text-[12px]"
-							>
-								#해시태그
-							</div>
-							<div
-								className="h-[30px] px-4 py-2 rounded-[8px] bg-[#EA489A]
+								>
+									#해시태그
+								</div>
+								<div
+									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
                         text-white font-Regular text-[12px]"
-							>
-								#해시태그
-							</div>
-							<div
-								className="h-[30px] px-4 py-2 rounded-[8px] bg-[#EA489A]
+								>
+									#해시태그
+								</div>
+								<div
+									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
                         text-white font-Regular text-[12px]"
-							>
-								#해시태그
-							</div>
-							<div
-								className="h-[30px] px-4 py-2 rounded-[8px] bg-[#EA489A]
+								>
+									#해시태그
+								</div>
+								<div
+									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
                         text-white font-Regular text-[12px]"
-							>
-								#해시태그
+								>
+									#해시태그
+								</div>
 							</div>
+							<p className="text-[14px] text-[#6B7280]">
+								2025-10-10
+							</p>
 						</div>
 					</div>
 					{/* 글 3 */}
@@ -220,31 +230,36 @@ export default function PostListPage() {
 							홍길동
 						</p>
 						{/* 해시태그 */}
-						<div className="flex gap-2">
-							<div
-								className="h-[30px] px-4 py-2 rounded-[8px] bg-[#EA489A]
+						<div className="flex justify-between items-end">
+							<div className="flex gap-2">
+								<div
+									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
                         text-white font-Regular text-[12px]"
-							>
-								#해시태그
-							</div>
-							<div
-								className="h-[30px] px-4 py-2 rounded-[8px] bg-[#EA489A]
+								>
+									#해시태그
+								</div>
+								<div
+									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
                         text-white font-Regular text-[12px]"
-							>
-								#해시태그
-							</div>
-							<div
-								className="h-[30px] px-4 py-2 rounded-[8px] bg-[#EA489A]
+								>
+									#해시태그
+								</div>
+								<div
+									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
                         text-white font-Regular text-[12px]"
-							>
-								#해시태그
-							</div>
-							<div
-								className="h-[30px] px-4 py-2 rounded-[8px] bg-[#EA489A]
+								>
+									#해시태그
+								</div>
+								<div
+									className="px-4 py-2 rounded-[8px] bg-[#EA489A]
                         text-white font-Regular text-[12px]"
-							>
-								#해시태그
+								>
+									#해시태그
+								</div>
 							</div>
+							<p className="text-[14px] text-[#6B7280]">
+								2025-10-10
+							</p>
 						</div>
 					</div>
 				</div>
