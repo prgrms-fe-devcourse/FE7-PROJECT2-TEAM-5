@@ -7,6 +7,7 @@ import LoginPage from "./pages/auth/LoginPage";
 import RegisterEmailPage from "./pages/auth/RegisterEmailPage";
 import DmPage from "./pages/dm/DmPage";
 import ProfilePage from "./pages/profile/ProfilePage";
+import PostListPage from "./pages/post/PostListPage";
 
 export default function App() {
 	return (
@@ -14,7 +15,8 @@ export default function App() {
 			<Routes>
 				<Route element={<MainLayout />}>
 					<Route index element={<HomePage />} />
-					<Route path="profile" element={<ProfilePage />} />
+					<Route path="read/:id" element={<PostListPage />} />
+					<Route path="profile/:id" element={<ProfilePage />} />
 					<Route path="msg/:id" element={<DmPage />} />
 				</Route>
 				<Route element={<AuthLayout />}>

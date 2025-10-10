@@ -11,8 +11,8 @@ export default function Header() {
 					<Link to="/">검색</Link>
 					<Link to="/">알림</Link>
 					<Link to="/msg/1">메시지</Link>
-					<Link to="/">프로필</Link>
-					<Link to="/">다크모드</Link>
+					<Link to="/profile/1">프로필</Link>
+					<button className="cursor-pointer">다크모드</button>
 				</div>
 			</header>
 		</>
