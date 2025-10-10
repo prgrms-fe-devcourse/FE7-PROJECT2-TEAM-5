@@ -17,11 +17,12 @@ export default function App() {
 			<Routes>
 				<Route element={<MainLayout />}>
 					<Route index element={<HomePage />} />
-					<Route path="read" element={<PostListPage />} />
+					<Route path="read/:id" element={<PostListPage />} />
 					<Route path="profile/:id" element={<ProfilePage />} />
 					<Route path="profile/:id/edit" element={<ModifyProfile />} />
 					<Route path="msg/:id" element={<DmPage />} />
 					<Route path="search" element={<PostSearchPage />} />
+					<Route path="postList" element={<PostListPage />} />
 				</Route>
 				<Route element={<AuthLayout />}>
 					<Route index path="login" element={<LoginPage />} />
