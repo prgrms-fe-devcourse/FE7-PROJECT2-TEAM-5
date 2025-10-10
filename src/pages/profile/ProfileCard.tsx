@@ -36,9 +36,9 @@ export default function ProfileCard() {
 			</button>
 
 			{/* 친구/게시글/댓글 통계 */}
-			<div className="flex justify-between w-full max-w-xs pt-4 mt-6">
+			<div className="flex justify-between w-[191px] h-[51px] pt-4 ">
 				{/* 친구 통계 */}
-				<div className="flex flex-col items-center">
+				<div className="flex flex-col items-center w-[50px]">
 					<div className="text-xl font-medium text-violet-500">7</div>
 					<div className="text-sm font-medium text-gray-500">
 						친구
@@ -46,7 +46,7 @@ export default function ProfileCard() {
 				</div>
 
 				{/* 게시글 통계 */}
-				<div className="flex flex-col items-center">
+				<div className="flex flex-col items-center w-[50px]">
 					<div className="text-xl font-medium text-violet-500">
 						120
 					</div>
@@ -56,7 +56,7 @@ export default function ProfileCard() {
 				</div>
 
 				{/* 댓글 통계 */}
-				<div className="flex flex-col items-center">
+				<div className="flex flex-col items-center w-[50px]">
 					<div className="text-xl font-medium text-violet-500">
 						67
 					</div>
