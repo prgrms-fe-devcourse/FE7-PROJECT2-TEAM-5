@@ -12,10 +12,12 @@ export default function MainLayout() {
 
 				{/* 스크롤 영역 */}
 				<main className="overflow-y-auto bg-[#F3F4F6] flex flex-col items-center h-[calc(100vh-70px)]">
-					<div className="min-h-[calc(100%-50px)] p-10">
-						<Outlet />
+					<div className="min-h-[calc(100%)]">
+						<div className="min-h-[calc(100%-90px)] pt-10">
+							<Outlet />
+						</div>
+						<Footer />
 					</div>
-					<Footer />
 				</main>
 			</div>
 		</>
