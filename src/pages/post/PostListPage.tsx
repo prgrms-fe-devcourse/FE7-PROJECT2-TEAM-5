@@ -11,28 +11,28 @@ export default function PostListPage() {
 						<button
 							type="button"
 							className="px-4 py-2 rounded-xl bg-[#ffffff]
-						text-black font-Regular text-xs hover:bg-[#8B5CF6] hover:text-white"
+						text-black font-Regular text-xs hover:bg-[#8B5CF6] hover:text-white cursor-pointer"
 						>
 							자유게시판
 						</button>
 						<button
 							type="button"
 							className="px-4 py-2  rounded-xl bg-[#ffffff]
-						text-black font-Regular text-xs hover:bg-[#8B5CF6] hover:text-white"
+						text-black font-Regular text-xs hover:bg-[#8B5CF6] hover:text-white cursor-pointer"
 						>
 							초등학생 게시판
 						</button>
 						<button
 							type="button"
 							className="px-4 py-2  rounded-xl bg-[#ffffff]
-						text-black font-Regular text-xs hover:bg-[#8B5CF6] hover:text-white"
+						text-black font-Regular text-xs hover:bg-[#8B5CF6] hover:text-white cursor-pointer"
 						>
 							중학생 게시판
 						</button>
 						<button
 							type="button"
 							className="px-4 py-2 rounded-xl bg-[#ffffff]
-						text-black font-Regular text-xs hover:bg-[#8B5CF6] hover:text-white"
+						text-black font-Regular text-xs hover:bg-[#8B5CF6] hover:text-white cursor-pointer"
 						>
 							고등학생 게시판
 						</button>
@@ -41,7 +41,7 @@ export default function PostListPage() {
 					<button
 						type="button"
 						className="px-5 py-2 rounded-xl bg-[#8B5CF6]
-						text-white font-Regular text-xs hover:bg-[#B08DFF] hover:text-white"
+						text-white font-Regular text-xs hover:bg-[#B08DFF] hover:text-white cursor-pointer"
 					>
 						새 글 작성
 					</button>
@@ -50,7 +50,7 @@ export default function PostListPage() {
 				{/* 게시판 영역 */}
 				<div className="mt-7">
 					{/* 글 1 */}
-					<div className="w-full mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+					<div className="w-full mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
 						{/* 글 제목과 좋아요, 댓글 수 */}
 						<div className="flex justify-between items-start mb-1">
 							<h2 className=" text-[18px] font-bold text-[#8B5CF6]">
@@ -88,23 +88,40 @@ export default function PostListPage() {
 							홍길동
 						</p>
 						{/* 해시태그 */}
-						<div className="flex gap-2">
-							<div className="px-4 py-2 rounded-lg bg-[#EA489A] text-white font-Regular text-xs">
-								#해시태그
+						<div className="flex justify-between items-end">
+							<div className="flex gap-2">
+								<div
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
+                        text-white font-Regular text-xs"
+								>
+									#해시태그
+								</div>
+								<div
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
+                        text-white font-Regular text-xs"
+								>
+									#해시태그
+								</div>
+								<div
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
+                        text-white font-Regular text-xs"
+								>
+									#해시태그
+								</div>
+								<div
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
+                        text-white font-Regular text-xs"
+								>
+									#해시태그
+								</div>
 							</div>
-							<div className="px-4 py-2 rounded-lg bg-[#EA489A] text-white font-Regular text-xs">
-								#해시태그
-							</div>
-							<div className="px-4 py-2 rounded-lg bg-[#EA489A] text-white font-Regular text-xs">
-								#해시태그
-							</div>
-							<div className="px-4 py-2 rounded-lg bg-[#EA489A] text-white font-Regular text-xs">
-								#해시태그
-							</div>
+							<p className="text-[14px] text-[#6B7280]">
+								2025-10-10
+							</p>
 						</div>
 					</div>
 					{/* 글 2 */}
-					<div className="w-full mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+					<div className="w-full mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
 						{/* 글 제목과 좋아요, 댓글 수 */}
 						<div className="flex justify-between items-start mb-1">
 							<h2 className=" text-[18px] font-bold text-[#8B5CF6]">
@@ -142,23 +159,40 @@ export default function PostListPage() {
 							홍길동
 						</p>
 						{/* 해시태그 */}
-						<div className="flex gap-2">
-							<div className="px-4 py-2 rounded-lg bg-[#EA489A] text-white font-Regular text-xs">
-								#해시태그
+						<div className="flex justify-between items-end">
+							<div className="flex gap-2">
+								<div
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
+                        text-white font-Regular text-xs"
+								>
+									#해시태그
+								</div>
+								<div
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
+                        text-white font-Regular text-xs"
+								>
+									#해시태그
+								</div>
+								<div
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
+                        text-white font-Regular text-xs"
+								>
+									#해시태그
+								</div>
+								<div
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
+                        text-white font-Regular text-xs"
+								>
+									#해시태그
+								</div>
 							</div>
-							<div className="px-4 py-2 rounded-lg bg-[#EA489A] text-white font-Regular text-xs">
-								#해시태그
-							</div>
-							<div className="px-4 py-2 rounded-lg bg-[#EA489A] text-white font-Regular text-xs">
-								#해시태그
-							</div>
-							<div className="px-4 py-2 rounded-lg bg-[#EA489A] text-white font-Regular text-xs">
-								#해시태그
-							</div>
+							<p className="text-[14px] text-[#6B7280]">
+								2025-10-10
+							</p>
 						</div>
 					</div>
 					{/* 글 3 */}
-					<div className="w-full mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+					<div className="w-full mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
 						{/* 글 제목과 좋아요, 댓글 수 */}
 						<div className="flex justify-between items-start mb-1">
 							<h2 className=" text-[18px] font-bold text-[#8B5CF6]">
@@ -196,19 +230,36 @@ export default function PostListPage() {
 							홍길동
 						</p>
 						{/* 해시태그 */}
-						<div className="flex gap-2">
-							<div className="px-4 py-2 rounded-lg bg-[#EA489A] text-white font-Regular text-xs">
-								#해시태그
+						<div className="flex justify-between items-end">
+							<div className="flex gap-2">
+								<div
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
+                        text-white font-Regular text-xs"
+								>
+									#해시태그
+								</div>
+								<div
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
+                        text-white font-Regular text-xs"
+								>
+									#해시태그
+								</div>
+								<div
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
+                        text-white font-Regular text-xs"
+								>
+									#해시태그
+								</div>
+								<div
+									className="px-4 py-2 rounded-lg bg-[#EA489A]
+                        text-white font-Regular text-xs"
+								>
+									#해시태그
+								</div>
 							</div>
-							<div className="px-4 py-2 rounded-lg bg-[#EA489A] text-white font-Regular text-xs">
-								#해시태그
-							</div>
-							<div className="px-4 py-2 rounded-lg bg-[#EA489A] text-white font-Regular text-xs">
-								#해시태그
-							</div>
-							<div className="px-4 py-2 rounded-lg bg-[#EA489A] text-white font-Regular text-xs">
-								#해시태그
-							</div>
+							<p className="text-[14px] text-[#6B7280]">
+								2025-10-10
+							</p>
 						</div>
 					</div>
 

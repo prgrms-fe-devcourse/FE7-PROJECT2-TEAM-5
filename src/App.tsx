@@ -20,6 +20,7 @@ export default function App() {
 					<Route path="profile/:id" element={<ProfilePage />} />
 					<Route path="msg/:id" element={<DmPage />} />
 					<Route path="search" element={<PostSearchPage />} />
+					<Route path="postList" element={<PostListPage />} />
 				</Route>
 				<Route element={<AuthLayout />}>
 					<Route index path="login" element={<LoginPage />} />
