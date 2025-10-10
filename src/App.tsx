@@ -9,6 +9,7 @@ import DmPage from "./pages/dm/DmPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import PostListPage from "./pages/post/PostListPage";
 import PostSearchPage from "./pages/post/PostSearchPage";
+import ModifyProfile from "./pages/profile/EditProfile";
 
 export default function App() {
 	return (
@@ -18,6 +19,7 @@ export default function App() {
 					<Route index element={<HomePage />} />
 					<Route path="read" element={<PostListPage />} />
 					<Route path="profile/:id" element={<ProfilePage />} />
+					<Route path="profile/:id/edit" element={<ModifyProfile />} />
 					<Route path="msg/:id" element={<DmPage />} />
 					<Route path="search" element={<PostSearchPage />} />
 				</Route>
