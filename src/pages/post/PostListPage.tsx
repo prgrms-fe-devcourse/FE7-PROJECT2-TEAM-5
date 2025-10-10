@@ -50,7 +50,7 @@ export default function PostListPage() {
 				{/* 게시판 영역 */}
 				<div className="mt-7">
 					{/* 글 1 */}
-					<div className="w-230 mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
+					<div className="w-full mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
 						{/* 글 제목과 좋아요, 댓글 수 */}
 						<div className="flex justify-between items-start mb-1">
 							<h2 className=" text-[18px] font-bold text-[#8B5CF6]">
@@ -79,12 +79,12 @@ export default function PostListPage() {
 							</div>
 						</div>
 						{/* 게시글 내용 */}
-						<p className="text-[12px] font-Regular text-[#6B7280]">
+						<p className="text-xs font-Regular text-[#6B7280]">
 							안녕하세요 수학zl존 입니다 ^^ 오늘은 9등급도 이해할
 							수 있는 미적분...
 						</p>
 						{/* 작성자 이름 */}
-						<p className="mt-[11px] mb-[22px] text-[14px] font-Regular text-[#1F2937]">
+						<p className="mt-3 mb-6 text-[14px] font-Regular text-[#1F2937]">
 							홍길동
 						</p>
 						{/* 해시태그 */}
@@ -92,25 +92,25 @@ export default function PostListPage() {
 							<div className="flex gap-2">
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
@@ -121,7 +121,7 @@ export default function PostListPage() {
 						</div>
 					</div>
 					{/* 글 2 */}
-					<div className="w-230 mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
+					<div className="w-full mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
 						{/* 글 제목과 좋아요, 댓글 수 */}
 						<div className="flex justify-between items-start mb-1">
 							<h2 className=" text-[18px] font-bold text-[#8B5CF6]">
@@ -150,12 +150,12 @@ export default function PostListPage() {
 							</div>
 						</div>
 						{/* 게시글 내용 */}
-						<p className="text-[12px] font-Regular text-[#6B7280]">
+						<p className="text-xs font-Regular text-[#6B7280]">
 							안녕하세요 수학zl존 입니다 ^^ 오늘은 9등급도 이해할
 							수 있는 미적분...
 						</p>
 						{/* 작성자 이름 */}
-						<p className="mt-[11px] mb-[22px] text-[14px] font-Regular text-[#1F2937]">
+						<p className="mt-3 mb-6 text-[14px] font-Regular text-[#1F2937]">
 							홍길동
 						</p>
 						{/* 해시태그 */}
@@ -163,25 +163,25 @@ export default function PostListPage() {
 							<div className="flex gap-2">
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
@@ -192,7 +192,7 @@ export default function PostListPage() {
 						</div>
 					</div>
 					{/* 글 3 */}
-					<div className="w-230 mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
+					<div className="w-full mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
 						{/* 글 제목과 좋아요, 댓글 수 */}
 						<div className="flex justify-between items-start mb-1">
 							<h2 className=" text-[18px] font-bold text-[#8B5CF6]">
@@ -221,12 +221,12 @@ export default function PostListPage() {
 							</div>
 						</div>
 						{/* 게시글 내용 */}
-						<p className="text-[12px] font-Regular text-[#6B7280]">
+						<p className="text-xs font-Regular text-[#6B7280]">
 							안녕하세요 수학zl존 입니다 ^^ 오늘은 9등급도 이해할
 							수 있는 미적분...
 						</p>
 						{/* 작성자 이름 */}
-						<p className="mt-[11px] mb-[22px] text-[14px] font-Regular text-[#1F2937]">
+						<p className="mt-3 mb-6 text-[14px] font-Regular text-[#1F2937]">
 							홍길동
 						</p>
 						{/* 해시태그 */}
@@ -234,25 +234,25 @@ export default function PostListPage() {
 							<div className="flex gap-2">
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
