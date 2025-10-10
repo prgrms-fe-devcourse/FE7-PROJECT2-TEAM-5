@@ -37,7 +37,7 @@ export default function PostDetailPage() {
 				</div>
 				{/* 댓글 영역 */}
 
-				<div className="flex flex-col gap-y-3 h-80 overflow-y-auto">
+				<div className="flex flex-col gap-y-3 h-80 pr-2 overflow-y-auto ">
 					{/* 댓글 1 */}
 					<div className="flex flex-col gap-y-3">
 						{/* 원 댓글 1 */}
