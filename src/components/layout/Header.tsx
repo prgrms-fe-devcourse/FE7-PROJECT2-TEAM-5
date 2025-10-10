@@ -8,7 +8,7 @@ export default function Header() {
 					StudyHub
 				</Link>
 				<div className="flex flex-row gap-6 text-[#6B7280] font-medium">
-					<Link to="/">검색</Link>
+					<Link to="/search">검색</Link>
 					<Link to="/">알림</Link>
 					<Link to="/msg/1">메시지</Link>
 					<Link to="/profile/1">프로필</Link>
