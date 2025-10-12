@@ -16,18 +16,34 @@ export default function App() {
 	return (
 		<>
 			<Routes>
+				{/* Main */}
 				<Route element={<MainLayout />}>
 					<Route index element={<HomePage />} />
-					<Route path="read/:id" element={<PostListPage />} />
+
+					{/* Profile */}
 					<Route path="profile/:id" element={<ProfilePage />} />
-					<Route path="profile/:id/edit" element={<ModifyProfile />} />
-					<Route path="msg/:id" element={<DmPage />} />
-					<Route path="search" element={<PostSearchPage />} />
-					<Route path="post/:id" element={<PostDetailPage />} />
+					<Route
+						path="profile/:id/edit"
+						element={<ModifyProfile />}
+					/>
+
+					{/* Post */}
 					<Route path="postList" element={<PostListPage />} />
+					<Route path="post/:id" element={<PostDetailPage />} />
+
+					{/* DM */}
+					<Route path="msg/:id" element={<DmPage />} />
+
+					{/* Search */}
+					<Route path="search" element={<PostSearchPage />} />
 				</Route>
+
+				{/* Auth */}
 				<Route element={<AuthLayout />}>
+					{/* Login */}
 					<Route index path="login" element={<LoginPage />} />
+
+					{/* Register */}
 					<Route path="register" element={<RegisterPage />} />
 					<Route
 						path="registerEmail"

@@ -60,7 +60,7 @@ export default function Friends() {
 
 	return (
 		<>
-			<h3 className="text-xl font-bold text-violet-500 pb-2">
+			<h3 className="text-xl font-bold text-violet-500">
 				친구 목록 <span>({dummyFriends.length}명)</span>
 			</h3>
 
