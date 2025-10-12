@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import PageNation from "../../components/PageNation";
 
 type Friend = {
 	id: number;
@@ -38,13 +39,83 @@ export default function Friends() {
 			lastActive: "1일 전",
 			avatarUrl: "/images/profile4.png",
 		},
+		{
+			id: 5,
+			name: "이몽룡",
+			status: "오프라인",
+			lastActive: "2시간 전",
+			avatarUrl: "/images/profile2.png",
+		},
+		{
+			id: 6,
+			name: "성춘향",
+			status: "온라인",
+			lastActive: "10분 전",
+			avatarUrl: "/images/profile3.png",
+		},
+		{
+			id: 7,
+			name: "임꺽정",
+			status: "오프라인",
+			lastActive: "1일 전",
+			avatarUrl: "/images/profile4.png",
+		},
+		{
+			id: 8,
+			name: "이몽룡",
+			status: "오프라인",
+			lastActive: "2시간 전",
+			avatarUrl: "/images/profile2.png",
+		},
+		{
+			id: 9,
+			name: "성춘향",
+			status: "온라인",
+			lastActive: "10분 전",
+			avatarUrl: "/images/profile3.png",
+		},
+		{
+			id: 10,
+			name: "임꺽정",
+			status: "오프라인",
+			lastActive: "1일 전",
+			avatarUrl: "/images/profile4.png",
+		},
+		{
+			id: 11,
+			name: "성춘향",
+			status: "온라인",
+			lastActive: "10분 전",
+			avatarUrl: "/images/profile3.png",
+		},
+		{
+			id: 12,
+			name: "임꺽정",
+			status: "오프라인",
+			lastActive: "1일 전",
+			avatarUrl: "/images/profile4.png",
+		},
+		{
+			id: 13,
+			name: "성춘향",
+			status: "온라인",
+			lastActive: "10분 전",
+			avatarUrl: "/images/profile3.png",
+		},
+		{
+			id: 14,
+			name: "임꺽정",
+			status: "오프라인",
+			lastActive: "1일 전",
+			avatarUrl: "/images/profile4.png",
+		},
 	];
+
 	const [openId, setOpenId] = useState<number | null>(null);
 
 	// 외부 클릭 시 드롭다운 닫기
 	useEffect(() => {
 		function handleClickOutside(event: MouseEvent) {
-			// 클릭한 요소가 버튼이나 드롭다운 안에 있는지 확인
 			const target = event.target as HTMLElement;
 			if (
 				!target.closest(".friend-dropdown") &&
@@ -58,6 +129,15 @@ export default function Friends() {
 			document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
 
+	const friendsPerPage = 10;
+	const [currentPage, setCurrentPage] = useState(1);
+	const totalPages = Math.ceil(dummyFriends.length / friendsPerPage);
+
+	const displayedFriends = dummyFriends.slice(
+		(currentPage - 1) * friendsPerPage,
+		currentPage * friendsPerPage,
+	);
+
 	return (
 		<>
 			<h3 className="text-xl font-bold text-violet-500">
@@ -65,7 +145,7 @@ export default function Friends() {
 			</h3>
 
 			<div className="w-full grid grid-cols-2 gap-2">
-				{dummyFriends.map((friend) => (
+				{displayedFriends.map((friend) => (
 					<div
 						key={friend.id}
 						className="w-auto flex items-center gap-3 p-4 rounded-xl transition-colors duration-200 hover:bg-violet-100"
@@ -117,7 +197,9 @@ export default function Friends() {
 									viewBox="0 0 13 6"
 									fill="none"
 									xmlns="http://www.w3.org/2000/svg"
-									className={`transition-transform duration-200 ${openId === friend.id ? "rotate-180" : ""}`}
+									className={`transition-transform duration-200 ${
+										openId === friend.id ? "rotate-180" : ""
+									}`}
 								>
 									<path
 										d="M1 1L6.5 5L12 1"
@@ -130,7 +212,7 @@ export default function Friends() {
 							</button>
 
 							<div
-								className={`z-99 friend-dropdown absolute right-0 mt-1 p-1 bg-white rounded-md shadow-lg overflow-hidden transform transition-all duration-200 origin-top ${
+								className={`friend-dropdown z-50 absolute right-0 mt-1 p-1 bg-white rounded-md shadow-lg overflow-hidden transform transition-all duration-200 origin-top ${
 									openId === friend.id
 										? "opacity-100 scale-100 translate-y-0"
 										: "opacity-0 scale-95 -translate-y-2 pointer-events-none"
@@ -147,6 +229,12 @@ export default function Friends() {
 					</div>
 				))}
 			</div>
+
+			<PageNation
+				currentPage={currentPage}
+				totalPages={totalPages}
+				onPageChange={setCurrentPage}
+			/>
 		</>
 	);
 }

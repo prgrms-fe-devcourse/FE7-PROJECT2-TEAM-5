@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
+import PageNation from "../../components/PageNation";
 
 type Post = {
 	id: number;
@@ -100,23 +101,11 @@ export default function ActivitiesPosts() {
 			))}
 
 			{/* 페이지네이션 */}
-			{totalPages > 1 && (
-				<div className="flex justify-center gap-2 mt-4">
-					{Array.from({ length: totalPages }, (_, i) => (
-						<button
-							key={i + 1}
-							onClick={() => setCurrentPage(i + 1)}
-							className={`px-3 py-1 rounded-md border cursor-pointer ${
-								currentPage === i + 1
-									? "bg-violet-500 text-white border-violet-500"
-									: "bg-white text-gray-700 border-gray-300"
-							}`}
-						>
-							{i + 1}
-						</button>
-					))}
-				</div>
-			)}
+			<PageNation
+				currentPage={currentPage}
+				totalPages={totalPages}
+				onPageChange={setCurrentPage}
+			/>
 		</div>
 	);
 }
