@@ -40,7 +40,7 @@ export default function HomePage() {
 				{/* 카드들 */}
 				<div className="flex items-center flex-nowrap gap-5">
 					{/* 게시판 카드 => Link 태그로 수정할 예정 */}
-					<Link to="/read/1">
+					<Link to="/postList">
 						<div className="w-[320px] h-[187px] px-6 py-7 bg-white rounded-xl">
 							<div className="flex items-center gap-2 mb-4">
 								<div className="w-[18px] h-[18px] bg-[#D9D9D9]">
