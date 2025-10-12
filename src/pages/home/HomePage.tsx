@@ -128,7 +128,10 @@ export default function HomePage() {
 						</div>
 					</div>
 					{/* 메시지 카드 => Link 태그로 수정할 예정 */}
-					<div className="w-[320px] h-[187px] px-6 py-7 bg-white rounded-xl">
+					<Link
+						to="/msg/1"
+						className="w-[320px] h-[187px] px-6 py-7 bg-white rounded-xl"
+					>
 						<div className="flex items-center gap-2 mb-4">
 							<div className="w-[18px] h-[18px] bg-[#D9D9D9]">
 								{/* 아이콘 */}
@@ -140,7 +143,7 @@ export default function HomePage() {
 						<p className="text-[#6B7280] space-y-2 mb-3 text-sm">
 							1:1 대화 메시지로 소통하세요
 						</p>
-					</div>
+					</Link>
 				</div>
 			</div>
 		</>

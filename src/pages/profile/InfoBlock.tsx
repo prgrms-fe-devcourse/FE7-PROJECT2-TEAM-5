@@ -19,12 +19,12 @@ export default function InfoBlock({
 				{title}
 			</div>
 			{content && (
-				<div className="text-base font-medium text-gray-800 leading-snug whitespace-pre-wrap">
+				<div className="font-medium text-gray-800 leading-snug whitespace-pre-wrap">
 					{content}
 				</div>
 			)}
 			{tags && (
-				<div className="flex flex-wrap gap-2 mt-2">
+				<div className="flex flex-wrap gap-1 mt-1">
 					{tags.map((tag) => (
 						<div
 							key={tag}
@@ -40,7 +40,7 @@ export default function InfoBlock({
 					{badges.map((badge) => (
 						<div
 							key={badge}
-							className="text-base font-medium text-gray-800 whitespace-nowrap"
+							className="font-medium text-gray-800 whitespace-nowrap"
 						>
 							{badge}
 						</div>
