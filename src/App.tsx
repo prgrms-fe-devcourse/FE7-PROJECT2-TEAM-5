@@ -7,7 +7,10 @@ import LoginPage from "./pages/auth/LoginPage";
 import RegisterEmailPage from "./pages/auth/RegisterEmailPage";
 import DmPage from "./pages/dm/DmPage";
 import ProfilePage from "./pages/profile/ProfilePage";
+import PostListPage from "./pages/post/PostListPage";
 import PostSearchPage from "./pages/post/PostSearchPage";
+import ModifyProfile from "./pages/profile/EditProfile";
+import PostDetailPage from "./pages/post/PostDetailPage";
 
 export default function App() {
 	return (
@@ -15,9 +18,13 @@ export default function App() {
 			<Routes>
 				<Route element={<MainLayout />}>
 					<Route index element={<HomePage />} />
-					<Route path="profile" element={<ProfilePage />} />
+					<Route path="read/:id" element={<PostListPage />} />
+					<Route path="profile/:id" element={<ProfilePage />} />
+					<Route path="profile/:id/edit" element={<ModifyProfile />} />
 					<Route path="msg/:id" element={<DmPage />} />
 					<Route path="search" element={<PostSearchPage />} />
+					<Route path="post/:id" element={<PostDetailPage />} />
+					<Route path="postList" element={<PostListPage />} />
 				</Route>
 				<Route element={<AuthLayout />}>
 					<Route index path="login" element={<LoginPage />} />

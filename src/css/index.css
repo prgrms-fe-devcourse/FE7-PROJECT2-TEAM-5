@@ -1,6 +1,11 @@
 @import "./tailwind.css";
 
 body {
-    font-family: 'Noto Sans KR', sans-serif;
-    color: #1F2937;
+	font-family: "Noto Sans KR", sans-serif;
+	color: #1f2937;
+}
+
+pre {
+	font-family: "Noto Sans KR", sans-serif;
+	color: #1f2937;
 }

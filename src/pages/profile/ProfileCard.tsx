@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 export default function ProfileCard() {
 	return (
 		// 왼쪽 영역 - 프로필 카드
@@ -29,11 +30,13 @@ export default function ProfileCard() {
 			</div>
 
 			{/* 프로필 수정 버튼 */}
-			<button className="w-[110px] h-[39px] bg-violet-500 rounded-xl flex items-center justify-center mt-4 cursor-pointer">
-				<div className="text-base font-normal text-white">
-					프로필 수정
-				</div>
-			</button>
+			<Link to="/profile/1/edit">
+				<button className="w-[110px] h-[39px] bg-violet-500 rounded-xl flex items-center justify-center mt-4 cursor-pointer">
+					<div className="text-base font-normal text-white">
+						프로필 수정
+					</div>
+				</button>
+			</Link>
 
 			{/* 친구/게시글/댓글 통계 */}
 			<div className="flex justify-between w-[191px] h-[51px] pt-4 ">

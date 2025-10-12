@@ -1,7 +1,9 @@
 export default function Footer() {
 	return (
 		<>
-			<div>© 2025 StudyHub. All rights reserved.</div>
+			<footer className="w-full pt-[40px] pb-[30px] text-center text-[#6B7280] text-sm">
+				© 2025 StudyHub. All rights reserved.
+			</footer>
 		</>
 	);
 }
