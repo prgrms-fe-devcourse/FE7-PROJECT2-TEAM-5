@@ -25,10 +25,11 @@ export default function ProfileCard() {
 				</div>
 
 				{/* 프로필 수정 버튼 */}
-				<Link to="/profile/1/edit">
-					<button className="bg-violet-500 rounded-xl text-center mt-5 px-4 py-2 cursor-pointer text-base font-normal text-white">
-						프로필 수정
-					</button>
+				<Link
+					to="/profile/1/edit"
+					className="bg-violet-500 rounded-xl text-center mt-5 px-4 py-2 cursor-pointer text-base font-normal text-white"
+				>
+					프로필 수정
 				</Link>
 
 				{/* 친구/게시글/댓글 통계 */}
