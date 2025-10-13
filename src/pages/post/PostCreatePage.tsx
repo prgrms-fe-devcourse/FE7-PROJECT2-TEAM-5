@@ -24,6 +24,7 @@ export default function PostCreatePage() {
 					</select>
 					<input
 						placeholder="글 제목을 입력하세요."
+						id="title"
 						className="px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB] outline-none user-invalid:border-red-500"
 						required
 						type="textarea"
@@ -46,6 +47,7 @@ export default function PostCreatePage() {
 					</div>
 					<textarea
 						placeholder="내용을 작성하세요."
+						id="content"
 						rows={15}
 						className="w-full h-full px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB] resize-none outline-none user-invalid:border-red-500"
 						required
@@ -54,6 +56,7 @@ export default function PostCreatePage() {
 					<div className="flex flex-col">
 						<input
 							placeholder="태그 입력 후 Enter"
+							id="hashtag"
 							className="px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB] outline-none"
 							type="textatea"
 						/>
