@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 // 게시글 리스트 페이지
 export default function PostListPage() {
 	return (
@@ -38,13 +40,14 @@ export default function PostListPage() {
 						</button>
 					</div>
 					{/* 글 작성 버튼 */}
-					<button
-						type="button"
+
+					<Link
+						to="edit"
 						className="px-5 py-2 rounded-xl bg-[#8B5CF6]
 						text-white font-Regular text-xs hover:bg-[#B08DFF] hover:text-white cursor-pointer"
 					>
 						새 글 작성
-					</button>
+					</Link>
 				</div>
 
 				{/* 게시판 영역 */}
