@@ -1,5 +1,6 @@
 // 게시글 리스트 페이지
 import { Heart, MessageSquare } from "lucide-react";
+// import PageNation from "../../components/PageNation";
 export default function PostListPage() {
 	return (
 		<>
@@ -8,7 +9,7 @@ export default function PostListPage() {
 				{/*버튼 */}
 				<div className="flex py-1 justify-between">
 					{/* 게시판 이동 버튼 */}
-					<div className="inline-flex gap-4">
+					<div className="inline-flex gap-2">
 						<button
 							type="button"
 							className="px-4 py-2 rounded-xl bg-[#8B5CF6]
@@ -43,6 +44,13 @@ export default function PostListPage() {
 						text-black font-Regular text-xs hover:bg-[#8B5CF6] hover:text-white cursor-pointer"
 						>
 							고등학생 게시판
+						</button>
+						<button
+							type="button"
+							className="px-4 py-2 rounded-xl bg-[#ffffff]
+						text-black font-Regular text-xs hover:bg-[#8B5CF6] hover:text-white cursor-pointer"
+						>
+							자료 공유 게시판
 						</button>
 					</div>
 					{/* 글 작성 버튼 */}
@@ -280,6 +288,8 @@ export default function PostListPage() {
 						</div>
 					</div>
 				</div>
+				<div>페이지 네이션</div>
+				{/* <PageNation /> */}
 			</div>
 		</>
 	);

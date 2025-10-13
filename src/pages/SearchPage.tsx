@@ -7,7 +7,10 @@ export default function SearchPage() {
 					검색
 				</h1>
 				{/*검색 바와 검색 버튼*/}
-				<div className="flex rounded-xl shadow-[0_3px_6px_rgba(0,0,0,0.05)] ">
+				<form
+					method="get"
+					className="flex rounded-xl shadow-[0_3px_6px_rgba(0,0,0,0.05)] "
+				>
 					<input
 						type="textarea"
 						id="serchBar"
@@ -15,13 +18,13 @@ export default function SearchPage() {
 						className="w-[862px] text-[14px] px-6 py-4 focus:outline-none rounded-l-xl bg-white"
 					></input>
 					<button
-						type="button"
+						type="submit"
 						className="p-4 rounded-r-xl bg-[#8B5CF6]
                         text-white font-Medium text-[14px] hover:bg-[#B08DFF] cursor-pointer"
 					>
 						검색
 					</button>
-				</div>
+				</form>
 
 				{/* 검색 결과 영역 */}
 				<div className="flex-col mt-[40px] border-t-2 border-[#E5E7EB] pt-2">
