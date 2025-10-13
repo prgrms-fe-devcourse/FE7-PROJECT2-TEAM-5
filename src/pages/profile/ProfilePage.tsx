@@ -1,22 +1,20 @@
-// src/pages/profile/ProfilePage.tsx
 import ProfileCard from "./ProfileCard";
 import DetailCard from "./DetailCard";
-import TabContainer from "./TabContainer";
 
 export default function ProfilePage() {
 	return (
 		// 전체 컨테이너
-		<div className="mx-auto my-8 w-[1024px] p-4 min-h-[611px]">
+		<div className="mx-auto w-[1024px]">
 			{/* 메인 컨텐츠 영역 */}
-			<div className="grid grid-cols-[1fr_2fr] gap-8">
+			<div className="flex flex-row gap-10 w-full">
 				{/* 왼쪽 프로필 카드 */}
-				<ProfileCard />
+				<div className="w-[270px]">
+					<ProfileCard />
+				</div>
 
 				{/* 오른쪽 상세 정보 영역 */}
-				<div className="space-y-4">
-					{/* 탭 버튼 컨테이너 */}
-					<TabContainer />
-					{/* 상세  정보 카드 컨테이너 */}
+				<div className="flex-1 space-y-[21px]">
+					{/* 상세 정보 카드 컨테이너 */}
 					<DetailCard />
 				</div>
 			</div>
