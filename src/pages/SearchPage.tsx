@@ -1,4 +1,5 @@
-export default function PostSearchPage() {
+import { Heart, MessageSquare } from "lucide-react";
+export default function SearchPage() {
 	return (
 		<>
 			<div className="mt-10 mx-auto">
@@ -6,7 +7,10 @@ export default function PostSearchPage() {
 					검색
 				</h1>
 				{/*검색 바와 검색 버튼*/}
-				<div className="flex rounded-xl shadow-[0_3px_6px_rgba(0,0,0,0.05)] ">
+				<form
+					method="get"
+					className="flex rounded-xl shadow-[0_3px_6px_rgba(0,0,0,0.05)] "
+				>
 					<input
 						type="textarea"
 						id="serchBar"
@@ -14,13 +18,13 @@ export default function PostSearchPage() {
 						className="w-[862px] text-[14px] px-6 py-4 focus:outline-none rounded-l-xl bg-white"
 					></input>
 					<button
-						type="button"
+						type="submit"
 						className="p-4 rounded-r-xl bg-[#8B5CF6]
                         text-white font-Medium text-[14px] hover:bg-[#B08DFF] cursor-pointer"
 					>
 						검색
 					</button>
-				</div>
+				</form>
 
 				{/* 검색 결과 영역 */}
 				<div className="flex-col mt-[40px] border-t-2 border-[#E5E7EB] pt-2">
@@ -97,43 +101,42 @@ export default function PostSearchPage() {
 							</button>
 						</div>
 					</div>
-
 					{/* 글 1 */}
-					<div className="w-230 mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
+					<div className="w-full mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
 						{/* 글 제목과 좋아요, 댓글 수 */}
 						<div className="flex justify-between items-start mb-1">
 							<h2 className=" text-[18px] font-bold text-[#8B5CF6]">
 								미적분 아주 쉽게 이해하기
 							</h2>
 							{/* 좋아요, 댓글 수 */}
-							<div className="flex gap-3">
+							<div className="flex gap-3 ">
 								{/* 좋아요 개수 표시*/}
-								<div className="flex gap-1 items-center">
-									<img
-										className="object-none"
-										src="/src/assets/Heart.png"
-										alt="Heart"
+								<div className="flex gap-1 items-top ">
+									<Heart
+										color="red"
+										size={15}
+										className="mt-0.5"
 									/>
-									<p className="text-[14px]">2</p>
+									<p className="text-[14px] ">2</p>
 								</div>
 								{/* 댓글 개수 표시 */}
-								<div className="flex gap-1 items-center">
-									<img
-										className="object-none"
-										src="/src/assets/SpeechBubble.png"
-										alt="SpeechBubble"
+								<div className="flex gap-1 items-top">
+									<MessageSquare
+										color="#8B5CF6"
+										size={15}
+										className="mt-0.5"
 									/>
 									<p className="text-[14px]">3</p>
 								</div>
 							</div>
 						</div>
 						{/* 게시글 내용 */}
-						<p className="text-[12px] font-Regular text-[#6B7280]">
+						<p className="text-xs font-Regular text-[#6B7280]">
 							안녕하세요 수학zl존 입니다 ^^ 오늘은 9등급도 이해할
 							수 있는 미적분...
 						</p>
 						{/* 작성자 이름 */}
-						<p className="mt-[11px] mb-[22px] text-[14px] font-Regular text-[#1F2937]">
+						<p className="mt-3 mb-6 text-[14px] font-Regular text-[#1F2937]">
 							홍길동
 						</p>
 						{/* 해시태그 */}
@@ -141,25 +144,25 @@ export default function PostSearchPage() {
 							<div className="flex gap-2">
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
@@ -169,42 +172,42 @@ export default function PostSearchPage() {
 							</p>
 						</div>
 					</div>
-					{/* 글 2 */}
-					<div className="w-230 mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
+					{/* 글 1 */}
+					<div className="w-full mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
 						{/* 글 제목과 좋아요, 댓글 수 */}
 						<div className="flex justify-between items-start mb-1">
 							<h2 className=" text-[18px] font-bold text-[#8B5CF6]">
 								미적분 아주 쉽게 이해하기
 							</h2>
 							{/* 좋아요, 댓글 수 */}
-							<div className="flex gap-3">
+							<div className="flex gap-3 ">
 								{/* 좋아요 개수 표시*/}
-								<div className="flex gap-1 items-center">
-									<img
-										className="object-none"
-										src="/src/assets/Heart.png"
-										alt="Heart"
+								<div className="flex gap-1 items-top ">
+									<Heart
+										color="red"
+										size={15}
+										className="mt-0.5"
 									/>
-									<p className="text-[14px]">2</p>
+									<p className="text-[14px] ">2</p>
 								</div>
 								{/* 댓글 개수 표시 */}
-								<div className="flex gap-1 items-center">
-									<img
-										className="object-none"
-										src="/src/assets/SpeechBubble.png"
-										alt="SpeechBubble"
+								<div className="flex gap-1 items-top">
+									<MessageSquare
+										color="#8B5CF6"
+										size={15}
+										className="mt-0.5"
 									/>
 									<p className="text-[14px]">3</p>
 								</div>
 							</div>
 						</div>
 						{/* 게시글 내용 */}
-						<p className="text-[12px] font-Regular text-[#6B7280]">
+						<p className="text-xs font-Regular text-[#6B7280]">
 							안녕하세요 수학zl존 입니다 ^^ 오늘은 9등급도 이해할
 							수 있는 미적분...
 						</p>
 						{/* 작성자 이름 */}
-						<p className="mt-[11px] mb-[22px] text-[14px] font-Regular text-[#1F2937]">
+						<p className="mt-3 mb-6 text-[14px] font-Regular text-[#1F2937]">
 							홍길동
 						</p>
 						{/* 해시태그 */}
@@ -212,96 +215,25 @@ export default function PostSearchPage() {
 							<div className="flex gap-2">
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
 								<div
 									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
-								>
-									#해시태그
-								</div>
-							</div>
-							<p className="text-[14px] text-[#6B7280]">
-								2025-10-10
-							</p>
-						</div>
-					</div>
-					{/* 글 3 */}
-					<div className="w-230 mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
-						{/* 글 제목과 좋아요, 댓글 수 */}
-						<div className="flex justify-between items-start mb-1">
-							<h2 className=" text-[18px] font-bold text-[#8B5CF6]">
-								미적분 아주 쉽게 이해하기
-							</h2>
-							{/* 좋아요, 댓글 수 */}
-							<div className="flex gap-3">
-								{/* 좋아요 개수 표시*/}
-								<div className="flex gap-1 items-center">
-									<img
-										className="object-none"
-										src="/src/assets/Heart.png"
-										alt="Heart"
-									/>
-									<p className="text-[14px]">2</p>
-								</div>
-								{/* 댓글 개수 표시 */}
-								<div className="flex gap-1 items-center">
-									<img
-										className="object-none"
-										src="/src/assets/SpeechBubble.png"
-										alt="SpeechBubble"
-									/>
-									<p className="text-[14px]">3</p>
-								</div>
-							</div>
-						</div>
-						{/* 게시글 내용 */}
-						<p className="text-[12px] font-Regular text-[#6B7280]">
-							안녕하세요 수학zl존 입니다 ^^ 오늘은 9등급도 이해할
-							수 있는 미적분...
-						</p>
-						{/* 작성자 이름 */}
-						<p className="mt-[11px] mb-[22px] text-[14px] font-Regular text-[#1F2937]">
-							홍길동
-						</p>
-						{/* 해시태그 */}
-						<div className="flex justify-between items-end">
-							<div className="flex gap-2">
-								<div
-									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
-								>
-									#해시태그
-								</div>
-								<div
-									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
-								>
-									#해시태그
-								</div>
-								<div
-									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
-								>
-									#해시태그
-								</div>
-								<div
-									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px]"
+                        text-white font-Regular text-xs"
 								>
 									#해시태그
 								</div>
