@@ -1,4 +1,4 @@
-import { supabase } from "../../lib/supabaseClient";
+import supabase from "../../utils/supabase";
 
 import { Link } from "react-router";
 import { useState, useEffect } from "react";
