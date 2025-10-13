@@ -8,7 +8,7 @@ import RegisterEmailPage from "./pages/auth/RegisterEmailPage";
 import DmPage from "./pages/dm/DmPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import PostListPage from "./pages/post/PostListPage";
-import PostSearchPage from "./pages/post/PostSearchPage";
+import SearchPage from "./pages/SearchPage";
 import ModifyProfile from "./pages/profile/EditProfile";
 import PostDetailPage from "./pages/post/PostDetailPage";
 import PostCreatePage from "./pages/post/PostCreatePage";
@@ -37,7 +37,7 @@ export default function App() {
 					<Route path="msg/:id" element={<DmPage />} />
 
 					{/* Search */}
-					<Route path="search" element={<PostSearchPage />} />
+					<Route path="search" element={<SearchPage />} />
 				</Route>
 
 				{/* Auth */}
