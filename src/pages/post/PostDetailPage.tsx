@@ -1,3 +1,5 @@
+import { Heart, MessageSquare } from "lucide-react";
+
 // 게시글 세부 페이지
 export default function PostDetailPage() {
 	return (
@@ -67,20 +69,20 @@ export default function PostDetailPage() {
 								{/* 좋아요, 댓글 수 */}
 								<div className="flex gap-3">
 									{/* 좋아요 개수 표시*/}
-									<div className="flex gap-1 items-center">
-										<img
-											className="object-none"
-											src="/src/assets/Heart.png"
-											alt="Heart"
+									<div className="flex gap-1 items-top">
+										<Heart
+											color="red"
+											size={15}
+											className="mt-0.5"
 										/>
 										<p className="text-[14px]">2</p>
 									</div>
 									{/* 댓글 개수 표시 */}
-									<div className="flex gap-1 items-center">
-										<img
-											className="object-none"
-											src="/src/assets/SpeechBubble.png"
-											alt="SpeechBubble"
+									<div className="flex gap-1 items-top">
+										<MessageSquare
+											color="#8B5CF6"
+											size={15}
+											className="mt-0.5"
 										/>
 										<p className="text-[14px]">2</p>
 									</div>
@@ -130,16 +132,16 @@ export default function PostDetailPage() {
 								{/* 좋아요, 댓글 수 */}
 								<div className="flex gap-3">
 									{/* 좋아요 개수 표시*/}
-									<div className="flex gap-1 items-center">
-										<img
-											className="object-none"
-											src="/src/assets/Heart.png"
-											alt="Heart"
+									<div className="flex gap-1 items-top">
+										<Heart
+											color="red"
+											size={15}
+											className="mt-0.5"
 										/>
 										<p className="text-[14px]">2</p>
 									</div>
 									{/* 대댓글이므로 댓글 개수 표시 X
-									<div className="flex gap-1 items-center">
+									<div className="flex gap-1 items-top">
 										<img
 											className="object-none"
 											src="/src/assets/SpeechBubble.png"
@@ -192,20 +194,20 @@ export default function PostDetailPage() {
 								{/* 좋아요, 댓글 수 */}
 								<div className="flex gap-3">
 									{/* 좋아요 개수 표시*/}
-									<div className="flex gap-1 items-center">
-										<img
-											className="object-none"
-											src="/src/assets/Heart.png"
-											alt="Heart"
+									<div className="flex gap-1 items-top">
+										<Heart
+											color="red"
+											size={15}
+											className="mt-0.5"
 										/>
 										<p className="text-[14px]">2</p>
 									</div>
 									{/* 댓글 개수 표시 */}
-									<div className="flex gap-1 items-center">
-										<img
-											className="object-none"
-											src="/src/assets/SpeechBubble.png"
-											alt="SpeechBubble"
+									<div className="flex gap-1 items-top">
+										<MessageSquare
+											color="#8B5CF6"
+											size={15}
+											className="mt-0.5"
 										/>
 										<p className="text-[14px]">2</p>
 									</div>
@@ -255,11 +257,11 @@ export default function PostDetailPage() {
 								{/* 좋아요, 댓글 수 */}
 								<div className="flex gap-3">
 									{/* 좋아요 개수 표시*/}
-									<div className="flex gap-1 items-center">
-										<img
-											className="object-none"
-											src="/src/assets/Heart.png"
-											alt="Heart"
+									<div className="flex gap-1 items-top">
+										<Heart
+											color="red"
+											size={15}
+											className="mt-0.5"
 										/>
 										<p className="text-[14px]">2</p>
 									</div>
