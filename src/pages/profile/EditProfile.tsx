@@ -106,9 +106,9 @@ export default function EditProfile() {
 		});
 	};
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		updateProfile(formData);
+		await updateProfile(formData); // async 완료 기다리기
 		navigate(`/profile/${userId}`);
 	};
 
@@ -154,6 +154,9 @@ export default function EditProfile() {
 							onChange={handleChange("gender")}
 							className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-purple-400"
 						>
+							<option value="" disabled>
+								선택해주세요
+							</option>
 							<option value="남">남</option>
 							<option value="여">여</option>
 						</select>
@@ -219,7 +222,9 @@ export default function EditProfile() {
 							className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-purple-400"
 						>
 							{/* 옵션 아직 더 추가해야함 */}
-							<option>아직 획득한 뱃지가 없습니다.</option>
+							<option value="" disabled>
+								아직 획득한 뱃지가 없습니다.
+							</option>
 						</select>
 					</div>
 				</div>

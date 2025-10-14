@@ -15,7 +15,7 @@ export default function ProfileCard() {
 	if (error) return <p>❌ error 오류: {error}</p>;
 	if (!profile || !userId) return <p>로그인이 필요합니다.</p>;
 
-	const age = getAge(profile.birth_date);
+	const age = profile.birth_date ? getAge(profile.birth_date) : 0;
 	const grade = profile.role === "student" ? getGrade(age) : "";
 
 	const roleMap: Record<string, string> = {
@@ -23,6 +23,7 @@ export default function ProfileCard() {
 		teacher: "선생님",
 		parent: "학부모",
 	};
+
 	return (
 		// 왼쪽 영역 - 프로필 카드
 		<div className="flex flex-col items-center relative">
