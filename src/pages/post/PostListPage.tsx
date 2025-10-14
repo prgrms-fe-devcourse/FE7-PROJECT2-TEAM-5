@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 // 게시글 리스트 페이지
 import { Heart, MessageSquare } from "lucide-react";
 // import PageNation from "../../components/PageNation";
@@ -62,13 +64,13 @@ export default function PostListPage() {
 						>
 							검색
 						</button>
-						<button
-							type="button"
-							className="px-5 py-2 rounded-xl bg-[#8B5CF6]
+						<Link
+						to="edit"
+						className="px-5 py-2 rounded-xl bg-[#8B5CF6]
 						text-white font-Regular text-xs hover:bg-[#B08DFF] hover:text-white cursor-pointer"
-						>
-							새 글 작성
-						</button>
+					>
+						새 글 작성
+					</Link>
 					</div>
 				</div>
 
