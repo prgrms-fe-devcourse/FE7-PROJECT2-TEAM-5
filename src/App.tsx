@@ -11,6 +11,8 @@ import PostListPage from "./pages/post/PostListPage";
 import SearchPage from "./pages/SearchPage";
 import ModifyProfile from "./pages/profile/EditProfile";
 import PostDetailPage from "./pages/post/PostDetailPage";
+import GroupPage from "./pages/group/GroupPage"; 
+import CreateGroup from "./pages/group/CreateGroup"
 
 export default function App() {
 	return (
@@ -27,6 +29,9 @@ export default function App() {
 						element={<ModifyProfile />}
 					/>
 
+                {/* Group */}
+                <Route path="groups" element={<GroupPage />} />
+				 <Route path="groups/create" element={<CreateGroup />} />
 					{/* Post */}
 					<Route path="postList" element={<PostListPage />} />
 					<Route path="post/:id" element={<PostDetailPage />} />

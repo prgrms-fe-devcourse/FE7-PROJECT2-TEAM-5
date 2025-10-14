@@ -10,7 +10,7 @@ export default function Header() {
 				<nav className="flex flex-row gap-6 text-[#6B7280] font-medium">
 					<Link to="/search">검색</Link>
 					<Link to="/postList">게시판</Link>
-					<Link to="/">그룹</Link>
+					<Link to="/groups">그룹</Link>
 					<button className="cursor-pointer">알림</button>
 					<Link to="/msg/1">메시지</Link>
 					<Link to="/profile/1">프로필</Link>
