@@ -1,7 +1,25 @@
+import supabase from "../../utils/supabase";
 import { Link } from "react-router";
 
 // 로그인 페이지
 export default function LoginPage() {
+	const handleGoogleLogin = () => {
+		console.log("Google login");
+	};
+
+	const handleKakaoLogin = async () => {
+		console.log("kakao login");
+		const { data, error } = await supabase.auth.signInWithOAuth({
+			provider: "kakao",
+			options: {
+				redirectTo: `${import.meta.env.VITE_URL}/`,
+			},
+		});
+
+		if (error) alert(error.message);
+
+		if (data) console.log(data);
+	};
 	return (
 		<>
 			<h4 className="text-[28px] font-black mb-6 text-[#8b5cf6] text-center">
@@ -36,12 +54,14 @@ export default function LoginPage() {
 				<button
 					type="submit"
 					className="cursor-pointer w-full h-11 text-white rounded-xl bg-[#4285F4] font-medium"
+					onClick={handleGoogleLogin}
 				>
 					Google 로그인
 				</button>
 				<button
 					type="submit"
 					className="cursor-pointer w-full h-11 rounded-xl bg-[#FEE500] font-medium"
+					onClick={handleKakaoLogin}
 				>
 					Kakao 로그인
 				</button>

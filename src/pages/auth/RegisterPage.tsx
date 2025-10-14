@@ -1,6 +1,27 @@
+import supabase from "../../utils/supabase";
 import { Link } from "react-router";
 
 export default function RegisterPage() {
+	// const navigate = useNavigate();
+
+	const handleGoogleRegister = () => {
+		console.log("Google login");
+	};
+
+	const handleKakaoRegister = async () => {
+		console.log("kakao register");
+		const { data, error } = await supabase.auth.signInWithOAuth({
+			provider: "kakao",
+			options: {
+				redirectTo: `${import.meta.env.VITE_URL}/`,
+			},
+		});
+
+		if (error) alert(error.message);
+
+		if (data) console.log(data);
+	};
+
 	return (
 		<>
 			<h1 className="text-[28px] font-black mb-6 text-[#8b5cf6] text-center">
@@ -24,6 +45,7 @@ export default function RegisterPage() {
 					type="button"
 					className="w-full h-11 rounded-xl bg-[#4285F4] hover:bg-blue-600 active:bg-blue-700
 						text-white font-medium"
+					onClick={handleGoogleRegister}
 				>
 					Google로 가입하기
 				</button>
@@ -31,7 +53,8 @@ export default function RegisterPage() {
 				<button
 					type="button"
 					className="w-full h-11 rounded-xl bg-[#FEE500] hover:bg-yellow-400 active:bg-yellow-500
-						text-black font-medium"
+            text-black font-medium"
+					onClick={handleKakaoRegister}
 				>
 					Kakao로 가입하기
 				</button>
