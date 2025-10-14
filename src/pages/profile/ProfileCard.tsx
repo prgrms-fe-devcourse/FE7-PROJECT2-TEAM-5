@@ -3,6 +3,8 @@ import { useProfileStore } from "../../stores/profileStore";
 import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
 import { useEffect } from "react";
+import basicImage from "../../assets/basic_image.png";
+import { SquarePen } from "lucide-react";
 
 export default function ProfileCard() {
 	const { profile, fetchProfile, loading, error, userId } = useProfileStore();
@@ -29,8 +31,23 @@ export default function ProfileCard() {
 		<div className="flex flex-col items-center relative">
 			{/* 프로필 이미지 영역 */}
 			<div className="z-99 w-30 h-30">
-				<div className="w-full h-full bg-[#09a32b] rounded-xl hover:bg-[rgba(0,0,0,0.4)] cursor-pointer">
-					<img src={""} alt="profile" />
+				<div className="relative w-full h-full rounded-xl cursor-pointer">
+					<img
+						className="img w-full h-full rounded-xl object-cover"
+						src={profile.profile_image_url ?? basicImage}
+						alt="profile"
+					/>
+					<div className="absolute top-0 left-0 w-full h-full rounded-xl bg-[rgba(0,0,0,0.4)] bg-opacity-40 opacity-0 hover:opacity-100 flex items-center justify-center text-white font-medium transition-opacity">
+						<label htmlFor="profile_img">
+							<SquarePen size={24} />
+						</label>
+						<input
+							id="profile_img"
+							type="file"
+							accept="image/*"
+							className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+						/>
+					</div>
 				</div>
 			</div>
 			{/* 텍스트 컨텐츠 */}
