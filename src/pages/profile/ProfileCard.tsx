@@ -5,17 +5,15 @@ import { getGrade } from "../../utils/getGrade";
 import { useEffect } from "react";
 
 export default function ProfileCard() {
-	const { profile, /* fetchProfile, */ loading, error, userId } =
-		useProfileStore();
+	const { profile, fetchProfile, loading, error, userId } = useProfileStore();
 
-	/* useEffect(() => {
+	useEffect(() => {
 		fetchProfile(); // 페이지가 열릴 때 프로필 불러오기
-	}, [fetchProfile]); */
+	}, [fetchProfile]);
 
 	if (loading) return <p>불러오는 중...</p>;
 	if (error) return <p>❌ error 오류: {error}</p>;
-	if (!profile) return <p>로그인이 필요합니다.</p>;
-	if (!userId) return <p>❌ userId 오류: {error}</p>;
+	if (!profile || !userId) return <p>로그인이 필요합니다.</p>;
 
 	const age = getAge(profile.birth_date);
 	const grade = profile.role === "student" ? getGrade(age) : "";
@@ -39,7 +37,7 @@ export default function ProfileCard() {
 				{/* 이름 및 뱃지 */}
 				<div className="flex flex-col items-center pt-6">
 					<div className="text-sm font-medium text-gray-800">
-						🏆 초보 수학 마스터
+						{/* 🏆 초보 수학 마스터 */}
 					</div>
 					<div className="text-3xl font-bold text-gray-800 mt-1">
 						{profile.nickname}
@@ -54,7 +52,7 @@ export default function ProfileCard() {
 
 				{/* 프로필 수정 버튼 */}
 				<Link
-					to="/profile/1/edit"
+					to={`/profile/${userId}/edit`}
 					className="bg-violet-500 rounded-xl text-center mt-5 px-4 py-2 cursor-pointer text-base font-normal text-white"
 				>
 					프로필 수정

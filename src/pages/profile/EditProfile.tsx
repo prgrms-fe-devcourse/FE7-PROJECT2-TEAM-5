@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { useProfileStore } from "../../stores/profileStore";
+import { getAge } from "../../utils/getAge";
+import { ageToBirthDate } from "../../utils/ageToBirthDate";
 
 const ALL_INTERESTS: string[] = [
 	"국어",
@@ -28,55 +31,85 @@ const ALL_INTERESTS: string[] = [
 	"동아리활동",
 ];
 
-type Profile = {
-	name: string;
-	gender: string;
-	age: string;
-	region: string;
-	hobby: string;
-	badge: string;
-	bio: string;
-	interests: string[];
-};
-
-export default function ModifyProfile() {
+export default function EditProfile() {
 	const navigate = useNavigate();
+	const { profile, fetchProfile, updateProfile, loading, error, userId } =
+		useProfileStore();
 
-	const [profile, setProfile] = useState<Profile>({
-		name: "이름",
-		gender: "남",
-		age: "12",
-		region: "지역",
-		hobby: "취미",
-		badge: "",
-		bio: "안녕하세요",
-		interests: ["국어", "생명과학", "코딩", "글쓰기", "동아리활동"],
-	});
+	const [formData, setFormData] = useState<Partial<UserProfile>>({});
 
-	const toggleInterest = (k: string) =>
-		setProfile((prev) =>
-			prev.interests.includes(k)
-				? { ...prev, interests: prev.interests.filter((i) => i !== k) }
-				: { ...prev, interests: [...prev.interests, k] },
-		);
+	useEffect(() => {
+		fetchProfile();
+	}, [fetchProfile]);
+
+	useEffect(() => {
+		if (profile) {
+			setFormData(profile);
+		}
+	}, [profile]);
+
+	if (loading) return <p>불러오는 중...</p>;
+	if (error) return <p>❌ 오류: {error}</p>;
+	if (!profile || !userId) return <p>로그인이 필요합니다.</p>;
 
 	const handleChange =
-		(key: keyof Profile) =>
+		(key: keyof UserProfile) =>
 		(
 			e: React.ChangeEvent<
 				HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
 			>,
 		) => {
-			setProfile((prev) => ({ ...prev, [key]: e.target.value }));
+			const value = e.target.value;
+			setFormData((prev) => ({
+				...prev,
+				[key]: value,
+			}));
 		};
+
+	// formData.birth_date 기반으로 나이 계산
+	const age = formData.birth_date ? getAge(formData.birth_date) : "";
+
+	// input 숫자 변경 처리
+	const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const inputAge = Number(e.target.value);
+		if (!isNaN(inputAge)) {
+			setFormData((prev) => ({
+				...prev,
+				birth_date: ageToBirthDate(inputAge),
+			}));
+		} else {
+			// 비어있을 때 birth_date를 undefined로 처리 가능
+			setFormData((prev) => ({
+				...prev,
+				birth_date: undefined,
+			}));
+		}
+	};
+
+	// 취미
+	const handleHabitsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = e.target.value;
+		const habitsArray = value.split(/\s+/).filter(Boolean); // 공백 기준으로 배열화
+		setFormData((prev) => ({ ...prev, habits: habitsArray }));
+	};
+
+	// 관심 목록
+	const toggleInterest = (interest: string) => {
+		setFormData((prev) => {
+			const prevInterests = prev.interests ?? [];
+			return {
+				...prev,
+				interests: prevInterests.includes(interest)
+					? prevInterests.filter((i) => i !== interest)
+					: [...prevInterests, interest],
+			};
+		});
+	};
 
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-
-		console.log("✅ 저장된 프로필:", profile);
-
-		// ✅ 저장 후 프로필 페이지로 이동
-		navigate("/profile/1");
+		updateProfile(formData);
+		navigate(`/profile/${userId}`);
 	};
 
 	return (
@@ -101,8 +134,8 @@ export default function ModifyProfile() {
 						</label>
 						<input
 							id="name"
-							value={profile.name}
-							onChange={handleChange("name")}
+							value={formData.nickname ?? ""}
+							onChange={handleChange("nickname")}
 							className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-purple-400"
 						/>
 					</div>
@@ -117,7 +150,7 @@ export default function ModifyProfile() {
 						</label>
 						<select
 							id="gender"
-							value={profile.gender}
+							value={formData.gender}
 							onChange={handleChange("gender")}
 							className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-purple-400"
 						>
@@ -128,17 +161,13 @@ export default function ModifyProfile() {
 
 					{/* 나이 */}
 					<div>
-						<label
-							htmlFor="age"
-							className="block mb-1 text-gray-600 text-sm"
-						>
+						<label className="block mb-1 text-gray-600 text-sm">
 							나이
 						</label>
 						<input
-							id="age"
 							type="number"
-							value={profile.age}
-							onChange={handleChange("age")}
+							value={age}
+							onChange={handleAgeChange}
 							className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-purple-400"
 						/>
 					</div>
@@ -153,7 +182,7 @@ export default function ModifyProfile() {
 						</label>
 						<input
 							id="region"
-							value={profile.region}
+							value={formData.region}
 							onChange={handleChange("region")}
 							className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-purple-400"
 						/>
@@ -169,8 +198,8 @@ export default function ModifyProfile() {
 						</label>
 						<input
 							id="hobby"
-							value={profile.hobby}
-							onChange={handleChange("hobby")}
+							value={(formData.habits ?? []).join(" ")}
+							onChange={handleHabitsChange}
 							className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-purple-400"
 						/>
 					</div>
@@ -185,12 +214,12 @@ export default function ModifyProfile() {
 						</label>
 						<select
 							id="badge"
-							value={profile.badge}
-							onChange={handleChange("badge")}
+							value={formData.representative_badge_id}
+							onChange={handleChange("representative_badge_id")}
 							className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-purple-400"
 						>
 							{/* 옵션 아직 더 추가해야함 */}
-							<option>🏆 초보 수학 마스터</option>
+							<option>아직 획득한 뱃지가 없습니다.</option>
 						</select>
 					</div>
 				</div>
@@ -207,7 +236,7 @@ export default function ModifyProfile() {
 						</label>
 						<textarea
 							id="bio"
-							value={profile.bio}
+							value={formData.bio}
 							onChange={handleChange("bio")}
 							className="w-full h-[264px] border border-gray-300 rounded-lg px-3 py-2 resize-none focus:outline-none focus:border-2 focus:border-purple-400"
 						/>
@@ -219,7 +248,9 @@ export default function ModifyProfile() {
 						</span>
 						<div className="flex flex-wrap gap-2">
 							{ALL_INTERESTS.map((tag) => {
-								const active = profile.interests.includes(tag);
+								const active = (
+									formData.interests ?? []
+								).includes(tag);
 								return (
 									<button
 										key={tag}

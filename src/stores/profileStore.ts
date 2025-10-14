@@ -3,24 +3,6 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import supabase from "../utils/supabase";
 
-type UserProfile = {
-	auth_id: string;
-	bio?: string;
-	birth_date: Date;
-	child_link_code: string;
-	created_at: Date;
-	current_point: number;
-	experience?: string;
-	interests?: string[];
-	is_profile_completed: boolean;
-	major?: string;
-	nickname: string;
-	profile_image_url?: string;
-	region?: string;
-	representative_badge_id?: string;
-	role: string;
-};
-
 type ProfileState = {
 	profile: UserProfile | null;
 	userId: string | null; // Supabase Auth ID 저장
@@ -31,10 +13,12 @@ type ProfileState = {
 	fetchProfile: () => Promise<void>;
 	// clearProfile: 로그아웃 시 상태 초기화
 	clearProfile: () => void;
+	// updateProfile: 현재 로그인한 사용자 정보 수정
+	updateProfile: (updated: Partial<UserProfile>) => void;
 };
 
 // 테스트용
-const MOCK_PROFILE: UserProfile = {
+/* const MOCK_PROFILE: UserProfile = {
 	auth_id: "1234",
 	nickname: "암바사",
 	role: "teacher",
@@ -44,13 +28,13 @@ const MOCK_PROFILE: UserProfile = {
 	current_point: 0,
 	is_profile_completed: false,
 	major: "전공",
-};
+}; */
 
 export const useProfileStore = create<ProfileState>()(
-	immer((set) => ({
-		profile: MOCK_PROFILE,
-		userId: MOCK_PROFILE.auth_id,
-		isLoggedIn: true,
+	immer((set, get) => ({
+		profile: null,
+		userId: null,
+		isLoggedIn: false,
 		loading: false,
 		error: null,
 
@@ -83,7 +67,7 @@ export const useProfileStore = create<ProfileState>()(
 				const { data, error } = await supabase
 					.from("users")
 					.select("*")
-					.eq("id", user.id)
+					.eq("auth_id", user.id)
 					.single();
 
 				if (error) throw error;
@@ -114,6 +98,36 @@ export const useProfileStore = create<ProfileState>()(
 				state.error = null;
 				state.loading = false;
 			});
+		},
+
+		updateProfile: async (updates: Partial<UserProfile>) => {
+			set((state) => {
+				state.loading = true;
+				state.error = null;
+			});
+
+			try {
+				const { profile } = get();
+				if (!profile) throw new Error("프로필이 없습니다.");
+
+				const { error } = await supabase
+					.from("users")
+					.update(updates)
+					.eq("auth_id", profile.auth_id); // auth_id 기준으로 수정
+
+				if (error) throw error;
+
+				// 최신 데이터 다시 불러오기
+				await get().fetchProfile();
+				set((state) => {
+					state.loading = false;
+				});
+			} catch (err: any) {
+				set((state) => {
+					state.loading = false;
+					state.error = err.message;
+				});
+			}
 		},
 	})),
 );

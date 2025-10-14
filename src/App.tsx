@@ -9,7 +9,7 @@ import DmPage from "./pages/dm/DmPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import PostListPage from "./pages/post/PostListPage";
 import SearchPage from "./pages/search/SearchPage";
-import ModifyProfile from "./pages/profile/EditProfile";
+import EditProfile from "./pages/profile/EditProfile";
 import PostDetailPage from "./pages/post/PostDetailPage";
 import PostCreatePage from "./pages/post/PostCreatePage";
 
@@ -23,10 +23,7 @@ export default function App() {
 
 					{/* Profile */}
 					<Route path="profile/:id" element={<ProfilePage />} />
-					<Route
-						path="profile/:id/edit"
-						element={<ModifyProfile />}
-					/>
+					<Route path="profile/:id/edit" element={<EditProfile />} />
 
 					{/* Post */}
 					<Route path="postList" element={<PostListPage />} />
