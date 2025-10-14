@@ -1,5 +1,30 @@
 import { Link } from "react-router";
+import { useProfileStore } from "../../stores/profileStore";
+import { getAge } from "../../utils/getAge";
+import { getGrade } from "../../utils/getGrade";
+import { useEffect } from "react";
+
 export default function ProfileCard() {
+	const { profile, /* fetchProfile, */ loading, error, userId } =
+		useProfileStore();
+
+	/* useEffect(() => {
+		fetchProfile(); // 페이지가 열릴 때 프로필 불러오기
+	}, [fetchProfile]); */
+
+	if (loading) return <p>불러오는 중...</p>;
+	if (error) return <p>❌ error 오류: {error}</p>;
+	if (!profile) return <p>로그인이 필요합니다.</p>;
+	if (!userId) return <p>❌ userId 오류: {error}</p>;
+
+	const age = getAge(profile.birth_date);
+	const grade = profile.role === "student" ? getGrade(age) : "";
+
+	const roleMap: Record<string, string> = {
+		student: "학생",
+		teacher: "선생님",
+		parent: "학부모",
+	};
 	return (
 		// 왼쪽 영역 - 프로필 카드
 		<div className="flex flex-col items-center relative">
@@ -17,10 +42,13 @@ export default function ProfileCard() {
 						🏆 초보 수학 마스터
 					</div>
 					<div className="text-3xl font-bold text-gray-800 mt-1">
-						홍길동
+						{profile.nickname}
 					</div>
 					<div className="text-base font-normal text-gray-500 mt-2.5">
-						학생 · 고등학교 2학년
+						{roleMap[profile.role] || "알 수 없음"}
+						{profile.role === "parent" ? "" : " · "}
+						{grade ? `${grade}` : ""}
+						{profile.role === "teacher" ? `${profile.major}` : ""}
 					</div>
 				</div>
 

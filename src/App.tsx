@@ -8,7 +8,7 @@ import RegisterEmailPage from "./pages/auth/RegisterEmailPage";
 import DmPage from "./pages/dm/DmPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import PostListPage from "./pages/post/PostListPage";
-import SearchPage from "./pages/SearchPage";
+import SearchPage from "./pages/search/SearchPage";
 import ModifyProfile from "./pages/profile/EditProfile";
 import PostDetailPage from "./pages/post/PostDetailPage";
 
