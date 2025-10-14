@@ -11,6 +11,7 @@ import PostListPage from "./pages/post/PostListPage";
 import SearchPage from "./pages/search/SearchPage";
 import ModifyProfile from "./pages/profile/EditProfile";
 import PostDetailPage from "./pages/post/PostDetailPage";
+import PostCreatePage from "./pages/post/PostCreatePage";
 
 export default function App() {
 	return (
@@ -30,6 +31,7 @@ export default function App() {
 					{/* Post */}
 					<Route path="postList" element={<PostListPage />} />
 					<Route path="post/:id" element={<PostDetailPage />} />
+					<Route path="postList/edit" element={<PostCreatePage />} />
 
 					{/* DM */}
 					<Route path="msg/:id" element={<DmPage />} />
