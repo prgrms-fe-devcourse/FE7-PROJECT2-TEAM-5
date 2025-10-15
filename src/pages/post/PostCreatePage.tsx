@@ -2,11 +2,12 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import supabase from "../../utils/supabase";
+import { useProfileStore } from "../../stores/profileStore";
 
 // 게시글 생성 페이지
 export default function PostCreatePage() {
 	const navigate = useNavigate();
-	// const profile = useAuthStore((state) => state.profile);
+	const profile = useProfileStore((state) => state.profile);
 	const [boardType, setBoardType] = useState("");
 	const [title, setTitle] = useState("");
 	const [content, setContent] = useState("");
@@ -24,32 +25,23 @@ export default function PostCreatePage() {
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		// if (!boardType || !title || !content || !profile?.id) {
-		// 	alert("필수 항목을 작성해주세요");
-		// 	return;
-		// }
+		if (!boardType || !title || !content || !profile?.auth_id) {
+			alert("필수 항목을 작성해주세요");
+			return;
+		}
 		try {
 			const { data, error } = await supabase
 				.from("posts")
 				.insert([
 					{
-						boardType,
+						board_type: boardType,
 						title,
 						content,
-						hashTag,
-						// profile_id: profile?.id,
+						hash_tag: hashTag,
+						user_id: profile?.auth_id,
 					},
 				])
 				.select();
-
-			// if (response.data && response.data.id) {
-			// 	setNewPostId(response.data.id);
-			// 	console.log(
-			// 		"게시물 생성 성공 및 ID 가져오기:",
-			// 		response.data.id,
-			// 	);
-			// 	// TODO: 생성된 ID를 사용하여 다른 작업 수행 (예: 다른 API 호출, 목록 새로고침 등)
-			// }
 
 			if (error) throw error;
 			if (data) {
@@ -60,6 +52,7 @@ export default function PostCreatePage() {
 			console.error(e);
 		}
 	};
+
 	const handleImgFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const files = e.target.files;
 		if (files) {
