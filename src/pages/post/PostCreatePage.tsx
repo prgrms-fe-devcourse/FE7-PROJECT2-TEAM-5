@@ -10,7 +10,8 @@ export default function PostCreatePage() {
 	const [boardType, setBoardType] = useState("");
 	const [title, setTitle] = useState("");
 	const [content, setContent] = useState("");
-	const [hashTag, setHashTag] = useState("");
+	const [inputTag, setInputTag] = useState<string>("");
+	const [hashTag, setHashTag] = useState<string[]>([]);
 	const [imgFile, setImgFile] = useState("");
 	const [newPostId, setNewPostId] = useState("");
 
@@ -73,6 +74,22 @@ export default function PostCreatePage() {
 	const removeImgFile = () => {
 		setImgFile("");
 	};
+	const removeTag = (index: number) => {
+		const newHashTag = [
+			...hashTag.slice(0, index),
+			...hashTag.slice(index + 1),
+		];
+		setHashTag(newHashTag);
+	};
+	const activeEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (inputTag && e.key === "Enter" && !e.nativeEvent.isComposing) {
+			e.preventDefault();
+			let hashTags = [...hashTag, inputTag];
+			setHashTag(hashTags);
+			console.log(`"${inputTag}" 저장 완료`);
+			setInputTag("");
+		}
+	};
 	return (
 		<>
 			<div className="min-w-250 px-4">
@@ -92,9 +109,7 @@ export default function PostCreatePage() {
 								value={boardType}
 								onChange={(e) => setBoardType(e.target.value)}
 							>
-								<option value="" disabled>
-									게시판을 선택해주세요.
-								</option>
+								<option value="" disabled></option>
 								{boardTypes.map((bt) => (
 									<option key={bt} value={bt}>
 										{bt}
@@ -103,16 +118,24 @@ export default function PostCreatePage() {
 							</select>
 							<label
 								htmlFor="board"
-								className="absolute hidden right-4 top-15 text-sm text-red-500 peer-user-invalid:block"
+								className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-200 ease-in-out 
+								peer-focus:text-sm peer-focus:-translate-y-6 peer-focus:bg-white peer-focus:text-[#8B5CF6] 
+								peer-valid:hidden peer-valid:-translate-y-6 peer-valid:text-sm peer-valid:bg-white peer-valid:text-[#8B5CF6]
+							    "
+							>
+								게시판
+							</label>
+							<label
+								htmlFor="title"
+								className="absolute hidden right-100 top-15 text-sm text-red-500 peer-user-invalid:block"
 							>
 								게시판을 선택하세요.
 							</label>
 						</div>
 
 						<div className="relative w-full px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB] outline-none user-invalid:border-red-500">
-							<textarea
+							<input
 								id="title"
-								rows={1}
 								className="peer w-full resize-none outline-none align-middle"
 								required
 								value={title}
@@ -122,6 +145,7 @@ export default function PostCreatePage() {
 								htmlFor="title"
 								className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-200 ease-in-out 
 								peer-focus:text-sm peer-focus:-translate-y-6 peer-focus:bg-white peer-focus:text-[#8B5CF6] 
+								peer-valid:hidden
 								peer-valid:-translate-y-6 peer-valid:text-sm peer-valid:bg-white peer-valid:text-[#8B5CF6]
 							    "
 							>
@@ -144,10 +168,10 @@ export default function PostCreatePage() {
 								/>
 								<button
 									type="button"
-									className="absolute top-1.5 right-1.5 p-1 rounded-xl text-red-500 bg-[#E5E7EB] cursor-pointer"
+									className="absolute top-1.5 right-1.5 p-1 rounded-xl text-red-500 border-1 border-[#E5E7EB] cursor-pointer"
 									onClick={removeImgFile}
 								>
-									<X />
+									<X size={18} />
 								</button>
 							</div>
 						)}
@@ -198,13 +222,16 @@ export default function PostCreatePage() {
 
 						<div className="flex flex-col">
 							<div className="relative w-full px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB] outline-none user-invalid:border-red-500">
-								<textarea
+								<input
 									id="hashTag"
-									rows={1}
+									type="text"
 									className="peer w-full resize-none outline-none align-middle"
 									required
-									value={hashTag}
-									onChange={(e) => setHashTag(e.target.value)}
+									value={inputTag}
+									onChange={(e) =>
+										setInputTag(e.target.value)
+									}
+									onKeyDown={(e) => activeEnter(e)}
 								/>
 								<label
 									htmlFor="hashTag"
@@ -218,6 +245,18 @@ export default function PostCreatePage() {
 							<p className="mt-2 text-xs text-[#C8C8C8]">
 								예: 수학, AI, 공부법 (각각 태그 입력 후 Enter)
 							</p>
+							<div>
+								{hashTag.map((tag, index) => (
+									<button
+										type="button"
+										className="mr-2 px-3 py-2 bg-[#EDE9FE] text-[#8B5CF6] text-sm rounded-lg cursor-pointer"
+										key={index}
+										onClick={() => removeTag(index)}
+									>
+										{"#" + tag} x
+									</button>
+								))}
+							</div>
 						</div>
 						<div className="flex justify-end mt-11.5 gap-2">
 							<Link
