@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { useProfileStore } from "../../stores/profileStore";
 import { getAge } from "../../utils/getAge";
 import { ageToBirthDate } from "../../utils/ageToBirthDate";
+import EditProfileSkeleton from "../../components/loading/profile/EditProfileSkeleton";
 
 const ALL_INTERESTS: string[] = [
 	"국어",
@@ -48,7 +49,7 @@ export default function EditProfile() {
 		}
 	}, [profile]);
 
-	if (loading) return <p>불러오는 중...</p>;
+	if (loading) return <EditProfileSkeleton />;
 	if (error) return <p>❌ 오류: {error}</p>;
 	if (!profile || !userId) return <p>로그인이 필요합니다.</p>;
 

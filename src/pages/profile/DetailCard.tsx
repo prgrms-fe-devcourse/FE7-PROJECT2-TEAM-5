@@ -4,19 +4,26 @@ import Friends from "./Friends";
 import Info from "./Info";
 import TabContainer from "./TabContainer";
 import { useProfileStore } from "../../stores/profileStore";
+import DetailCardSkeleton from "../../components/loading/profile/DetailCardSkeleton";
 
 export default function DetailCard() {
 	const [activeTab, setActiveTab] = useState<
 		"info" | "activities" | "friends"
 	>("info");
 
-	const { profile, fetchProfile, loading, error, userId } = useProfileStore();
+	const {
+		profile,
+		fetchProfile,
+		loading = true,
+		error,
+		userId,
+	} = useProfileStore();
 
 	useEffect(() => {
 		fetchProfile(); // 페이지가 열릴 때 프로필 불러오기
 	}, [fetchProfile]);
 
-	if (loading) return <p>불러오는 중...</p>;
+	if (loading) return <DetailCardSkeleton />;
 	if (error) return <p>❌ error 오류: {error}</p>;
 	if (!profile || !userId) return <p>로그인이 필요합니다.</p>;
 
