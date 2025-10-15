@@ -1,6 +1,6 @@
 interface InfoBlockProps {
 	title: string;
-	content?: string;
+	content?: string | number;
 	tags?: string[];
 	badges?: string[];
 	isFullWidth?: boolean;
@@ -25,10 +25,10 @@ export default function InfoBlock({
 			)}
 			{tags && (
 				<div className="flex flex-wrap gap-1 mt-1">
-					{tags.map((tag) => (
+					{tags.map((tag, index) => (
 						<div
 							key={tag}
-							className={`px-3 py-1 text-xs font-medium text-white rounded-md ${tag === "과학" || tag === "국어" ? "bg-violet-500" : "bg-[#ea489a]"}`}
+							className={`px-3 py-1 text-xs font-medium text-white rounded-md ${index % 2 === 0 ? "bg-violet-500" : "bg-[#ea489a]"}`}
 						>
 							{tag}
 						</div>

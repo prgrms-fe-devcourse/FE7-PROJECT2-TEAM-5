@@ -8,12 +8,40 @@ import RegisterEmailPage from "./pages/auth/RegisterEmailPage";
 import DmPage from "./pages/dm/DmPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import PostListPage from "./pages/post/PostListPage";
-import SearchPage from "./pages/SearchPage";
-import ModifyProfile from "./pages/profile/EditProfile";
+import SearchPage from "./pages/search/SearchPage";
+import EditProfile from "./pages/profile/EditProfile";
 import PostDetailPage from "./pages/post/PostDetailPage";
+import GroupPage from "./pages/group/GroupPage";
+import CreateGroup from "./pages/group/CreateGroup";
 import PostCreatePage from "./pages/post/PostCreatePage";
+import { useProfileStore } from "./stores/profileStore";
+import { useEffect } from "react";
+import supabase from "./utils/supabase";
 
 export default function App() {
+	const fetchProfile = useProfileStore((state) => state.fetchProfile);
+
+	useEffect(() => {
+		const initAuth = async () => {
+			// OAuth 후 리다이렉트 시 토큰 처리
+			const { data, error } = await supabase.auth.getSession(); // 현재 세션 확인
+			if (error) {
+				console.error("getSession error", error);
+				return;
+			}
+
+			const user = data.session?.user;
+
+			console.log(user);
+			if (user) {
+				// 로그인 상태라면 store 업데이트
+				fetchProfile(user.id);
+			}
+		};
+
+		initAuth();
+	}, [fetchProfile]);
+
 	return (
 		<>
 			<Routes>
@@ -23,11 +51,11 @@ export default function App() {
 
 					{/* Profile */}
 					<Route path="profile/:id" element={<ProfilePage />} />
-					<Route
-						path="profile/:id/edit"
-						element={<ModifyProfile />}
-					/>
+					<Route path="profile/me/edit" element={<EditProfile />} />
 
+					{/* Group */}
+					<Route path="groups" element={<GroupPage />} />
+					<Route path="groups/create" element={<CreateGroup />} />
 					{/* Post */}
 					<Route path="postList" element={<PostListPage />} />
 					<Route path="post/:id" element={<PostDetailPage />} />

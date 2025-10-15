@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ConstructionIcon, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import supabase from "../../utils/supabase";
 
@@ -10,8 +10,9 @@ export default function PostCreatePage() {
 	const [boardType, setBoardType] = useState("");
 	const [title, setTitle] = useState("");
 	const [content, setContent] = useState("");
-	const [hashTag, setHashTag] = useState("");
-	const [imgFile, setImgFile] = useState("");
+	const [inputTag, setInputTag] = useState<string>("");
+	const [hashTag, setHashTag] = useState<string[]>([]);
+	const [imgFiles, setImgFiles] = useState<string[]>([]);
 
 	const boardTypes = [
 		"자유게시판",
@@ -59,7 +60,7 @@ export default function PostCreatePage() {
 			console.error(e);
 		}
 	};
-	const hanleImgFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleImgFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const files = e.target.files;
 		if (files) {
 			Array.from(files).map((file) => {
@@ -165,17 +166,17 @@ export default function PostCreatePage() {
 								<div className="relative pb-2">
 									<img
 										src={imgFiles[0]}
-										alt={"imege" + 0}
+										alt={"image" + 0}
 										className="relative z-2 max-h-50 min-h-30 object-cover bg-white"
 									/>
 									{imgFiles.length > 1 && (
 										<img
 											src={imgFiles[0]}
-											alt={"imege" + 0}
+											alt={"image" + 0}
 											className="absolute top-2 left-2 z-1 max-h-50 min-h-30 object-cover opacity-50"
 										/>
 									)}
-									<div className="absolute z-2 -bottom-2 -right-4 px-3.5 py-1.5 text-xm text-[#6B7280] font-bold bg-white border-1 border-[#E5E7EB] bg-amber-50 ㄴopacity-50 rounded-3xl">
+									<div className="absolute z-2 -bottom-2 -right-4 px-3.5 py-1.5 text-xm text-[#6B7280] font-bold bg-white border-1 border-[#E5E7EB] rounded-3xl">
 										{imgFiles.length}
 									</div>
 								</div>
@@ -197,7 +198,7 @@ export default function PostCreatePage() {
 									className="hidden"
 									type="file"
 									name="imgFile"
-									onChange={hanleImgFileUpload}
+									onChange={handleImgFileUpload}
 									multiple
 								/>
 								<p className="text-[#6B7280]">Upload image</p>
