@@ -18,8 +18,8 @@ export default function RegisterEmailPage() {
 	const [month, setMonth] = useState<string>("");
 	const [day, setDay] = useState<string>("");
 
-	const [subject, setSubject] = useState<string>(""); // major로 변경?
-	const [childCode, setChildCode] = useState<string>("");
+	const [major, setMajor] = useState<string>("");
+	const [childLinkCode, setChildLinkCode] = useState<string>("");
 
 	// 이번 버전에서 추가, UI state
 	const [loading, setLoading] = useState<boolean>(false);
@@ -41,12 +41,12 @@ export default function RegisterEmailPage() {
 			setYear("");
 			setMonth("");
 			setDay("");
-			setSubject("");
-			setChildCode("");
+			setMajor("");
+			setChildLinkCode("");
 			return;
 		}
-		if (role !== "teacher") setSubject("");
-		if (role !== "teacher" && role !== "parent") setChildCode("");
+		if (role !== "teacher") setMajor("");
+		if (role !== "teacher" && role !== "parent") setChildLinkCode("");
 	}, [role]);
 
 	// 이메일 정합성 체크
@@ -60,16 +60,26 @@ export default function RegisterEmailPage() {
 		if (role === "") return "소속 구분을 선택해주세요.";
 		if (year === "" || month === "" || day === "")
 			return "출생연월일을 모두 선택해주세요.";
-		if (role === "teacher" && subject.trim() === "")
+		if (role === "teacher" && major.trim() === "")
 			return "전공 과목을 입력해주세요.";
 		if (
 			(role === "teacher" || role === "parent") &&
-			childCode.trim() === ""
+			childLinkCode.trim() === ""
 		)
 			return "자녀코드를 입력해주세요.";
 
 		return null;
-	}, [email, password, nickname, role, year, month, day, subject, childCode]);
+	}, [
+		email,
+		password,
+		nickname,
+		role,
+		year,
+		month,
+		day,
+		major,
+		childLinkCode,
+	]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -118,11 +128,12 @@ export default function RegisterEmailPage() {
 				// 성공적으로 프로필 설정 되었으면 true
 			};
 
+			// 선생님, 부모일 때 추가 프로필
 			if (role === "teacher") {
-				profilePayload.subject = subject.trim();
-				profilePayload.child_code = childCode.trim();
+				profilePayload.major = major.trim();
+				profilePayload.child_link_code = childLinkCode.trim();
 			} else if (role === "parent") {
-				profilePayload.child_code = childCode.trim();
+				profilePayload.child_link_code = childLinkCode.trim();
 			}
 
 			// public.users 프로필 업데이트
@@ -264,16 +275,16 @@ export default function RegisterEmailPage() {
 					<>
 						<input
 							type="text"
-							placeholder="전공 과목"
-							value={subject}
-							onChange={(e) => setSubject(e.target.value)}
+							placeholder="주 과목 (예: 수학, 과학) "
+							value={major}
+							onChange={(e) => setMajor(e.target.value)}
 							className="w-full h-11 rounded-xl border border-[#D1D5DB] px-4 outline-none"
 						/>
 						<input
 							type="text"
-							placeholder="자녀코드"
-							value={childCode}
-							onChange={(e) => setChildCode(e.target.value)}
+							placeholder="자녀코드 (선택)"
+							value={childLinkCode}
+							onChange={(e) => setChildLinkCode(e.target.value)}
 							className="w-full h-11 rounded-xl border border-[#D1D5DB] px-4 outline-none"
 						/>
 					</>
@@ -282,8 +293,8 @@ export default function RegisterEmailPage() {
 					<input
 						type="text"
 						placeholder="자녀코드"
-						value={childCode}
-						onChange={(e) => setChildCode(e.target.value)}
+						value={childLinkCode}
+						onChange={(e) => setChildLinkCode(e.target.value)}
 						className="w-full h-11 rounded-xl border border-[#D1D5DB] px-4 outline-none"
 					/>
 				)}
@@ -302,6 +313,7 @@ export default function RegisterEmailPage() {
 					뒤로가기
 				</button>
 			</form>
+			{/* 임시로 에러 메세지 출력 */}
 			{message && (
 				<div className="text-sm text-center text-[#6B7280]">
 					{message}
