@@ -12,7 +12,6 @@ export default function PostCreatePage() {
 	const [content, setContent] = useState("");
 	const [hashTag, setHashTag] = useState("");
 	const [imgFile, setImgFile] = useState("");
-	const [newPostId, setNewPostId] = useState("");
 
 	const boardTypes = [
 		"자유게시판",
