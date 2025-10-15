@@ -5,15 +5,29 @@ import { getGrade } from "../../utils/getGrade";
 import { useEffect } from "react";
 import basicImage from "../../assets/basic_image.png";
 import { SquarePen } from "lucide-react";
+import ProfileCadeSkeleton from "../../components/loading/profile/ProfileCadeSkeleton";
 
-export default function ProfileCard() {
+type Props = {
+	isMyProfile?: boolean;
+	targetAuthId?: string | null;
+};
+
+export default function ProfileCard({
+	isMyProfile = false,
+	targetAuthId,
+}: Props) {
 	const { profile, fetchProfile, loading, error, userId } = useProfileStore();
 
 	useEffect(() => {
-		fetchProfile(); // 페이지가 열릴 때 프로필 불러오기
-	}, [fetchProfile]);
+		if (isMyProfile) {
+			// 내 프로필이면 인자 없이 호출
+			fetchProfile();
+		} else if (profile?.auth_id) {
+			fetchProfile(targetAuthId ?? null); // 다른 사람 프로필
+		}
+	}, [fetchProfile, isMyProfile, profile?.auth_id]);
 
-	if (loading) return <p>불러오는 중...</p>;
+	if (loading) return <ProfileCadeSkeleton />;
 	if (error) return <p>❌ error 오류: {error}</p>;
 	if (!profile || !userId) return <p>로그인이 필요합니다.</p>;
 
@@ -37,17 +51,19 @@ export default function ProfileCard() {
 						src={profile.profile_image_url ?? basicImage}
 						alt="profile"
 					/>
-					<div className="absolute top-0 left-0 w-full h-full rounded-xl bg-[rgba(0,0,0,0.4)] bg-opacity-40 opacity-0 hover:opacity-100 flex items-center justify-center text-white font-medium transition-opacity">
-						<label htmlFor="profile_img">
-							<SquarePen size={24} />
-						</label>
-						<input
-							id="profile_img"
-							type="file"
-							accept="image/*"
-							className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-						/>
-					</div>
+					{isMyProfile && (
+						<div className="absolute top-0 left-0 w-full h-full rounded-xl bg-[rgba(0,0,0,0.4)] bg-opacity-40 opacity-0 hover:opacity-100 flex items-center justify-center text-white font-medium transition-opacity">
+							<label htmlFor="profile_img">
+								<SquarePen size={24} />
+							</label>
+							<input
+								id="profile_img"
+								type="file"
+								accept="image/*"
+								className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+							/>
+						</div>
+					)}
 				</div>
 			</div>
 			{/* 텍스트 컨텐츠 */}
@@ -68,13 +84,15 @@ export default function ProfileCard() {
 					</div>
 				</div>
 
-				{/* 프로필 수정 버튼 */}
-				<Link
-					to={`/profile/${userId}/edit`}
-					className="bg-violet-500 rounded-xl text-center mt-5 px-4 py-2 cursor-pointer text-base font-normal text-white"
-				>
-					프로필 수정
-				</Link>
+				{/* 본인 프로필일 때만 수정 버튼 */}
+				{isMyProfile && (
+					<Link
+						to={`/profile/me/edit`}
+						className="bg-violet-500 rounded-xl text-center mt-5 px-4 py-2 cursor-pointer text-base font-normal text-white"
+					>
+						프로필 수정
+					</Link>
+				)}
 
 				{/* 친구/게시글/댓글 통계 */}
 				<div className="flex justify-between gap-[50px] pt-6">

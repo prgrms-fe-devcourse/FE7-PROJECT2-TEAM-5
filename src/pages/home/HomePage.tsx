@@ -1,6 +1,23 @@
 import { Link } from "react-router";
+import { useProfileStore } from "../../stores/profileStore";
+import { useEffect } from "react";
 
 export default function HomePage() {
+	const userId = useProfileStore((state) => state.userId);
+	const { fetchProfile, logout } = useProfileStore();
+
+	const loading = useProfileStore((state) => state.loading);
+
+	useEffect(() => {
+		if (!userId) {
+			fetchProfile();
+		}
+	}, [userId, fetchProfile]);
+
+	if (loading) {
+		return <p>로딩중...</p>;
+	}
+
 	return (
 		<>
 			<div className="mt-30 flex flex-col items-center">
@@ -15,26 +32,29 @@ export default function HomePage() {
 						<strong>StudyHub</strong>에 오신 것을 환영합니다.
 					</p>
 					<div className="space-x-4">
-						{/* 로그인x */}
-						{/* <Link
-							to="/register"
-							className="inline-block px-6 py-4 bg-[#8B5CF6] rounded-xl font-bold text-white"
-						>
-							회원가입
-						</Link>
-						<Link
-							to="/login"
-							className="inline-block px-6 py-4 bg-white rounded-xl font-bold text-[#8B5CF6] shadow-[inset_0_0_0_2px_#8B5CF6]"
-						>
-							로그인
-						</Link> */}
-						{/* 로그인o */}
-						<Link
-							to="/login"
-							className="inline-block px-6 py-4 bg-white rounded-xl font-bold text-[#8B5CF6] shadow-[inset_0_0_0_2px_#8B5CF6]"
-						>
-							로그아웃
-						</Link>
+						{userId ? (
+							<button
+								onClick={logout}
+								className="cursor-pointer inline-block px-6 py-4 bg-white rounded-xl font-bold text-[#8B5CF6] shadow-[inset_0_0_0_2px_#8B5CF6]"
+							>
+								로그아웃
+							</button>
+						) : (
+							<>
+								<Link
+									to="/register"
+									className="inline-block px-6 py-4 bg-[#8B5CF6] rounded-xl font-bold text-white"
+								>
+									회원가입
+								</Link>
+								<Link
+									to="/login"
+									className="inline-block px-6 py-4 bg-white rounded-xl font-bold text-[#8B5CF6] shadow-[inset_0_0_0_2px_#8B5CF6]"
+								>
+									로그인
+								</Link>
+							</>
+						)}
 					</div>
 				</div>
 				{/* 카드들 */}
