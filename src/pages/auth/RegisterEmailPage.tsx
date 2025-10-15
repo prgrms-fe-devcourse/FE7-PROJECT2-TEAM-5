@@ -119,6 +119,7 @@ export default function RegisterEmailPage() {
 			const userId = user.id;
 			const birthDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
 
+			// 공통 업데이트 프로필 요소
 			const profilePayload: any = {
 				auth_id: userId,
 				nickname: nickname.trim(),
@@ -128,15 +129,12 @@ export default function RegisterEmailPage() {
 				// 성공적으로 프로필 설정 되었으면 true
 			};
 
-			// 선생님, 부모일 때 추가 프로필
+			// 선생님일 때 payload 추가 프로필
 			if (role === "teacher") {
 				profilePayload.major = major.trim();
-				profilePayload.child_link_code = childLinkCode.trim();
-			} else if (role === "parent") {
-				profilePayload.child_link_code = childLinkCode.trim();
 			}
 
-			// public.users 프로필 업데이트
+			// profilePayload 내용으로 public.users 프로필 업데이트
 			const { error: profileError } = await supabase
 				.from("users")
 				.update(profilePayload)
@@ -145,8 +143,7 @@ export default function RegisterEmailPage() {
 
 			if (profileError) {
 				setMessage(
-					`회원가입 성공, 하지만 프로필 업데이트 실패: ${profileError.message}. 
-					관리자에게 문의하세요.`,
+					`회원가입 성공, 하지만 프로필 업데이트 실패: ${profileError.message}`,
 				);
 
 				console.error("Profile update error:", profileError);
@@ -155,6 +152,52 @@ export default function RegisterEmailPage() {
 					"회원가입 및 프로필 설정이 성공적으로 완료되었습니다!",
 				);
 			}
+
+			// 자녀/학생 연결 (선생님/부모에게만 해당)
+			if (
+				(role === "teacher" || role === "parent") &&
+				childLinkCode.trim()
+			) {
+				const linkCode = childLinkCode.trim();
+				// 코드를 사용하여 학생 사용자 검색
+				const { data: childUser, error: searchError } = await supabase
+					.from("users")
+					.select("auth_id")
+					.eq("child_link_code", childLinkCode)
+					.single();
+
+				if (searchError) {
+					throw new Error(
+						`자녀 코드 검색 오류: ${searchError.message}`,
+					);
+				}
+
+				if (!childUser) {
+					// 유효한 코드로 학생을 찾을 수 없는 경우
+					setMessage(
+						`자녀 코드 ('${linkCode}')가 유효하지 않습니다.`,
+					);
+				} else {
+					const childId = childUser.auth_id;
+
+					// child_parent_links 테이블에 삽입
+					const { error: linkError } = await supabase
+						.from("child_parent_links")
+						.insert([
+							{
+								parent_id: userId, // 새로운 사용자(선생님 또는 부모) ID
+								child_id: childId, // 검색된 학생 ID
+							},
+						]);
+
+					if (linkError) {
+						// 연결 오류
+						console.warn("자녀 연결 삽입 실패", linkError);
+					}
+				}
+			}
+
+			// TODO: 성공 후 로그인 페이지로 리디렉션 로직 추가할 것!!s
 		} catch (err) {
 			console.error("Registration Error:", err);
 			setMessage(
