@@ -127,14 +127,14 @@ export default function PostCreatePage() {
 								htmlFor="board"
 								className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-200 ease-in-out 
 								peer-focus:text-sm peer-focus:-translate-y-6 peer-focus:bg-white peer-focus:text-[#8B5CF6] 
-								peer-valid:hidden peer-valid:-translate-y-6 peer-valid:text-sm peer-valid:bg-white peer-valid:text-[#8B5CF6]
+								peer-valid:-translate-y-6 peer-valid:text-sm peer-valid:bg-white peer-valid:text-[#8B5CF6]
 							    "
 							>
 								게시판
 							</label>
 							<label
-								htmlFor="title"
-								className="absolute hidden right-100 top-15 text-sm text-red-500 peer-user-invalid:block"
+								htmlFor="board"
+								className="absolute hidden left-6 -top-2 text-sm bg-white text-red-500 peer-user-invalid:block"
 							>
 								게시판을 선택하세요.
 							</label>
@@ -152,7 +152,6 @@ export default function PostCreatePage() {
 								htmlFor="title"
 								className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-200 ease-in-out 
 								peer-focus:text-sm peer-focus:-translate-y-6 peer-focus:bg-white peer-focus:text-[#8B5CF6] 
-								peer-valid:hidden
 								peer-valid:-translate-y-6 peer-valid:text-sm peer-valid:bg-white peer-valid:text-[#8B5CF6]
 							    "
 							>
@@ -160,9 +159,9 @@ export default function PostCreatePage() {
 							</label>
 							<label
 								htmlFor="title"
-								className="absolute hidden right-4 top-15 text-sm text-red-500 peer-user-invalid:block"
+								className="absolute hidden left-6 -top-2 bg-white text-sm text-red-500 peer-user-invalid:block "
 							>
-								제목을 입력하세요.
+								내용을 입력하세요.
 							</label>
 						</div>
 
@@ -235,7 +234,7 @@ export default function PostCreatePage() {
 							</label>
 							<label
 								htmlFor="content"
-								className="absolute hidden right-4 top-99 text-sm text-red-500 peer-user-invalid:block"
+								className="absolute hidden left-6 -top-2 bg-white text-sm text-red-500 peer-user-invalid:block "
 							>
 								내용을 입력하세요.
 							</label>
