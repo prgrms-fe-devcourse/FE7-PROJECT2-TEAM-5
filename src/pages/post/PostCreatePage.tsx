@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X } from "lucide-react";
+import { ConstructionIcon, X } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import supabase from "../../utils/supabase";
 
@@ -12,7 +12,7 @@ export default function PostCreatePage() {
 	const [content, setContent] = useState("");
 	const [inputTag, setInputTag] = useState<string>("");
 	const [hashTag, setHashTag] = useState<string[]>([]);
-	const [imgFile, setImgFile] = useState("");
+	const [imgFiles, setImgFiles] = useState<string[]>([]);
 	const [newPostId, setNewPostId] = useState("");
 
 	const boardTypes = [
@@ -62,17 +62,24 @@ export default function PostCreatePage() {
 		}
 	};
 	const hanleImgFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files && e.target.files[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onload = (e) => {
-				setImgFile(e.target?.result as string);
-			};
-			reader.readAsDataURL(file);
+		const files = e.target.files;
+		if (files) {
+			Array.from(files).map((file) => {
+				const reader = new FileReader();
+				reader.onload = (e) => {
+					setImgFiles((prev) => [
+						...prev,
+						e.target?.result as string,
+					]);
+				};
+				reader.readAsDataURL(file);
+			});
 		}
+		console.log(imgFiles);
 	};
-	const removeImgFile = () => {
-		setImgFile("");
+
+	const removeImgFiles = () => {
+		setImgFiles([]);
 	};
 	const removeTag = (index: number) => {
 		const newHashTag = [
@@ -159,23 +166,36 @@ export default function PostCreatePage() {
 							</label>
 						</div>
 
-						{imgFile && (
+						{imgFiles[0] && (
 							<div className="relative flex flex-col items-center px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB]">
-								<img
-									src={imgFile}
-									alt="imgFile preview"
-									className="max-h-50 object-cover"
-								/>
+								<div className="relative pb-2">
+									<img
+										src={imgFiles[0]}
+										alt={"imege" + 0}
+										className="relative z-2 max-h-50 min-h-30 object-cover bg-white"
+									/>
+									{imgFiles.length > 1 && (
+										<img
+											src={imgFiles[0]}
+											alt={"imege" + 0}
+											className="absolute top-2 left-2 z-1 max-h-50 min-h-30 object-cover opacity-50"
+										/>
+									)}
+									<div className="absolute z-2 -bottom-2 -right-4 px-3.5 py-1.5 text-xm text-[#6B7280] font-bold bg-white border-1 border-[#E5E7EB] bg-amber-50 ㄴopacity-50 rounded-3xl">
+										{imgFiles.length}
+									</div>
+								</div>
+
 								<button
 									type="button"
 									className="absolute top-1.5 right-1.5 p-1 rounded-xl text-red-500 border-1 border-[#E5E7EB] cursor-pointer"
-									onClick={removeImgFile}
+									onClick={removeImgFiles}
 								>
 									<X size={18} />
 								</button>
 							</div>
 						)}
-						{!imgFile && (
+						{!imgFiles[0] && (
 							<div className="flex flex-col items-center px-6 py-4 rounded-xl bg-white border-2 border-[#E5E7EB] border-dashed">
 								<input
 									id="imgFile"
@@ -184,6 +204,7 @@ export default function PostCreatePage() {
 									type="file"
 									name="imgFile"
 									onChange={hanleImgFileUpload}
+									multiple
 								/>
 								<p className="text-[#6B7280]">Upload image</p>
 								<label
@@ -225,7 +246,7 @@ export default function PostCreatePage() {
 								<input
 									id="hashTag"
 									type="text"
-									className="peer w-full resize-none outline-none align-middle"
+									className="peer w-full resize-none outline-none"
 									required
 									value={inputTag}
 									onChange={(e) =>
