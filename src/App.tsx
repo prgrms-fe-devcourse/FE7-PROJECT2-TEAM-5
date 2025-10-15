@@ -11,8 +11,8 @@ import PostListPage from "./pages/post/PostListPage";
 import SearchPage from "./pages/search/SearchPage";
 import EditProfile from "./pages/profile/EditProfile";
 import PostDetailPage from "./pages/post/PostDetailPage";
-import GroupPage from "./pages/group/GroupPage"; 
-import CreateGroup from "./pages/group/CreateGroup"
+import GroupPage from "./pages/group/GroupPage";
+import CreateGroup from "./pages/group/CreateGroup";
 import PostCreatePage from "./pages/post/PostCreatePage";
 
 export default function App() {
@@ -27,9 +27,9 @@ export default function App() {
 					<Route path="profile/:id" element={<ProfilePage />} />
 					<Route path="profile/:id/edit" element={<EditProfile />} />
 
-                {/* Group */}
-                <Route path="groups" element={<GroupPage />} />
-				 <Route path="groups/create" element={<CreateGroup />} />
+					{/* Group */}
+					<Route path="groups" element={<GroupPage />} />
+					<Route path="groups/create" element={<CreateGroup />} />
 					{/* Post */}
 					<Route path="postList" element={<PostListPage />} />
 					<Route path="post/:id" element={<PostDetailPage />} />
