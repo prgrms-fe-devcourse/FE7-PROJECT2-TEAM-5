@@ -81,12 +81,16 @@ export default function PostCreatePage() {
 		setHashTag(newHashTag);
 	};
 	const activeEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-		if (inputTag && e.key === "Enter" && !e.nativeEvent.isComposing) {
+		const tag = inputTag.trim();
+		if (tag && e.key === "Enter" && !e.nativeEvent.isComposing) {
 			e.preventDefault();
-			let hashTags = [...hashTag, inputTag];
-			setHashTag(hashTags);
-			console.log(`"${inputTag}" 저장 완료`);
-			setInputTag("");
+			if (!hashTag.includes(tag)) {
+				let hashTags = [...hashTag, tag];
+				setHashTag(hashTags);
+				setInputTag("");
+			} else {
+				alert("중복된 태그입니다.");
+			}
 		}
 	};
 	return (
@@ -272,16 +276,15 @@ export default function PostCreatePage() {
 								)}
 							</div>
 							<p className="mt-2 text-xs text-[#C8C8C8]">
-								예: 수학, AI, 공부법 (각각 태그 입력 후 Enter)
+								예: 수학, AI, 공부법 (각각 태그 입력 s후 Enter)
 							</p>
 							<div className="flex flex-wrap gap-2 mt-2 max-w-[920px]">
 								{hashTag.map((tag, index) => (
-									<div>
+									<div key={tag}>
 										<button
 											id="tag"
 											type="button"
 											className="px-3 py-2 bg-[#EDE9FE] text-[#8B5CF6] text-sm rounded-lg text-left break-all cursor-pointer"
-											key={index}
 											onClick={() => removeTag(index)}
 										>
 											{"#" + tag} x
