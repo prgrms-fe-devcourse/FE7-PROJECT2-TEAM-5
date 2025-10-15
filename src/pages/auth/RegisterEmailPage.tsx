@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { useState, useEffect } from "react";
+import { ChevronDown } from "lucide-react";
 
 type role = "" | "student" | "teacher" | "parent";
 
@@ -65,18 +66,26 @@ export default function RegisterEmailPage() {
 					className="w-full h-11 rounded-xl border border-[#D1D5DB] px-4 outline-none"
 				/>
 
-				<select
-					value={role}
-					onChange={(e) => setRole(e.target.value as role)}
-					className="w-full h-11 rounded-xl border border-[#D1D5DB] px-4 outline-none"
-				>
-					<option value="" disabled>
-						소속 구분
-					</option>
-					<option value="student">학생</option>
-					<option value="teacher">선생님</option>
-					<option value="parent">학부모</option>
-				</select>
+				<div className="relative">
+					<select
+						value={role}
+						onChange={(e) => setRole(e.target.value as role)}
+						className={`w-full h-11 rounded-xl border border-[#D1D5DB] px-4 outline-none appearance-none ${
+							!role ? "text-gray-400" : ""
+						}`}
+					>
+						<option value="" disabled>
+							소속 구분
+						</option>
+						<option value="student">학생</option>
+						<option value="teacher">선생님</option>
+						<option value="parent">학부모</option>
+					</select>
+					<ChevronDown
+						size={18}
+						className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+					/>
+				</div>
 
 				{role !== "" && (
 					<div className="grid grid-cols-[1.3fr_1fr_1fr] gap-3">
@@ -96,9 +105,10 @@ export default function RegisterEmailPage() {
 									</option>
 								))}
 							</select>
-							<span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-								▾
-							</span>
+							<ChevronDown
+								size={18}
+								className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+							/>
 						</div>
 
 						{/* 월 */}
@@ -117,9 +127,10 @@ export default function RegisterEmailPage() {
 									</option>
 								))}
 							</select>
-							<span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-								▾
-							</span>
+							<ChevronDown
+								size={18}
+								className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+							/>
 						</div>
 
 						{/* 일 */}
@@ -138,9 +149,10 @@ export default function RegisterEmailPage() {
 									</option>
 								))}
 							</select>
-							<span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-								▾
-							</span>
+							<ChevronDown
+								size={18}
+								className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+							/>
 						</div>
 					</div>
 				)}
