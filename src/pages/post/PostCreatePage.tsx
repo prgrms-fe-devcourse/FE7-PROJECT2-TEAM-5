@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X } from "lucide-react";
+import { ConstructionIcon, X } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import supabase from "../../utils/supabase";
 
@@ -60,28 +60,48 @@ export default function PostCreatePage() {
 		}
 	};
 	const hanleImgFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files && e.target.files[0];
-		if (file) {
-			const reader = new FileReader();
-			reader.onload = (e) => {
-				setImgFile(e.target?.result as string);
-			};
-			reader.readAsDataURL(file);
+		const files = e.target.files;
+		if (files) {
+			Array.from(files).map((file) => {
+				const reader = new FileReader();
+				reader.onload = (e) => {
+					setImgFiles((prev) => [
+						...prev,
+						e.target?.result as string,
+					]);
+				};
+				reader.readAsDataURL(file);
+			});
 		}
+		console.log(imgFiles);
 	};
-	const removeImgFile = () => {
-		setImgFile("");
+
+	const removeImgFiles = () => {
+		setImgFiles([]);
+	};
+	const removeTag = (index: number) => {
+		const newHashTag = [
+			...hashTag.slice(0, index),
+			...hashTag.slice(index + 1),
+		];
+		setHashTag(newHashTag);
+	};
+	const activeEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (inputTag && e.key === "Enter" && !e.nativeEvent.isComposing) {
+			e.preventDefault();
+			let hashTags = [...hashTag, inputTag];
+			setHashTag(hashTags);
+			console.log(`"${inputTag}" 저장 완료`);
+			setInputTag("");
+		}
 	};
 	return (
 		<>
 			<div className="min-w-250 px-4">
 				<h2 className="mb-6 text-[32px] font-bold">글 작성하기</h2>
-				<div className="px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
-					<form
-						method="post"
-						className="flex flex-col gap-5.5"
-						onSubmit={handleSubmit}
-					>
+
+				<form method="post" onSubmit={handleSubmit}>
+					<div className="flex flex-col gap-5.5 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
 						<div className="relative px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB]">
 							<select
 								className="w-full peer outline-none user-invalid:border-red-500"
@@ -91,9 +111,7 @@ export default function PostCreatePage() {
 								value={boardType}
 								onChange={(e) => setBoardType(e.target.value)}
 							>
-								<option value="" disabled>
-									게시판을 선택해주세요.
-								</option>
+								<option value="" disabled></option>
 								{boardTypes.map((bt) => (
 									<option key={bt} value={bt}>
 										{bt}
@@ -102,16 +120,24 @@ export default function PostCreatePage() {
 							</select>
 							<label
 								htmlFor="board"
-								className="absolute hidden right-4 top-15 text-sm text-red-500 peer-user-invalid:block"
+								className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-100 ease-in-out 
+								peer-focus:text-sm peer-focus:-translate-y-6 peer-focus:bg-white peer-focus:text-[#8B5CF6] 
+								peer-valid:-translate-y-6 peer-valid:text-sm peer-valid:bg-white peer-valid:text-[#8B5CF6]
+							    "
+							>
+								게시판
+							</label>
+							<label
+								htmlFor="board"
+								className="absolute hidden left-6 -top-2 text-sm bg-white text-red-500 peer-user-invalid:block"
 							>
 								게시판을 선택하세요.
 							</label>
 						</div>
 
 						<div className="relative w-full px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB] outline-none user-invalid:border-red-500">
-							<textarea
+							<input
 								id="title"
-								rows={1}
 								className="peer w-full resize-none outline-none align-middle"
 								required
 								value={title}
@@ -119,7 +145,7 @@ export default function PostCreatePage() {
 							/>
 							<label
 								htmlFor="title"
-								className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-200 ease-in-out 
+								className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-100 ease-in-out 
 								peer-focus:text-sm peer-focus:-translate-y-6 peer-focus:bg-white peer-focus:text-[#8B5CF6] 
 								peer-valid:-translate-y-6 peer-valid:text-sm peer-valid:bg-white peer-valid:text-[#8B5CF6]
 							    "
@@ -128,29 +154,42 @@ export default function PostCreatePage() {
 							</label>
 							<label
 								htmlFor="title"
-								className="absolute hidden right-4 top-15 text-sm text-red-500 peer-user-invalid:block"
+								className="absolute hidden left-6 -top-2 bg-white text-sm text-red-500 peer-user-invalid:block "
 							>
-								제목을 입력하세요.
+								내용을 입력하세요.
 							</label>
 						</div>
 
-						{imgFile && (
+						{imgFiles[0] && (
 							<div className="relative flex flex-col items-center px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB]">
-								<img
-									src={imgFile}
-									alt="imgFile preview"
-									className="max-h-50 object-cover"
-								/>
+								<div className="relative pb-2">
+									<img
+										src={imgFiles[0]}
+										alt={"imege" + 0}
+										className="relative z-2 max-h-50 min-h-30 object-cover bg-white"
+									/>
+									{imgFiles.length > 1 && (
+										<img
+											src={imgFiles[0]}
+											alt={"imege" + 0}
+											className="absolute top-2 left-2 z-1 max-h-50 min-h-30 object-cover opacity-50"
+										/>
+									)}
+									<div className="absolute z-2 -bottom-2 -right-4 px-3.5 py-1.5 text-xm text-[#6B7280] font-bold bg-white border-1 border-[#E5E7EB] bg-amber-50 ㄴopacity-50 rounded-3xl">
+										{imgFiles.length}
+									</div>
+								</div>
+
 								<button
 									type="button"
-									className="absolute top-1.5 right-1.5 p-1 rounded-xl text-red-500 bg-[#E5E7EB] cursor-pointer"
-									onClick={removeImgFile}
+									className="absolute top-1.5 right-1.5 p-1 rounded-xl text-red-500 border-1 border-[#E5E7EB] cursor-pointer"
+									onClick={removeImgFiles}
 								>
-									<X />
+									<X size={18} />
 								</button>
 							</div>
 						)}
-						{!imgFile && (
+						{!imgFiles[0] && (
 							<div className="flex flex-col items-center px-6 py-4 rounded-xl bg-white border-2 border-[#E5E7EB] border-dashed">
 								<input
 									id="imgFile"
@@ -159,6 +198,7 @@ export default function PostCreatePage() {
 									type="file"
 									name="imgFile"
 									onChange={hanleImgFileUpload}
+									multiple
 								/>
 								<p className="text-[#6B7280]">Upload image</p>
 								<label
@@ -181,7 +221,7 @@ export default function PostCreatePage() {
 							/>
 							<label
 								htmlFor="content"
-								className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-200 ease-in-out 
+								className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-100 ease-in-out 
 								peer-focus:text-sm peer-focus:-translate-y-6 peer-focus:bg-white peer-focus:text-[#8B5CF6]
 								peer-valid:-translate-y-6 peer-valid:text-sm peer-valid:bg-white peer-valid:text-[#8B5CF6]"
 							>
@@ -189,7 +229,7 @@ export default function PostCreatePage() {
 							</label>
 							<label
 								htmlFor="content"
-								className="absolute hidden right-4 top-99 text-sm text-red-500 peer-user-invalid:block"
+								className="absolute hidden left-6 -top-2 bg-white text-sm text-red-500 peer-user-invalid:block "
 							>
 								내용을 입력하세요.
 							</label>
@@ -197,44 +237,82 @@ export default function PostCreatePage() {
 
 						<div className="flex flex-col">
 							<div className="relative w-full px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB] outline-none user-invalid:border-red-500">
-								<textarea
-									id="hashTag"
-									rows={1}
-									className="peer w-full resize-none outline-none align-middle"
-									required
-									value={hashTag}
-									onChange={(e) => setHashTag(e.target.value)}
-								/>
-								<label
-									htmlFor="hashTag"
-									className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-200 ease-in-out 
-									peer-focus:text-sm peer-focus:-translate-y-6 peer-focus:bg-white peer-focus:text-[#8B5CF6]
-									peer-valid:-translate-y-6 peer-valid:text-sm peer-valid:bg-white peer-valid:text-[#8B5CF6]"
-								>
-									해시태그
-								</label>
+								{hashTag.length < 10 && (
+									<div>
+										<input
+											id="hashTag"
+											type="text"
+											className="peer w-full resize-none outline-none"
+											value={inputTag}
+											onChange={(e) =>
+												setInputTag(e.target.value)
+											}
+											onKeyDown={(e) => activeEnter(e)}
+										/>
+										<label
+											htmlFor="hashTag"
+											className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-100 ease-in-out 
+											peer-focus:text-sm peer-focus:-translate-y-6 peer-focus:bg-white peer-focus:text-[#8B5CF6]
+											peer-valid:-translate-y-6 peer-valid:text-sm peer-valid:bg-white peer-valid:text-[#8B5CF6]"
+										>
+											해시태그
+										</label>
+									</div>
+								)}
+								{hashTag.length >= 10 && (
+									<div>
+										<input
+											id="hashTag"
+											type="text"
+											className="peer w-full resize-none outline-none text-[#C8C8C8]"
+											readOnly
+											value={
+												"해시태그는 10개까지 입력이 가능합니다."
+											}
+											onChange={(e) =>
+												setInputTag(e.target.value)
+											}
+											onKeyDown={(e) => activeEnter(e)}
+										/>
+									</div>
+								)}
 							</div>
 							<p className="mt-2 text-xs text-[#C8C8C8]">
 								예: 수학, AI, 공부법 (각각 태그 입력 후 Enter)
 							</p>
+							<div className="flex flex-wrap gap-2 mt-2 max-w-[920px]">
+								{hashTag.map((tag, index) => (
+									<div>
+										<button
+											id="tag"
+											type="button"
+											className="px-3 py-2 bg-[#EDE9FE] text-[#8B5CF6] text-sm rounded-lg text-left break-all cursor-pointer"
+											key={index}
+											onClick={() => removeTag(index)}
+										>
+											{"#" + tag} x
+										</button>
+									</div>
+								))}
+							</div>
 						</div>
-						<div className="flex justify-end mt-11.5 gap-2">
-							<Link
-								to="/postList"
-								className="px-4 py-2.5 text-sm rounded-xl bg-white text-[#8B5CF6]
+					</div>
+					<div className="flex justify-end mt-7 gap-2">
+						<Link
+							to="/postList"
+							className="px-4 py-2.5 text-sm rounded-xl bg-white text-[#8B5CF6]
 						font-Regular hover:bg-[#B08DFF] hover:text-white cursor-pointer border-1 border-[#8B5CF6]"
-							>
-								삭제
-							</Link>
-							<button
-								type="submit"
-								className="px-4 py-2.5 text-sm text-white rounded-xl bg-[#8B5CF6]  hover:bg-[#B08DFF] cursor-pointer"
-							>
-								등록
-							</button>
-						</div>
-					</form>
-				</div>
+						>
+							삭제
+						</Link>
+						<button
+							type="submit"
+							className="px-4 py-2.5 text-sm text-white rounded-xl bg-[#8B5CF6]  hover:bg-[#B08DFF] cursor-pointer"
+						>
+							등록
+						</button>
+					</div>
+				</form>
 			</div>
 		</>
 	);
