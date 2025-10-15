@@ -101,12 +101,9 @@ export default function PostCreatePage() {
 		<>
 			<div className="min-w-250 px-4">
 				<h2 className="mb-6 text-[32px] font-bold">글 작성하기</h2>
-				<div className="px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
-					<form
-						method="post"
-						className="flex flex-col gap-5.5"
-						onSubmit={handleSubmit}
-					>
+
+				<form method="post" onSubmit={handleSubmit}>
+					<div className="flex flex-col gap-5.5 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
 						<div className="relative px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB]">
 							<select
 								className="w-full peer outline-none user-invalid:border-red-500"
@@ -125,7 +122,7 @@ export default function PostCreatePage() {
 							</select>
 							<label
 								htmlFor="board"
-								className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-200 ease-in-out 
+								className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-100 ease-in-out 
 								peer-focus:text-sm peer-focus:-translate-y-6 peer-focus:bg-white peer-focus:text-[#8B5CF6] 
 								peer-valid:-translate-y-6 peer-valid:text-sm peer-valid:bg-white peer-valid:text-[#8B5CF6]
 							    "
@@ -150,7 +147,7 @@ export default function PostCreatePage() {
 							/>
 							<label
 								htmlFor="title"
-								className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-200 ease-in-out 
+								className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-100 ease-in-out 
 								peer-focus:text-sm peer-focus:-translate-y-6 peer-focus:bg-white peer-focus:text-[#8B5CF6] 
 								peer-valid:-translate-y-6 peer-valid:text-sm peer-valid:bg-white peer-valid:text-[#8B5CF6]
 							    "
@@ -226,7 +223,7 @@ export default function PostCreatePage() {
 							/>
 							<label
 								htmlFor="content"
-								className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-200 ease-in-out 
+								className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-100 ease-in-out 
 								peer-focus:text-sm peer-focus:-translate-y-6 peer-focus:bg-white peer-focus:text-[#8B5CF6]
 								peer-valid:-translate-y-6 peer-valid:text-sm peer-valid:bg-white peer-valid:text-[#8B5CF6]"
 							>
@@ -242,59 +239,82 @@ export default function PostCreatePage() {
 
 						<div className="flex flex-col">
 							<div className="relative w-full px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB] outline-none user-invalid:border-red-500">
-								<input
-									id="hashTag"
-									type="text"
-									className="peer w-full resize-none outline-none"
-									required
-									value={inputTag}
-									onChange={(e) =>
-										setInputTag(e.target.value)
-									}
-									onKeyDown={(e) => activeEnter(e)}
-								/>
-								<label
-									htmlFor="hashTag"
-									className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-200 ease-in-out 
-									peer-focus:text-sm peer-focus:-translate-y-6 peer-focus:bg-white peer-focus:text-[#8B5CF6]
-									peer-valid:-translate-y-6 peer-valid:text-sm peer-valid:bg-white peer-valid:text-[#8B5CF6]"
-								>
-									해시태그
-								</label>
+								{hashTag.length < 10 && (
+									<div>
+										<input
+											id="hashTag"
+											type="text"
+											className="peer w-full resize-none outline-none"
+											value={inputTag}
+											onChange={(e) =>
+												setInputTag(e.target.value)
+											}
+											onKeyDown={(e) => activeEnter(e)}
+										/>
+										<label
+											htmlFor="hashTag"
+											className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-100 ease-in-out 
+											peer-focus:text-sm peer-focus:-translate-y-6 peer-focus:bg-white peer-focus:text-[#8B5CF6]
+											peer-valid:-translate-y-6 peer-valid:text-sm peer-valid:bg-white peer-valid:text-[#8B5CF6]"
+										>
+											해시태그
+										</label>
+									</div>
+								)}
+								{hashTag.length >= 10 && (
+									<div>
+										<input
+											id="hashTag"
+											type="text"
+											className="peer w-full resize-none outline-none text-[#C8C8C8]"
+											readOnly
+											value={
+												"해시태그는 10개까지 입력이 가능합니다."
+											}
+											onChange={(e) =>
+												setInputTag(e.target.value)
+											}
+											onKeyDown={(e) => activeEnter(e)}
+										/>
+									</div>
+								)}
 							</div>
 							<p className="mt-2 text-xs text-[#C8C8C8]">
 								예: 수학, AI, 공부법 (각각 태그 입력 후 Enter)
 							</p>
-							<div>
+							<div className="flex flex-wrap gap-2 mt-2 max-w-[920px]">
 								{hashTag.map((tag, index) => (
-									<button
-										type="button"
-										className="mr-2 px-3 py-2 bg-[#EDE9FE] text-[#8B5CF6] text-sm rounded-lg cursor-pointer"
-										key={index}
-										onClick={() => removeTag(index)}
-									>
-										{"#" + tag} x
-									</button>
+									<div>
+										<button
+											id="tag"
+											type="button"
+											className="px-3 py-2 bg-[#EDE9FE] text-[#8B5CF6] text-sm rounded-lg text-left break-all cursor-pointer"
+											key={index}
+											onClick={() => removeTag(index)}
+										>
+											{"#" + tag} x
+										</button>
+									</div>
 								))}
 							</div>
 						</div>
-						<div className="flex justify-end mt-11.5 gap-2">
-							<Link
-								to="/postList"
-								className="px-4 py-2.5 text-sm rounded-xl bg-white text-[#8B5CF6]
+					</div>
+					<div className="flex justify-end mt-7 gap-2">
+						<Link
+							to="/postList"
+							className="px-4 py-2.5 text-sm rounded-xl bg-white text-[#8B5CF6]
 						font-Regular hover:bg-[#B08DFF] hover:text-white cursor-pointer border-1 border-[#8B5CF6]"
-							>
-								삭제
-							</Link>
-							<button
-								type="submit"
-								className="px-4 py-2.5 text-sm text-white rounded-xl bg-[#8B5CF6]  hover:bg-[#B08DFF] cursor-pointer"
-							>
-								등록
-							</button>
-						</div>
-					</form>
-				</div>
+						>
+							삭제
+						</Link>
+						<button
+							type="submit"
+							className="px-4 py-2.5 text-sm text-white rounded-xl bg-[#8B5CF6]  hover:bg-[#B08DFF] cursor-pointer"
+						>
+							등록
+						</button>
+					</div>
+				</form>
 			</div>
 		</>
 	);
