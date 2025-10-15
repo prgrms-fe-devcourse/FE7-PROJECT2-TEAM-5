@@ -27,7 +27,7 @@ export default function ProfileCard({
 		}
 	}, [fetchProfile, isMyProfile, profile?.auth_id]);
 
-	if (loading) return <ProfileCadeSkeleton />;
+	if (loading) return <ProfileCadeSkeleton profile={profile} />;
 	if (error) return <p>❌ error 오류: {error}</p>;
 	if (!profile || !userId) return <p>로그인이 필요합니다.</p>;
 
@@ -67,16 +67,16 @@ export default function ProfileCard({
 				</div>
 			</div>
 			{/* 텍스트 컨텐츠 */}
-			<div className="flex flex-col items-center absolute w-full bg-white top-15 rounded-xl shadow-xl pt-15 pb-10">
+			<div className="flex flex-col items-center absolute w-full bg-white top-15 rounded-xl shadow-xl pt-21 pb-10 px-10">
 				{/* 이름 및 뱃지 */}
-				<div className="flex flex-col items-center pt-6">
-					<div className="text-sm font-medium text-gray-800">
-						{/* 🏆 초보 수학 마스터 */}
+				<div className="flex flex-col items-center">
+					<div className="text-sm font-medium text-gray-800 mb-1">
+						🏆 초보 수학 마스터
 					</div>
-					<div className="text-3xl font-bold text-gray-800 mt-1">
+					<div className="text-3xl font-bold text-gray-800 mb-2.5">
 						{profile.nickname}
 					</div>
-					<div className="text-base font-normal text-gray-500 mt-2.5">
+					<div className="text-base font-normal text-gray-500 mb-5">
 						{roleMap[profile.role] || "알 수 없음"}
 						{profile.role === "parent" ? "" : " · "}
 						{grade ? `${grade}` : ""}
@@ -88,14 +88,14 @@ export default function ProfileCard({
 				{isMyProfile && (
 					<Link
 						to={`/profile/me/edit`}
-						className="bg-violet-500 rounded-xl text-center mt-5 px-4 py-2 cursor-pointer text-base font-normal text-white"
+						className="bg-violet-500 rounded-xl text-center px-4 py-2 cursor-pointer text-base font-normal text-white"
 					>
 						프로필 수정
 					</Link>
 				)}
 
 				{/* 친구/게시글/댓글 통계 */}
-				<div className="flex justify-between gap-[50px] pt-6">
+				<div className="flex justify-between gap-12 pt-6">
 					{/* 친구 통계 */}
 					<div className="flex flex-col items-center">
 						<div className="text-xl font-medium text-violet-500">
@@ -126,6 +126,19 @@ export default function ProfileCard({
 						</div>
 					</div>
 				</div>
+
+				{/* 선생님 포인트 */}
+				{profile.role === "teacher" ? (
+					<div className="w-full rounded-xl mt-6 px-6 py-4 bg-violet-500 text-white space-y-1">
+						<p>보유 포인트</p>
+						<div className="flex flex-row items-end justify-between">
+							<span className="text-xl font-medium">1000p</span>
+							<span className="text-xs underline">내역보기</span>
+						</div>
+					</div>
+				) : (
+					""
+				)}
 			</div>
 		</div>
 	);

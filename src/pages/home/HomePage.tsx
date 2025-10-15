@@ -15,6 +15,7 @@ export default function HomePage() {
 	}, [userId, fetchProfile]);
 
 	if (loading) {
+		/* 스켈레톤 UI 추가 예정 */
 		return <p>로딩중...</p>;
 	}
 
