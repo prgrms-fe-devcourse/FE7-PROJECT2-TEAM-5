@@ -12,6 +12,7 @@ const initialErrors: AuthForm = {
 	role: "",
 	birthDate: "",
 	major: "",
+	childLinkCode: "",
 };
 
 export default function RegisterEmailPage() {
@@ -32,6 +33,10 @@ export default function RegisterEmailPage() {
 
 	// 선생님 요소
 	const [major, setMajor] = useState<string>("");
+
+	// 학부모 요소
+	const [childLinkCode, setChildLinkCode] = useState<string>("");
+	const [childExists, setChildExists] = useState<boolean | null>(null);
 
 	// UI state
 	const [loading, setLoading] = useState<boolean>(false);
@@ -62,6 +67,7 @@ export default function RegisterEmailPage() {
 		if (role !== "teacher") setMajor("");
 	}, [role]);
 
+	/* 정합성 체크 요소들 */
 	// 이메일 정합성 체크
 	const isValidEmail = (e: string) => /\S+@\S+\.\S+/.test(e);
 
@@ -116,6 +122,11 @@ export default function RegisterEmailPage() {
 			isValid = false;
 		}
 
+		if (role === "parent" && childLinkCode.trim() === "") {
+			newErrors.childLinkCode = "자녀코드를 입력해주세요.";
+			isValid = false;
+		}
+
 		setErrors(newErrors);
 		return isValid;
 	}, [
@@ -128,7 +139,80 @@ export default function RegisterEmailPage() {
 		month,
 		day,
 		major,
+		childLinkCode,
 	]);
+
+	// 닉네임 중복 검사
+	const checkNicknameExists = useCallback(async (): Promise<boolean> => {
+		if (!nickname.trim()) return false;
+
+		try {
+			const { data, error } = await supabase.functions.invoke(
+				"checkNicknameExists",
+				{ body: { nickname: nickname.trim() } },
+			);
+
+			if (error) throw error;
+
+			if (data?.exists) {
+				setErrors((prev) => ({
+					...prev,
+					nickname: "이미 사용 중인 닉네임입니다.",
+				}));
+				return true;
+			} else {
+				setErrors((prev) => ({ ...prev, nickname: "" }));
+				return false;
+			}
+		} catch {
+			setErrors((prev) => ({
+				...prev,
+				nickname: "닉네임 중복 검사 실패",
+			}));
+			return true;
+		}
+	}, [nickname]);
+
+	// 학부모일 경우, 자녀코드 존재 여부 체크
+	const validateChildCode = useCallback(async (): Promise<{
+		exists: boolean;
+		childId?: string;
+	}> => {
+		if (!childLinkCode.trim()) {
+			setErrors((prev) => ({
+				...prev,
+				childLinkCode: "자녀코드를 입력해주세요.",
+			}));
+			return { exists: false };
+		}
+
+		try {
+			const { data, error } = await supabase.functions.invoke(
+				"getUserIdForChildCode",
+				{ body: { childLinkCode: childLinkCode.trim() } },
+			);
+
+			if (error) throw error;
+
+			if (!data?.exists) {
+				setErrors((prev) => ({
+					...prev,
+					childLinkCode: "존재하지 않는 자녀 코드입니다.",
+				}));
+				return { exists: false };
+			}
+
+			// 유효하면 에러 제거 + childId 반환
+			setErrors((prev) => ({ ...prev, childLinkCode: "" }));
+			return { exists: true, childId: data.childId };
+		} catch {
+			setErrors((prev) => ({
+				...prev,
+				childLinkCode: "자녀 코드 확인 중 오류가 발생했습니다.",
+			}));
+			return { exists: false };
+		}
+	}, [childLinkCode]);
 
 	// auth 테이블에 회원가입 시도하는 함수
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -136,21 +220,31 @@ export default function RegisterEmailPage() {
 		setMessage("");
 		setLoading(true);
 
-		//  먼저 필드 유효성 체크
+		//  닉네임 중복 체크
+		const nicknameExists = await checkNicknameExists();
+		if (nicknameExists) {
+			setLoading(false);
+			return;
+		}
+
+		// 자녀코드 체크
+		if (role === "parent") {
+			const { exists, childId } = await validateChildCode();
+			if (!exists || !childId) {
+				setLoading(false);
+				return;
+			}
+		}
+
+		//  필드 유효성 체크
 		const isValidFields = validateAndSetErrors();
 		if (!isValidFields) {
 			setLoading(false);
 			return;
 		}
 
-		//  이후 닉네임 중복 체크
-		const nicknameExists = await checkNicknameExists(nickname);
-		if (nicknameExists) {
-			setLoading(false);
-			return;
-		}
-
 		try {
+			// 회원가입 시도
 			const { data, error } = await supabase.auth.signUp({
 				email,
 				password,
@@ -173,7 +267,8 @@ export default function RegisterEmailPage() {
 				return;
 			}
 
-			// 성공) 임시 프로필을 폼에 입력된 프로필로 업데이트
+			// 아래부터는 입력된 폼이 모든 정합성 검사를 통과한 상태
+			// 임시 프로필을 폼에 입력된 프로필로 업데이트
 			const userId = user.id;
 			const birthDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
 
@@ -199,7 +294,26 @@ export default function RegisterEmailPage() {
 				.eq("auth_id", userId)
 				.select();
 
-			// 실패) 프로필 업데이트가 실패
+			// 부모-자녀 연결
+			if (role === "parent" && childLinkCode.trim() && childExists) {
+				const { data: childUser, error: searchError } = await supabase
+					.from("users")
+					.select("auth_id")
+					.eq("child_link_code", childLinkCode.trim())
+					.single();
+
+				if (!childUser || searchError) {
+					console.warn("자녀 코드 검색 실패", searchError);
+				} else {
+					await supabase
+						.from("child_parent_links")
+						.insert([
+							{ parent_id: userId, child_id: childUser.auth_id },
+						]);
+				}
+			}
+
+			// (실패) 프로필 업데이트가 실패
 			if (profileError) {
 				setMessage(
 					`회원가입 성공, 하지만 프로필 업데이트 실패: ${profileError.message}`,
@@ -229,65 +343,6 @@ export default function RegisterEmailPage() {
 		);
 	};
 
-	// 닉네임 중복 검사
-	const checkNicknameExists = useCallback(async (nickname: string) => {
-		if (!nickname.trim()) return false;
-
-		try {
-			const { data, error } = await supabase.functions.invoke(
-				"checkNicknameExists",
-				{ body: { nickname: nickname.trim() } },
-			);
-
-			if (error) throw error;
-
-			if (data?.exists) {
-				setErrors((prev) => ({
-					...prev,
-					nickname: "이미 사용 중인 닉네임입니다.",
-				}));
-				return true;
-			} else {
-				setErrors((prev) => ({ ...prev, nickname: "" }));
-				return false;
-			}
-		} catch {
-			setErrors((prev) => ({
-				...prev,
-				nickname: "닉네임 중복 검사 실패",
-			}));
-			return true;
-		}
-	}, []);
-
-	// 자녀코드로 자녀의 ID 확인
-	const getUserIdForChildCode = useCallback(async (childLinkCode: string) => {
-		if (!childLinkCode.trim()) return { exists: false };
-
-		try {
-			const { data, error } = await supabase.functions.invoke(
-				"getUserIdForChildCode",
-				{ body: { childLinkCode: childLinkCode.trim() } },
-			);
-
-			if (error) throw error;
-
-			if (data?.exists) {
-				// 자녀 코드가 유효하면 childId 반환
-				return { exists: true, childId: data.childId };
-			} else {
-				// 유효하지 않은 경우
-				setMessage(
-					`자녀 코드 ('${childLinkCode}')가 유효하지 않습니다.`,
-				);
-				return { exists: false };
-			}
-		} catch (err) {
-			console.error("Child code check error:", err);
-			setMessage("자녀 코드 확인 중 오류가 발생했습니다.");
-			return { exists: false };
-		}
-	}, []);
 	return (
 		<>
 			<h4 className="text-[28px] font-black mb-6 text-[#8b5cf6] text-center">
@@ -377,7 +432,7 @@ export default function RegisterEmailPage() {
 							setErrors((prev) => ({ ...prev, nickname: "" }));
 						}}
 						onBlur={() => {
-							checkNicknameExists(nickname);
+							checkNicknameExists();
 							validateAndSetErrors();
 						}}
 						className={`w-full h-11 rounded-xl border px-4 outline-none transition-all ${
@@ -508,7 +563,7 @@ export default function RegisterEmailPage() {
 					</div>
 				)}
 
-				{/* 선생님 주 과목 입력 (Major Input) */}
+				{/* 선생님일 경우  주 과목 입력 */}
 				{role === "teacher" && (
 					<div>
 						<input
@@ -527,6 +582,35 @@ export default function RegisterEmailPage() {
 							}`}
 						/>
 						<ErrorMessage message={errors.major} />
+					</div>
+				)}
+
+				{/* 학부모일 경우 자녀코드 입력 */}
+				{role === "parent" && (
+					<div>
+						<input
+							type="text"
+							placeholder="자녀 코드 입력"
+							value={childLinkCode}
+							onChange={(e) => {
+								setChildLinkCode(e.target.value);
+								setChildExists(null); // 변경 시 초기화
+								setErrors((prev) => ({
+									...prev,
+									childLinkCode: "",
+								})); // 입력 시 오류 초기화
+							}}
+							onBlur={() => {
+								validateAndSetErrors();
+								validateChildCode();
+							}}
+							className={`w-full h-11 rounded-xl border px-4 outline-none transition-all ${
+								childExists === false || errors.childLinkCode
+									? "border-[#EF4444] focus:border-[#EF4444]"
+									: "border-[#D1D5DB] focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/50"
+							}`}
+						/>
+						<ErrorMessage message={errors.childLinkCode} />
 					</div>
 				)}
 				<button

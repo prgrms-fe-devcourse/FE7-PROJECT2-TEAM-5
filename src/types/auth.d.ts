@@ -8,6 +8,7 @@ export interface AuthForm {
 	role: string;
 	birthDate: string;
 	major: string;
+	childLinkCode: string;
 }
 
 export interface StudentProfileUpdateForm {
@@ -26,5 +27,5 @@ export interface ParentProfileUpdateForm {
 	nickname: string;
 	role: string;
 	birthDate: string;
-	major: string;
+	childLinkCode: string;
 }
