@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import supabase from "../../utils/supabase";
 import { useProfileStore } from "../../stores/profileStore";
+import Input from "../../components/Input";
 
 // 게시글 생성 페이지
 export default function PostCreatePage() {
@@ -158,7 +159,16 @@ export default function PostCreatePage() {
 						</div>
 
 						<div className="relative w-full px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB] outline-none user-invalid:border-red-500">
-							<input
+							<Input
+								id="title"
+								required
+								value={title}
+								onChange={(e) => setTitle(e.target.value)}
+								validationText="제목을 입력하세요"
+							>
+								제목
+							</Input>
+							{/* <input
 								id="title"
 								className="peer w-full resize-none outline-none align-middle"
 								required
@@ -179,7 +189,7 @@ export default function PostCreatePage() {
 								className="absolute hidden left-6 -top-2 bg-white text-sm text-red-500 peer-user-invalid:block "
 							>
 								내용을 입력하세요.
-							</label>
+							</label> */}
 						</div>
 
 						{imgFiles[0] && (
@@ -191,15 +201,17 @@ export default function PostCreatePage() {
 										className="relative z-2 max-h-50 min-h-30 object-cover bg-white"
 									/>
 									{imgFiles.length > 1 && (
-										<img
-											src={imgFiles[0].file}
-											alt={"image" + 0}
-											className="absolute top-2 left-2 z-1 max-h-50 min-h-30 object-cover opacity-50"
-										/>
+										<div>
+											<img
+												src={imgFiles[0].file}
+												alt={"image" + 0}
+												className="absolute top-2 left-2 z-1 max-h-50 min-h-30 object-cover opacity-50"
+											/>
+											<div className="absolute z-2 -bottom-2 -right-4 px-3.5 py-1.5 text-xm text-[#6B7280] font-bold bg-white border-1 border-[#E5E7EB] rounded-3xl">
+												{imgFiles.length}
+											</div>
+										</div>
 									)}
-									<div className="absolute z-2 -bottom-2 -right-4 px-3.5 py-1.5 text-xm text-[#6B7280] font-bold bg-white border-1 border-[#E5E7EB] rounded-3xl">
-										{imgFiles.length}
-									</div>
 								</div>
 
 								<button
@@ -272,10 +284,9 @@ export default function PostCreatePage() {
 											onKeyDown={(e) => activeEnter(e)}
 										/>
 										<label
-											htmlFor="hashTag"
+											htmlFor="title"
 											className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-100 ease-in-out 
-											peer-focus:text-sm peer-focus:-translate-y-6 peer-focus:bg-white peer-focus:text-[#8B5CF6]
-											peer-valid:-translate-y-6 peer-valid:text-sm peer-valid:bg-white peer-valid:text-[#8B5CF6]"
+											peer-focus:text-sm peer-focus:-translate-y-6 peer-focus:bg-white peer-focus:text-[#8B5CF6]"
 										>
 											해시태그
 										</label>
