@@ -1,6 +1,25 @@
+import { MessageCircle, MessageSquareText, UsersRound } from "lucide-react";
 import { Link } from "react-router";
+import { useProfileStore } from "../../stores/profileStore";
+import { useEffect } from "react";
 
 export default function HomePage() {
+	const userId = useProfileStore((state) => state.userId);
+	const { fetchProfile, logout } = useProfileStore();
+
+	const loading = useProfileStore((state) => state.loading);
+
+	useEffect(() => {
+		if (!userId) {
+			fetchProfile();
+		}
+	}, [userId, fetchProfile]);
+
+	if (loading) {
+		/* 스켈레톤 UI 추가 예정 */
+		return <p>로딩중...</p>;
+	}
+
 	return (
 		<>
 			<div className="mt-30 flex flex-col items-center">
@@ -15,32 +34,35 @@ export default function HomePage() {
 						<strong>StudyHub</strong>에 오신 것을 환영합니다.
 					</p>
 					<div className="space-x-4">
-						{/* 로그인x */}
-						{/* <Link
-							to="/register"
-							className="inline-block px-6 py-4 bg-[#8B5CF6] rounded-xl font-bold text-white"
-						>
-							회원가입
-						</Link>
-						<Link
-							to="/login"
-							className="inline-block px-6 py-4 bg-white rounded-xl font-bold text-[#8B5CF6] shadow-[inset_0_0_0_2px_#8B5CF6]"
-						>
-							로그인
-						</Link> */}
-						{/* 로그인o */}
-						<Link
-							to="/login"
-							className="inline-block px-6 py-4 bg-white rounded-xl font-bold text-[#8B5CF6] shadow-[inset_0_0_0_2px_#8B5CF6]"
-						>
-							로그아웃
-						</Link>
+						{userId ? (
+							<button
+								onClick={logout}
+								className="cursor-pointer inline-block px-6 py-4 bg-white rounded-xl font-bold text-[#8B5CF6] shadow-[inset_0_0_0_2px_#8B5CF6]"
+							>
+								로그아웃
+							</button>
+						) : (
+							<>
+								<Link
+									to="/register"
+									className="inline-block px-6 py-4 bg-[#8B5CF6] rounded-xl font-bold text-white"
+								>
+									회원가입
+								</Link>
+								<Link
+									to="/login"
+									className="inline-block px-6 py-4 bg-white rounded-xl font-bold text-[#8B5CF6] shadow-[inset_0_0_0_2px_#8B5CF6]"
+								>
+									로그인
+								</Link>
+							</>
+						)}
 					</div>
 				</div>
 				{/* 카드들 */}
-				<div className="flex items-center flex-nowrap gap-5">
+				<div className="h-[193px] flex items-center flex-nowrap gap-5">
 					{/* 게시판 카드 => Link 태그로 수정할 예정 */}
-					<Link to="/postList">
+					<Link to="/posts">
 						<div className="w-[320px] h-[187px] px-6 py-7 bg-white rounded-xl">
 							<div className="flex items-center gap-2 mb-4">
 								<div className="w-[18px] h-[18px] bg-[#D9D9D9]">
@@ -75,33 +97,34 @@ export default function HomePage() {
 					</Link>
 					{/* 그룹 카드 */}
 					{/* 그룹 활동 x */}
-					{/* <div className="w-[320px] flex-grow p-6 border-2 border-dashed border-[#8B5CF6] bg-white rounded-xl text-center">
-						<div className="flex flex-col items-center gap-3 mb-4">
-							<div className="w-[32px] h-[32px] bg-[#D9D9D9]">
-								// 아이콘
+					<div className="w-[320px] h-full flex-grow py-7 px-6 border-2 border-dashed border-[#8B5CF6] bg-white rounded-xl shadow-md text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+						<div className="flex flex-col items-center gap-3">
+							<div className="flex items-center gap-2">
+								<UsersRound size={18} />
+								<h3 className="font-bold text-xl text-[#8B5CF6]">
+									가입한 그룹이 없습니다
+								</h3>
 							</div>
-							<h3 className="font-bold text-[#8B5CF6] text-xl">
-								가입한 그룹이 없습니다
-							</h3>
-							<p className="text-[#6B7280] text-sm">
+							<p className="text-[#6B7280] text-sm mb-0.5">
 								아직 참여 중인 그룹이 없습니다.
 								<br />
 								관심 있는 그룹을 찾아 가입해보세요!
 							</p>
+							<Link
+								to="/groups"
+								className="inline-block px-5 py-3 bg-[#8B5CF6] text-sm text-white font-bold rounded-xl"
+							>
+								그룹 목록 보기
+							</Link>
 						</div>
-						<Link
-							to="/"
-							className="inline-block px-5 py-2.5 bg-[#8B5CF6] text-white font-bold rounded-xl"
-						>
-							그룹 목록 보기
-						</Link>
-					</div> */}
+					</div>
 					{/* 그룹활동 o */}
-					<div className="w-[320px] h-[187px] px-6 py-7 bg-white rounded-xl">
+					{/* <Link
+						to="groups"
+						className="w-[320px] h-[187px] px-6 py-7 bg-white rounded-xl shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+					>
 						<div className="flex items-center gap-2 mb-4">
-							<div className="w-[18px] h-[18px] bg-[#D9D9D9]">
-								{/* 아이콘 */}
-							</div>
+							<UsersRound size={18} />
 							<h3 className="font-bold text-xl text-[#8B5CF6]">
 								현재 속한 그룹 이름
 							</h3>
@@ -115,7 +138,6 @@ export default function HomePage() {
 							</p>
 						</div>
 						<div className="flex flex-row gap-2 text-xs text-[#8B5CF6]">
-							{/* 반복 함수 구현 예정 */}
 							<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
 								#수학
 							</span>
@@ -126,16 +148,14 @@ export default function HomePage() {
 								#중학생
 							</span>
 						</div>
-					</div>
+					</Link> */}
 					{/* 메시지 카드 => Link 태그로 수정할 예정 */}
 					<Link
 						to="/msg/1"
-						className="w-[320px] h-[187px] px-6 py-7 bg-white rounded-xl"
+						className="w-[320px] h-full px-6 py-7 bg-white rounded-xl shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
 					>
 						<div className="flex items-center gap-2 mb-4">
-							<div className="w-[18px] h-[18px] bg-[#D9D9D9]">
-								{/* 아이콘 */}
-							</div>
+							<MessageCircle size={18} />
 							<h3 className="font-bold text-xl text-[#8B5CF6]">
 								메시지
 							</h3>

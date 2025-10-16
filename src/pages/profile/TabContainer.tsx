@@ -1,5 +1,5 @@
 type TabContainerProps = {
-	activeTab: "info" | "activities" | "friends";
+	activeTab: "info" | "activities" | "friends"; // 탭 종류
 	setActiveTab: (tab: "info" | "activities" | "friends") => void;
 };
 
@@ -14,7 +14,7 @@ export default function TabContainer({
 	] as const;
 
 	return (
-		<div className="relative flex w-full">
+		<div className="relative flex flex-row justify-between w-full">
 			<div className="relative flex bg-white rounded-md">
 				{tabs.map((tab) => (
 					<button

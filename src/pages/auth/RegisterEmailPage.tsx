@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 import supabase from "../../utils/supabase";
 import { Link, useNavigate } from "react-router";
 import { useState, useEffect, useCallback } from "react";
 import type { UserRole, AuthForm } from "../../types/auth";
+=======
+import { Link } from "react-router";
+import { useState, useEffect } from "react";
+import { ChevronDown } from "lucide-react";
+>>>>>>> main
 
 const initialErrors: AuthForm = {
 	email: "",
@@ -291,6 +297,7 @@ export default function RegisterEmailPage() {
 					<ErrorMessage message={errors.confirmPassword} />
 				</div>
 
+<<<<<<< HEAD
 				{/* 닉네임 입력 */}
 				<div>
 					<input
@@ -310,6 +317,27 @@ export default function RegisterEmailPage() {
 						}`}
 					/>
 					<ErrorMessage message={errors.nickname} />
+=======
+				<div className="relative">
+					<select
+						value={role}
+						onChange={(e) => setRole(e.target.value as role)}
+						className={`w-full h-11 rounded-xl border border-[#D1D5DB] px-4 outline-none appearance-none ${
+							!role ? "text-gray-400" : ""
+						}`}
+					>
+						<option value="" disabled>
+							소속 구분
+						</option>
+						<option value="student">학생</option>
+						<option value="teacher">선생님</option>
+						<option value="parent">학부모</option>
+					</select>
+					<ChevronDown
+						size={18}
+						className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+					/>
+>>>>>>> main
 				</div>
 
 				{/* 소속 구분 */}
@@ -357,6 +385,7 @@ export default function RegisterEmailPage() {
 									<option value="" disabled>
 										출생연도
 									</option>
+<<<<<<< HEAD
 									{yearsToUse.map((y) => (
 										<option key={y} value={y}>
 											{y}
@@ -413,6 +442,58 @@ export default function RegisterEmailPage() {
 									▾
 								</span>
 							</div>
+=======
+								))}
+							</select>
+							<ChevronDown
+								size={18}
+								className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+							/>
+						</div>
+
+						{/* 월 */}
+						<div className="relative">
+							<select
+								value={month}
+								onChange={(e) => setMonth(e.target.value)}
+								className="w-full h-11 rounded-xl border border-[#D1D5DB] px-4 pr-10 outline-none appearance-none"
+							>
+								<option value="" disabled>
+									월
+								</option>
+								{months.map((m) => (
+									<option key={m} value={m}>
+										{m}
+									</option>
+								))}
+							</select>
+							<ChevronDown
+								size={18}
+								className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+							/>
+						</div>
+
+						{/* 일 */}
+						<div className="relative">
+							<select
+								value={day}
+								onChange={(e) => setDay(e.target.value)}
+								className="w-full h-11 rounded-xl border border-[#D1D5DB] px-4 pr-10 outline-none appearance-none"
+							>
+								<option value="" disabled>
+									일
+								</option>
+								{days.map((d) => (
+									<option key={d} value={d}>
+										{d}
+									</option>
+								))}
+							</select>
+							<ChevronDown
+								size={18}
+								className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+							/>
+>>>>>>> main
 						</div>
 						<ErrorMessage message={errors.birthDate} />
 					</div>
