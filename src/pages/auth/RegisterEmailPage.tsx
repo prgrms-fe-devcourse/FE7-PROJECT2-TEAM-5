@@ -1,21 +1,9 @@
 import supabase from "../../utils/supabase";
 import { Link, useNavigate } from "react-router";
 import { useState, useEffect, useCallback } from "react";
+import type { UserRole, AuthForm } from "../../types/auth";
 
-type role = "" | "student" | "teacher" | "parent";
-
-// Errors 타입 정의
-interface FormErrors {
-	email: string;
-	password: string;
-	confirmPassword: string;
-	nickname: string;
-	role: string;
-	birthDate: string;
-	major: string;
-}
-
-const initialErrors: FormErrors = {
+const initialErrors: AuthForm = {
 	email: "",
 	password: "",
 	confirmPassword: "",
@@ -28,7 +16,7 @@ const initialErrors: FormErrors = {
 export default function RegisterEmailPage() {
 	const navigate = useNavigate();
 
-	const [role, setRole] = useState<role>("");
+	const [role, setRole] = useState<UserRole>("");
 
 	// 이메일&비밀번호
 	const [email, setEmail] = useState<string>("");
@@ -47,7 +35,7 @@ export default function RegisterEmailPage() {
 	// UI state
 	const [loading, setLoading] = useState<boolean>(false);
 	const [message, setMessage] = useState<string>(""); // 성공 또는 실패 메시지
-	const [errors, setErrors] = useState<FormErrors>(initialErrors); // 필드별 오류 메시지 State 추가
+	const [errors, setErrors] = useState<AuthForm>(initialErrors); // 필드별 오류 메시지 State 추가
 
 	// 생년월일 범위
 	const studentsYears = Array.from({ length: 20 }, (_, i) =>
@@ -82,7 +70,7 @@ export default function RegisterEmailPage() {
 
 	// 필드별 유효성 검사 및 에러 상태 업데이트
 	const validateAndSetErrors = useCallback((): boolean => {
-		let newErrors: FormErrors = { ...initialErrors };
+		let newErrors: AuthForm = { ...initialErrors };
 		let isValid = true;
 
 		if (!isValidEmail(email)) {
@@ -329,7 +317,7 @@ export default function RegisterEmailPage() {
 					<select
 						value={role}
 						onChange={(e) => {
-							setRole(e.target.value as role);
+							setRole(e.target.value as UserRole);
 							setErrors((prev) => ({ ...prev, role: "" }));
 						}}
 						onBlur={() => validateAndSetErrors()}
