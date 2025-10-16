@@ -9,12 +9,16 @@ type ProfileState = {
 	loading: boolean;
 	isLoggedIn: boolean;
 	error: string | null;
+	hasFetched: boolean; // 한 번만 fetch 체크
+
 	// fetchProfile: 현재 로그인한 사용자 정보 가져오기
-	fetchProfile: (targetAuthId?: string | null) => Promise<void>;
+	fetchProfile: (targetAuthId?: string | null) => void;
 	// updateProfile: 현재 로그인한 사용자 정보 수정
 	updateProfile: (updated: Partial<UserProfile>) => void;
 	// 로그아웃
 	logout: () => Promise<void>;
+	// deleteProfile: 현재 로그인한 사용자 삭제
+	deleteProfile: (targetAuthId?: string | null) => void;
 	// clearProfile: 로그아웃 시 상태 초기화
 	clearProfile: () => void;
 };
@@ -26,9 +30,13 @@ export const useProfileStore = create<ProfileState>()(
 		isLoggedIn: false,
 		loading: false,
 		error: null,
+		hasFetched: false,
 
 		// 프로필 저장
 		fetchProfile: async (targetAuthId?: string | null) => {
+			const state = get();
+			if (state.hasFetched) return;
+
 			set((state) => {
 				state.loading = true;
 				state.error = null;
@@ -50,6 +58,7 @@ export const useProfileStore = create<ProfileState>()(
 							state.userId = null;
 							state.isLoggedIn = false;
 							state.loading = false;
+							state.hasFetched = true;
 						});
 						return;
 					}
@@ -73,6 +82,7 @@ export const useProfileStore = create<ProfileState>()(
 						state.isLoggedIn = true;
 					}
 					state.loading = false;
+					state.hasFetched = true;
 				});
 			} catch (err: any) {
 				set((state) => {
@@ -81,6 +91,7 @@ export const useProfileStore = create<ProfileState>()(
 					state.userId = null;
 					state.isLoggedIn = false;
 					state.loading = false;
+					state.hasFetched = true;
 				});
 			}
 		},
@@ -117,15 +128,46 @@ export const useProfileStore = create<ProfileState>()(
 		},
 
 		logout: async () => {
-			set({ loading: true, error: null });
+			set((state) => {
+				state.loading = true;
+				state.error = null;
+			});
 			try {
 				await supabase.auth.signOut();
 				get().clearProfile();
 			} catch (err: any) {
-				set({ error: err.message });
+				set((state) => {
+					state.error = err.message;
+				});
 			} finally {
-				set({ loading: false });
+				set((state) => {
+					state.loading = false;
+				});
 			}
+		},
+
+		deleteProfile: async () => {
+			const profile = get().profile;
+			if (!profile) return;
+
+			const { error } = await supabase
+				.from("users")
+				.delete()
+				.eq("auth_id", profile.auth_id);
+
+			if (error) {
+				console.error("회원 삭제 실패:", error.message);
+				return;
+			}
+
+			set((state) => {
+				state.profile = null;
+				state.userId = null;
+				state.isLoggedIn = false;
+				state.hasFetched = false; // 다시 fetch 가능하게
+			});
+
+			console.log("회원 삭제 완료!");
 		},
 
 		clearProfile: () => {
@@ -135,6 +177,7 @@ export const useProfileStore = create<ProfileState>()(
 				state.isLoggedIn = false;
 				state.error = null;
 				state.loading = false;
+				state.hasFetched = false;
 			});
 		},
 	})),

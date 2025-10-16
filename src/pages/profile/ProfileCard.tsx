@@ -1,41 +1,24 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useProfileStore } from "../../stores/profileStore";
 import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import basicImage from "../../assets/basic_image.png";
-import { SquarePen } from "lucide-react";
-import ProfileCadeSkeleton from "../../components/loading/profile/ProfileCadeSkeleton";
+import { SquarePen, Trash2 } from "lucide-react";
 import Modal from "../../components/Modal";
+import Button from "../../components/Button";
 
 type Props = {
 	isMyProfile?: boolean;
-	targetAuthId?: string | null;
 };
 
-export default function ProfileCard({
-	isMyProfile = false,
-	targetAuthId,
-}: Props) {
-	const { profile, fetchProfile, loading, error, userId } = useProfileStore();
-
+export default function ProfileCard({ isMyProfile = false }: Props) {
+	const navigate = useNavigate();
+	const { profile, deleteProfile } = useProfileStore();
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [isDeleting, setIsDeleting] = useState(false);
 
-	useEffect(() => {
-		if (isMyProfile) {
-			// 내 프로필이면 인자 없이 호출
-			fetchProfile();
-		} else if (profile?.auth_id) {
-			fetchProfile(targetAuthId ?? null); // 다른 사람 프로필
-		}
-	}, [fetchProfile, isMyProfile, profile?.auth_id]);
-
-	if (loading) return <ProfileCadeSkeleton profile={profile} />;
-	if (error) return <p>❌ error 오류: {error}</p>;
-	if (!profile || !userId) return <p>로그인이 필요합니다.</p>;
-
-	const age = profile.birth_date ? getAge(profile.birth_date) : 0;
-	const grade = profile.role === "student" && getGrade(age);
+	if (!profile) return null;
 
 	const roleMap: Record<string, string> = {
 		student: "학생",
@@ -44,15 +27,21 @@ export default function ProfileCard({
 	};
 
 	const handleDeleteAccount = async () => {
+		setIsDeleting(true);
 		try {
-			console.log("회원 탈퇴 처리 중...");
-			// Supabase users 삭제 로직 추가 예정
+			await deleteProfile();
 			setIsModalOpen(false);
 			alert("계정이 삭제되었습니다.");
+			navigate("/");
 		} catch (err) {
 			console.error("탈퇴 실패:", err);
+		} finally {
+			setIsDeleting(false);
 		}
 	};
+
+	const age = profile.birth_date ? getAge(profile.birth_date) : 0;
+	const grade = profile.role === "student" && getGrade(age);
 
 	return (
 		<>
@@ -84,7 +73,7 @@ export default function ProfileCard({
 				{/* 텍스트 컨텐츠 */}
 				<div className="flex flex-col items-center absolute w-full bg-white top-15 rounded-xl shadow-xl pt-21 pb-10 px-10">
 					{/* 이름 및 뱃지 */}
-					<div className="flex flex-col items-center">
+					<div className="flex flex-col items-center text-center">
 						<div className="text-sm font-medium text-gray-800 mb-1">
 							🏆 초보 수학 마스터
 						</div>
@@ -100,13 +89,24 @@ export default function ProfileCard({
 					</div>
 
 					{/* 본인 프로필일 때만 수정 버튼 */}
-					{isMyProfile && (
-						<Link
-							to={`/profile/me/edit`}
-							className="bg-violet-500 rounded-xl text-center px-4 py-2 cursor-pointer text-base font-normal text-white"
-						>
-							프로필 수정
-						</Link>
+					{isMyProfile ? (
+						<>
+							<Link
+								to={`/profile/me/edit`}
+								className="bg-violet-500 rounded-xl text-center px-4 py-2 cursor-pointer text-base font-normal text-white"
+							>
+								프로필 수정
+							</Link>
+						</>
+					) : (
+						<div className="flex flex-row gap-2">
+							<Button className="w-1/2 bg-violet-500 rounded-xl text-center px-4 py-2 cursor-pointer text-base font-normal text-white">
+								팔로우
+							</Button>
+							<Button className="w-1/2 bg-violet-500 rounded-xl text-center px-4 py-2 cursor-pointer text-base font-normal text-white">
+								메시지
+							</Button>
+						</div>
 					)}
 
 					{/* 친구/게시글/댓글 통계 */}
@@ -160,8 +160,11 @@ export default function ProfileCard({
 					)}
 
 					{isMyProfile && (
-						<button onClick={() => setIsModalOpen(true)}>
-							탈퇴하기
+						<button
+							className="absolute left-10 bottom-[-70px] px-4 py-2 bg-red-400 text-white rounded hover:bg-red-600"
+							onClick={() => setIsModalOpen(true)}
+						>
+							<Trash2 />
 						</button>
 					)}
 				</div>
@@ -185,9 +188,10 @@ export default function ProfileCard({
 					</button>
 					<button
 						onClick={handleDeleteAccount}
+						disabled={isDeleting}
 						className="px-8 py-3 rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors"
 					>
-						삭제
+						{isDeleting ? "삭제 중..." : "삭제"}
 					</button>
 				</div>
 			</Modal>
