@@ -10,7 +10,7 @@ export default function GroupPostListPage() {
 
 	const tabs = [
 		{ key: "information", label: "공지사항" },
-		{ key: "activity", label: "활동 게시판" },
+		{ key: "activity", label: "활동게시판" },
 		{ key: "attendance", label: "출석" },
 		{ key: "member", label: "멤버" },
 	] as const;
