@@ -13,7 +13,10 @@ export default function PostCreatePage() {
 	const [content, setContent] = useState("");
 	const [inputTag, setInputTag] = useState<string>("");
 	const [hashTag, setHashTag] = useState<string[]>([]);
-	const [imgFiles, setImgFiles] = useState<string[]>([]);
+	const [imgFiles, setImgFiles] = useState<
+		{ file: string; fileName: string }[]
+	>([]);
+	// const [imgFileNames, setImgFileNames] = useState<string[]>([]);
 
 	const boardTypes = [
 		"자유게시판",
@@ -30,7 +33,8 @@ export default function PostCreatePage() {
 			return;
 		}
 		try {
-			const { data, error } = await supabase
+			//모듈로 분리 필요함
+			const { data: postData, error: postError } = await supabase
 				.from("posts")
 				.insert([
 					{
@@ -43,9 +47,27 @@ export default function PostCreatePage() {
 				])
 				.select();
 
-			if (error) throw error;
-			if (data) {
+			for (const file of imgFiles) {
+				const { data: fileData, error: fileError } = await supabase
+					.from("files")
+					.insert([
+						{
+							post_id: postData?.[0].id,
+							file_path: file.file,
+							file_name: file.fileName,
+						},
+					])
+					.select();
+				if (fileError) throw fileError;
+				if (!fileData) {
+					alert("이미지 파일 등록 실패");
+				}
+			}
+
+			if (postError) throw postError;
+			if (postData) {
 				alert("게시글이 등록되었습니다.");
+				console.log(postData);
 				navigate("/postList");
 			}
 		} catch (e) {
@@ -61,13 +83,15 @@ export default function PostCreatePage() {
 				reader.onload = (e) => {
 					setImgFiles((prev) => [
 						...prev,
-						e.target?.result as string,
+						{
+							file: e.target?.result as string,
+							fileName: file.name,
+						},
 					]);
 				};
 				reader.readAsDataURL(file);
 			});
 		}
-		console.log(imgFiles);
 	};
 
 	const removeImgFiles = () => {
@@ -162,13 +186,13 @@ export default function PostCreatePage() {
 							<div className="relative flex flex-col items-center px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB]">
 								<div className="relative pb-2">
 									<img
-										src={imgFiles[0]}
+										src={imgFiles[0].file}
 										alt={"image" + 0}
 										className="relative z-2 max-h-50 min-h-30 object-cover bg-white"
 									/>
 									{imgFiles.length > 1 && (
 										<img
-											src={imgFiles[0]}
+											src={imgFiles[0].file}
 											alt={"image" + 0}
 											className="absolute top-2 left-2 z-1 max-h-50 min-h-30 object-cover opacity-50"
 										/>
