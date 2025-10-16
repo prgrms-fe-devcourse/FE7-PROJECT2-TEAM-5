@@ -1,5 +1,5 @@
 type TabContainerProps = {
-	activeTab: "info" | "activities" | "friends";
+	activeTab: "info" | "activities" | "friends"; // 탭 종류
 	setActiveTab: (tab: "info" | "activities" | "friends") => void;
 };
 
