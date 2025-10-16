@@ -21,6 +21,7 @@ import GroupPostListPage from "./pages/group/GroupPostListPage";
 import GroupPostDetailPage from "./pages/group/GroupPostDetailPage";
 import GroupAttendancePage from "./pages/group/GroupAttendance";
 import GroupPostCreatePage from "./pages/group/GroupPostCreatePage";
+import SocialSignupInfo from "./pages/auth/SocialSignupInfo";
 
 export default function App() {
 	const fetchProfile = useProfileStore((state) => state.fetchProfile);
@@ -100,7 +101,13 @@ export default function App() {
 					<Route index path="login" element={<LoginPage />} />
 
 					{/* Register */}
-					<Route path="register" element={<RegisterPage />} />
+					<Route path="register">
+						<Route index element={<RegisterPage />}></Route>
+						<Route
+							path="socialSignup"
+							element={<SocialSignupInfo />}
+						></Route>
+					</Route>
 					<Route
 						path="registerEmail"
 						element={<RegisterEmailPage />}
