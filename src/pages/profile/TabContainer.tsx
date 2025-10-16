@@ -14,7 +14,7 @@ export default function TabContainer({
 	] as const;
 
 	return (
-		<div className="relative flex w-full">
+		<div className="relative flex flex-row justify-between w-full">
 			<div className="relative flex bg-white rounded-md">
 				{tabs.map((tab) => (
 					<button
