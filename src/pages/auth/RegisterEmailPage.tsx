@@ -321,8 +321,7 @@ export default function RegisterEmailPage() {
 
 				console.error("Profile update error:", profileError);
 			} else {
-				// 성공했다면 메인페이지로,
-				// TODO) 학부모의 경우, 자녀코드 설정 페이지로
+				// 성공했다면 메인페이지로
 				navigate("/");
 			}
 		} catch (err) {
