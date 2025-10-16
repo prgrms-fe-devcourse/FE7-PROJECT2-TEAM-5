@@ -1,24 +1,33 @@
-export default function GroupCard() {
+type Group = {
+	group_id: string;
+	title: string;
+	bio: string;
+	recent_act: string;
+	members: number;
+	groups_img_url: string;
+};
+
+export default function GroupCard({ group }: { group: Group }) {
 	return (
 		<>
 			<article
-				className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-200 hover:shadow-md"
+				className="w-60 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-gray-200 hover:shadow-md"
 				aria-label="그룹 카드"
 			>
-				<div className="h-[180px] w-full bg-gray-200/80" />
+				<div className="h-35 w-full bg-gray-200/80" />
 
-				<div className="p-4">
-					<div className="flex items-start justify-between gap-3">
+				<div className="py-4 px-5">
+					<div className="flex items-center justify-between">
 						<h3 className="text-base font-semibold text-[#6D28D9] hover:text-[#7C3AED] line-clamp-1">
-							수학 스터디
+							{group.title}
 						</h3>
 						<span className="shrink-0 text-xs text-gray-500">
-							최근 활동 1시간 전
+							{group.recent_act}
 						</span>
 					</div>
 
-					<p className="mt-1 text-xs text-gray-600 line-clamp-2">
-						수학을 사랑하는 모임
+					<p className="h-8 mt-1 text-xs text-gray-600 line-clamp-2">
+						{group.bio}
 					</p>
 
 					<div className="mt-3 flex items-center justify-between">
@@ -35,10 +44,10 @@ export default function GroupCard() {
 								<path d="M23 21v-2a4 4 0 0 0-3-3.87" />
 								<path d="M16 3.13a4 4 0 0 1 0 7.75" />
 							</svg>
-							<span>5명</span>
+							<span>{group.members}</span>
 						</div>
 
-						<button className="h-7 rounded-lg bg-[#8B5CF6] px-3 text-xs font-medium text-white hover:bg-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-violet-300">
+						<button className="rounded-lg bg-[#8B5CF6] px-3 py-1 text-xs font-medium text-white hover:bg-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-violet-300">
 							참여하기
 						</button>
 					</div>
