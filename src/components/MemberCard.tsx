@@ -51,7 +51,7 @@ export default function MemberCard({ friend }: { friend: Friend }) {
 					</p>
 					<p className="text-xs text-gray-500">
 						{friend.status === "온라인"
-							? "현재 활동중"
+							? "현재 활동 중"
 							: `마지막 활동: ${friend.lastActive}`}
 					</p>
 				</div>
