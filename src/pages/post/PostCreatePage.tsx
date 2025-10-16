@@ -20,11 +20,12 @@ export default function PostCreatePage() {
 	// const [imgFileNames, setImgFileNames] = useState<string[]>([]);
 
 	const boardTypes = [
-		"자유게시판",
-		"초등학생 게시판",
-		"중학생 게시판",
-		"고등학생 게시판",
-		"자료 공유 게시판",
+		{ key: "all", label: "전체게시판" },
+		{ key: "free", label: "자유게시판" },
+		{ key: "elementary", label: "초등학생 게시판" },
+		{ key: "middle", label: "중학교 게시판" },
+		{ key: "high", label: "고등학교 게시판" },
+		{ key: "resources", label: "자료 공유 게시판" },
 	];
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -69,7 +70,7 @@ export default function PostCreatePage() {
 			if (postData) {
 				alert("게시글이 등록되었습니다.");
 				console.log(postData);
-				navigate("/postList");
+				navigate("/posts");
 			}
 		} catch (e) {
 			console.error(e);
@@ -136,8 +137,8 @@ export default function PostCreatePage() {
 							>
 								<option value="" disabled></option>
 								{boardTypes.map((bt) => (
-									<option key={bt} value={bt}>
-										{bt}
+									<option key={bt.key} value={bt.key}>
+										{bt.label}
 									</option>
 								))}
 							</select>
@@ -302,7 +303,7 @@ export default function PostCreatePage() {
 					</div>
 					<div className="flex justify-end mt-7 gap-2">
 						<Link
-							to="/postList"
+							to="/posts"
 							className="px-4 py-2.5 text-sm rounded-xl bg-white text-[#8B5CF6]
 						font-Regular hover:bg-[#B08DFF] hover:text-white cursor-pointer border-1 border-[#8B5CF6]"
 						>
