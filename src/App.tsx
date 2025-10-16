@@ -20,6 +20,7 @@ import supabase from "./utils/supabase";
 import GroupPostListPage from "./pages/group/GroupPostListPage";
 import GroupPostDetailPage from "./pages/group/GroupPostDetailPage";
 import GroupAttendancePage from "./pages/group/GroupAttendancePage";
+import GroupPostCreatePage from "./pages/group/GroupPostCreatePage";
 
 export default function App() {
 	const fetchProfile = useProfileStore((state) => state.fetchProfile);
@@ -57,25 +58,34 @@ export default function App() {
 					<Route path="profile/me/edit" element={<EditProfile />} />
 
 					{/* Group */}
-					<Route path="groups/create" element={<CreateGroup />} />
-					<Route path="groups" element={<GroupPage />} />
-					<Route
-						path="groups/postList"
-						element={<GroupPostListPage />}
-					/>
-					<Route
-						path="groups/post/:id"
-						element={<GroupPostDetailPage />}
-					/>
-					<Route
-						path="groups/attendance"
-						element={<GroupAttendancePage />}
-					/>
+					<Route path="groups">
+						<Route index element={<GroupPage />} />
+						<Route path="create" element={<CreateGroup />} />
+						<Route path=":groupId">
+							<Route path="posts">
+								<Route index element={<GroupPostListPage />} />
+								<Route
+									path=":postId"
+									element={<GroupPostDetailPage />}
+								/>
+								<Route
+									path="create"
+									element={<GroupPostCreatePage />}
+								/>
+							</Route>
+							<Route
+								path="attendance"
+								element={<GroupAttendancePage />}
+							/>
+						</Route>
+					</Route>
 
 					{/* Post */}
-					<Route path="postList" element={<PostListPage />} />
-					<Route path="post/:id" element={<PostDetailPage />} />
-					<Route path="postList/edit" element={<PostCreatePage />} />
+					<Route path="posts">
+						<Route index element={<PostListPage />} />
+						<Route path=":id" element={<PostDetailPage />} />
+						<Route path="create" element={<PostCreatePage />} />
+					</Route>
 
 					{/* DM */}
 					<Route path="msg/:id" element={<DmPage />} />
