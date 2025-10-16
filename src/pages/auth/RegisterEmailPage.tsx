@@ -19,7 +19,6 @@ export default function RegisterEmailPage() {
 	const [day, setDay] = useState<string>("");
 
 	const [major, setMajor] = useState<string>("");
-	const [childLinkCode, setChildLinkCode] = useState<string>("");
 
 	// 이번 버전에서 추가, UI state
 	const [loading, setLoading] = useState<boolean>(false);
@@ -42,11 +41,9 @@ export default function RegisterEmailPage() {
 			setMonth("");
 			setDay("");
 			setMajor("");
-			setChildLinkCode("");
 			return;
 		}
 		if (role !== "teacher") setMajor("");
-		if (role !== "teacher" && role !== "parent") setChildLinkCode("");
 	}, [role]);
 
 	// 이메일 정합성 체크
@@ -61,25 +58,10 @@ export default function RegisterEmailPage() {
 		if (year === "" || month === "" || day === "")
 			return "출생연월일을 모두 선택해주세요.";
 		if (role === "teacher" && major.trim() === "")
-			return "전공 과목을 입력해주세요.";
-		if (
-			(role === "teacher" || role === "parent") &&
-			childLinkCode.trim() === ""
-		)
-			return "자녀코드를 입력해주세요.";
+			return "주 과목을 입력해주세요.";
 
 		return null;
-	}, [
-		email,
-		password,
-		nickname,
-		role,
-		year,
-		month,
-		day,
-		major,
-		childLinkCode,
-	]);
+	}, [email, password, nickname, role, year, month, day, major]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -148,56 +130,10 @@ export default function RegisterEmailPage() {
 
 				console.error("Profile update error:", profileError);
 			} else {
-				setMessage(
-					"회원가입 및 프로필 설정이 성공적으로 완료되었습니다!",
-				);
+				navigate("/");
 			}
 
-			// 자녀/학생 연결 (선생님/부모에게만 해당)
-			if (
-				(role === "teacher" || role === "parent") &&
-				childLinkCode.trim()
-			) {
-				const linkCode = childLinkCode.trim();
-				// 코드를 사용하여 학생 사용자 검색
-				const { data: childUser, error: searchError } = await supabase
-					.from("users")
-					.select("auth_id")
-					.eq("child_link_code", childLinkCode)
-					.single();
-
-				if (searchError) {
-					throw new Error(
-						`자녀 코드 검색 오류: ${searchError.message}`,
-					);
-				}
-
-				if (!childUser) {
-					// 유효한 코드로 학생을 찾을 수 없는 경우
-					setMessage(
-						`자녀 코드 ('${linkCode}')가 유효하지 않습니다.`,
-					);
-				} else {
-					const childId = childUser.auth_id;
-
-					// child_parent_links 테이블에 삽입
-					const { error: linkError } = await supabase
-						.from("child_parent_links")
-						.insert([
-							{
-								parent_id: userId, // 새로운 사용자(선생님 또는 부모) ID
-								child_id: childId, // 검색된 학생 ID
-							},
-						]);
-
-					if (linkError) {
-						// 연결 오류
-						console.warn("자녀 연결 삽입 실패", linkError);
-					}
-				}
-			}
-
-			// TODO: 성공 후 로그인 페이지로 리디렉션 로직 추가할 것!!s
+			// TODO: 성공 후 로그인 페이지로 리디렉션 로직 추가할 것!!
 		} catch (err) {
 			console.error("Registration Error:", err);
 			setMessage(
@@ -236,7 +172,7 @@ export default function RegisterEmailPage() {
 				<input
 					id="login-name"
 					type="text"
-					placeholder="이름(닉네임)"
+					placeholder="닉네임"
 					value={nickname}
 					onChange={(e) => setNickname(e.target.value)}
 					className="w-full h-11 rounded-xl border border-[#D1D5DB] px-4 outline-none"
@@ -323,23 +259,7 @@ export default function RegisterEmailPage() {
 							onChange={(e) => setMajor(e.target.value)}
 							className="w-full h-11 rounded-xl border border-[#D1D5DB] px-4 outline-none"
 						/>
-						<input
-							type="text"
-							placeholder="자녀코드 (선택)"
-							value={childLinkCode}
-							onChange={(e) => setChildLinkCode(e.target.value)}
-							className="w-full h-11 rounded-xl border border-[#D1D5DB] px-4 outline-none"
-						/>
 					</>
-				)}
-				{role === "parent" && (
-					<input
-						type="text"
-						placeholder="자녀코드"
-						value={childLinkCode}
-						onChange={(e) => setChildLinkCode(e.target.value)}
-						className="w-full h-11 rounded-xl border border-[#D1D5DB] px-4 outline-none"
-					/>
 				)}
 				<button
 					type="submit"
