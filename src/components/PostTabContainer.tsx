@@ -58,11 +58,11 @@ export default function PostTabContainer({
 						""
 					)}
 					<Link
-						to="edit"
+						to={"create"}
 						className="px-4 py-2 rounded-xl bg-[#8B5CF6]
 						text-white text-xs hover:bg-[#B08DFF] transition-colors"
 					>
-						새 글 작성
+						{title === "게시판" ? "글 작성" : "그룹 생성"}
 					</Link>
 				</div>
 			</div>
