@@ -30,7 +30,8 @@ export default function PostListPage() {
 						.from("posts")
 						.select(
 							"*, users(nickname), likes:post_likes(id), comments:comments!comments_post_id_fkey(id)",
-						);
+						)
+						.order("created_at", { ascending: false });
 
 					if (error) throw error;
 					setPosts(posts);
@@ -46,7 +47,8 @@ export default function PostListPage() {
 						.select(
 							"*, users(nickname), likes:post_likes(id), comments:comments!comments_post_id_fkey(id)",
 						)
-						.eq("board_type", activeTab);
+						.eq("board_type", activeTab)
+						.order("created_at", { ascending: false });
 
 					if (error) throw error;
 					setPosts(posts);
