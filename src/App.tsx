@@ -17,6 +17,9 @@ import PostCreatePage from "./pages/post/PostCreatePage";
 import { useProfileStore } from "./stores/profileStore";
 import { useEffect } from "react";
 import supabase from "./utils/supabase";
+import GroupPostListPage from "./pages/group/GroupPostListPage";
+import GroupPostDetailPage from "./pages/group/GroupPostDetailPage";
+import GroupAttendancePage from "./pages/group/GroupAttendancePage";
 
 export default function App() {
 	const fetchProfile = useProfileStore((state) => state.fetchProfile);
@@ -54,8 +57,21 @@ export default function App() {
 					<Route path="profile/me/edit" element={<EditProfile />} />
 
 					{/* Group */}
-					<Route path="groups" element={<GroupPage />} />
 					<Route path="groups/create" element={<CreateGroup />} />
+					<Route path="groups" element={<GroupPage />} />
+					<Route
+						path="groups/postList"
+						element={<GroupPostListPage />}
+					/>
+					<Route
+						path="groups/post/:id"
+						element={<GroupPostDetailPage />}
+					/>
+					<Route
+						path="groups/attendance"
+						element={<GroupAttendancePage />}
+					/>
+
 					{/* Post */}
 					<Route path="postList" element={<PostListPage />} />
 					<Route path="post/:id" element={<PostDetailPage />} />
