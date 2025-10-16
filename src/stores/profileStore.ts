@@ -10,25 +10,14 @@ type ProfileState = {
 	isLoggedIn: boolean;
 	error: string | null;
 	// fetchProfile: 현재 로그인한 사용자 정보 가져오기
-	fetchProfile: () => Promise<void>;
-	// clearProfile: 로그아웃 시 상태 초기화
-	clearProfile: () => void;
+	fetchProfile: (targetAuthId?: string | null) => Promise<void>;
 	// updateProfile: 현재 로그인한 사용자 정보 수정
 	updateProfile: (updated: Partial<UserProfile>) => void;
+	// 로그아웃
+	logout: () => Promise<void>;
+	// clearProfile: 로그아웃 시 상태 초기화
+	clearProfile: () => void;
 };
-
-// 테스트용
-/* const MOCK_PROFILE: UserProfile = {
-	auth_id: "1234",
-	nickname: "암바사",
-	role: "teacher",
-	child_link_code: "ABC123",
-	created_at: new Date(),
-	birth_date: new Date("2010-01-01"),
-	current_point: 0,
-	is_profile_completed: false,
-	major: "전공",
-}; */
 
 export const useProfileStore = create<ProfileState>()(
 	immer((set, get) => ({
@@ -38,45 +27,51 @@ export const useProfileStore = create<ProfileState>()(
 		loading: false,
 		error: null,
 
-		fetchProfile: async () => {
+		// 프로필 저장
+		fetchProfile: async (targetAuthId?: string | null) => {
 			set((state) => {
 				state.loading = true;
 				state.error = null;
 			});
 
 			try {
-				// 1. 현재 로그인된 사용자 가져오기
-				const {
-					data: { user },
-					error: userError,
-				} = await supabase.auth.getUser();
+				let authId = targetAuthId;
 
-				if (userError) throw userError;
-				if (!user) {
-					// 로그인 안 된 상태
-					set((state) => {
-						state.profile = null;
-						state.userId = null;
-						state.isLoggedIn = false;
-						state.loading = false;
-					});
-					return;
+				// 1. targetAuthId 없으면 현재 로그인 유저 정보 가져오기
+				if (!authId) {
+					const {
+						data: { user },
+						error: userError,
+					} = await supabase.auth.getUser();
+					if (userError) throw userError;
+					if (!user) {
+						set((state) => {
+							state.profile = null;
+							state.userId = null;
+							state.isLoggedIn = false;
+							state.loading = false;
+						});
+						return;
+					}
+					authId = user.id;
 				}
 
 				// 2. users 테이블에서 해당 사용자 row 가져오기
 				const { data, error } = await supabase
 					.from("users")
 					.select("*")
-					.eq("auth_id", user.id)
+					.eq("auth_id", authId)
 					.single();
 
 				if (error) throw error;
 
-				// 3️. 상태 업데이트
+				// 3. 상태 업데이트
 				set((state) => {
-					state.userId = user.id;
 					state.profile = data;
-					state.isLoggedIn = true;
+					if (!targetAuthId) {
+						state.userId = authId;
+						state.isLoggedIn = true;
+					}
 					state.loading = false;
 				});
 			} catch (err: any) {
@@ -90,16 +85,7 @@ export const useProfileStore = create<ProfileState>()(
 			}
 		},
 
-		clearProfile: () => {
-			set((state) => {
-				state.profile = null;
-				state.userId = null;
-				state.isLoggedIn = false;
-				state.error = null;
-				state.loading = false;
-			});
-		},
-
+		// 프로필 수정 후 저장
 		updateProfile: async (updates: Partial<UserProfile>) => {
 			set((state) => {
 				state.loading = true;
@@ -128,6 +114,28 @@ export const useProfileStore = create<ProfileState>()(
 					state.error = err.message;
 				});
 			}
+		},
+
+		logout: async () => {
+			set({ loading: true, error: null });
+			try {
+				await supabase.auth.signOut();
+				get().clearProfile();
+			} catch (err: any) {
+				set({ error: err.message });
+			} finally {
+				set({ loading: false });
+			}
+		},
+
+		clearProfile: () => {
+			set((state) => {
+				state.profile = null;
+				state.userId = null;
+				state.isLoggedIn = false;
+				state.error = null;
+				state.loading = false;
+			});
 		},
 	})),
 );

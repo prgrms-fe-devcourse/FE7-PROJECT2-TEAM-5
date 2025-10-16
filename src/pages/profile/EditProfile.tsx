@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router";
 import { useProfileStore } from "../../stores/profileStore";
 import { getAge } from "../../utils/getAge";
 import { ageToBirthDate } from "../../utils/ageToBirthDate";
+import EditProfileSkeleton from "../../components/loading/profile/EditProfileSkeleton";
+import { ChevronDown } from "lucide-react";
 
 const ALL_INTERESTS: string[] = [
 	"국어",
@@ -48,7 +50,7 @@ export default function EditProfile() {
 		}
 	}, [profile]);
 
-	if (loading) return <p>불러오는 중...</p>;
+	if (loading) return <EditProfileSkeleton />;
 	if (error) return <p>❌ 오류: {error}</p>;
 	if (!profile || !userId) return <p>로그인이 필요합니다.</p>;
 
@@ -148,18 +150,24 @@ export default function EditProfile() {
 						>
 							성별
 						</label>
-						<select
-							id="gender"
-							value={formData.gender}
-							onChange={handleChange("gender")}
-							className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-purple-400"
-						>
-							<option value="" disabled>
-								선택해주세요
-							</option>
-							<option value="남">남</option>
-							<option value="여">여</option>
-						</select>
+						<div className="relative">
+							<select
+								id="gender"
+								value={formData.gender}
+								onChange={handleChange("gender")}
+								className="w-full border border-gray-300 rounded-lg px-3 py-2 appearance-none focus:outline-none focus:border-2 focus:border-purple-400"
+							>
+								<option value="" disabled>
+									선택해주세요
+								</option>
+								<option value="남">남</option>
+								<option value="여">여</option>
+							</select>
+							<ChevronDown
+								size={18}
+								className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+							/>
+						</div>
 					</div>
 
 					{/* 나이 */}
@@ -219,7 +227,7 @@ export default function EditProfile() {
 							id="badge"
 							value={formData.representative_badge_id}
 							onChange={handleChange("representative_badge_id")}
-							className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-purple-400"
+							className="w-full border border-gray-300 rounded-lg px-3 py-2 appearance-none focus:outline-none focus:border-2 focus:border-purple-400"
 						>
 							{/* 옵션 아직 더 추가해야함 */}
 							<option value="" disabled>

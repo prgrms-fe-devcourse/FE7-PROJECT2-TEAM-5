@@ -11,11 +11,41 @@ import PostListPage from "./pages/post/PostListPage";
 import SearchPage from "./pages/search/SearchPage";
 import EditProfile from "./pages/profile/EditProfile";
 import PostDetailPage from "./pages/post/PostDetailPage";
-import GroupPage from "./pages/group/GroupPage"; 
-import CreateGroup from "./pages/group/CreateGroup"
+import GroupPage from "./pages/group/GroupPage";
+import CreateGroup from "./pages/group/CreateGroup";
 import PostCreatePage from "./pages/post/PostCreatePage";
+import { useProfileStore } from "./stores/profileStore";
+import { useEffect } from "react";
+import supabase from "./utils/supabase";
+import GroupPostListPage from "./pages/group/GroupPostListPage";
+import GroupPostDetailPage from "./pages/group/GroupPostDetailPage";
+import GroupAttendancePage from "./pages/group/GroupAttendance";
+import GroupPostCreatePage from "./pages/group/GroupPostCreatePage";
 
 export default function App() {
+	const fetchProfile = useProfileStore((state) => state.fetchProfile);
+
+	useEffect(() => {
+		const initAuth = async () => {
+			// OAuth 후 리다이렉트 시 토큰 처리
+			const { data, error } = await supabase.auth.getSession(); // 현재 세션 확인
+			if (error) {
+				console.error("getSession error", error);
+				return;
+			}
+
+			const user = data.session?.user;
+
+			console.log(user);
+			if (user) {
+				// 로그인 상태라면 store 업데이트
+				fetchProfile(user.id);
+			}
+		};
+
+		initAuth();
+	}, [fetchProfile]);
+
 	return (
 		<>
 			<Routes>
@@ -25,15 +55,37 @@ export default function App() {
 
 					{/* Profile */}
 					<Route path="profile/:id" element={<ProfilePage />} />
-					<Route path="profile/:id/edit" element={<EditProfile />} />
+					<Route path="profile/me/edit" element={<EditProfile />} />
 
-                {/* Group */}
-                <Route path="groups" element={<GroupPage />} />
-				 <Route path="groups/create" element={<CreateGroup />} />
+					{/* Group */}
+					<Route path="groups">
+						<Route index element={<GroupPage />} />
+						<Route path="create" element={<CreateGroup />} />
+						<Route path=":groupId">
+							<Route path="posts">
+								<Route index element={<GroupPostListPage />} />
+								<Route
+									path=":postId"
+									element={<GroupPostDetailPage />}
+								/>
+								<Route
+									path="create"
+									element={<GroupPostCreatePage />}
+								/>
+							</Route>
+							<Route
+								path="attendance"
+								element={<GroupAttendancePage />}
+							/>
+						</Route>
+					</Route>
+
 					{/* Post */}
-					<Route path="postList" element={<PostListPage />} />
-					<Route path="post/:id" element={<PostDetailPage />} />
-					<Route path="postList/edit" element={<PostCreatePage />} />
+					<Route path="posts">
+						<Route index element={<PostListPage />} />
+						<Route path=":id" element={<PostDetailPage />} />
+						<Route path="create" element={<PostCreatePage />} />
+					</Route>
 
 					{/* DM */}
 					<Route path="msg/:id" element={<DmPage />} />

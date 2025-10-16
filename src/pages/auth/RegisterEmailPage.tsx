@@ -2,6 +2,7 @@ import supabase from "../../utils/supabase";
 import { Link, useNavigate } from "react-router";
 import { useState, useEffect, useCallback } from "react";
 import type { UserRole, AuthForm } from "../../types/auth";
+import { ChevronDown } from "lucide-react";
 
 const initialErrors: AuthForm = {
 	email: "",
@@ -335,6 +336,10 @@ export default function RegisterEmailPage() {
 						<option value="parent">학부모</option>
 					</select>
 					<ErrorMessage message={errors.role} />
+					<ChevronDown
+						size={18}
+						className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+					/>
 				</div>
 
 				{/* 출생연월일 (Birth Date Selects) */}
@@ -357,62 +362,56 @@ export default function RegisterEmailPage() {
 									<option value="" disabled>
 										출생연도
 									</option>
-									{yearsToUse.map((y) => (
-										<option key={y} value={y}>
-											{y}
-										</option>
-									))}
-								</select>
-								<span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-									▾
-								</span>
-							</div>
-							<div className="relative">
-								<select
-									value={month}
-									onChange={(e) => setMonth(e.target.value)}
-									className={`w-full h-11 rounded-xl border border-[#D1D5DB] px-4 pr-10 outline-none appearance-none transition-all ${
-										errors.birthDate
-											? "border-[#EF4444] focus:border-[#EF4444]"
-											: "border-[#D1D5DB] focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/50"
-									}`}
-								>
-									<option value="" disabled>
-										월
+								))}
+							</select>
+							<ChevronDown
+								size={18}
+								className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+							/>
+						</div>
+
+						{/* 월 */}
+						<div className="relative">
+							<select
+								value={month}
+								onChange={(e) => setMonth(e.target.value)}
+								className="w-full h-11 rounded-xl border border-[#D1D5DB] px-4 pr-10 outline-none appearance-none"
+							>
+								<option value="" disabled>
+									월
+								</option>
+								{months.map((m) => (
+									<option key={m} value={m}>
+										{m}
 									</option>
-									{months.map((m) => (
-										<option key={m} value={m}>
-											{m}
-										</option>
-									))}
-								</select>
-								<span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-									▾
-								</span>
-							</div>
-							<div className="relative">
-								<select
-									value={day}
-									onChange={(e) => setDay(e.target.value)}
-									className={`w-full h-11 rounded-xl border border-[#D1D5DB] px-4 pr-10 outline-none appearance-none transition-all ${
-										errors.birthDate
-											? "border-[#EF4444] focus:border-[#EF4444]"
-											: "border-[#D1D5DB] focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/50"
-									}`}
-								>
-									<option value="" disabled>
-										일
+								))}
+							</select>
+							<ChevronDown
+								size={18}
+								className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+							/>
+						</div>
+
+						{/* 일 */}
+						<div className="relative">
+							<select
+								value={day}
+								onChange={(e) => setDay(e.target.value)}
+								className="w-full h-11 rounded-xl border border-[#D1D5DB] px-4 pr-10 outline-none appearance-none"
+							>
+								<option value="" disabled>
+									일
+								</option>
+								{days.map((d) => (
+									<option key={d} value={d}>
+										{d}
 									</option>
-									{days.map((d) => (
-										<option key={d} value={d}>
-											{d}
-										</option>
-									))}
-								</select>
-								<span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-									▾
-								</span>
-							</div>
+								))}
+							</select>
+							<ChevronDown
+								size={18}
+								className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+							/>
 						</div>
 						<ErrorMessage message={errors.birthDate} />
 					</div>
