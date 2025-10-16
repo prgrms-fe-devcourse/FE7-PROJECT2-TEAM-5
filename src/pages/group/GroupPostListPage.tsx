@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PostTabContainer from "../../components/PostTabContainer";
 import PostList from "../../components/PostList";
+import PageNation from "../../components/PageNation";
 
 export default function GroupPostListPage() {
 	const [activeTab, setActiveTab] = useState<string>("information");
@@ -45,7 +46,50 @@ export default function GroupPostListPage() {
 			tags: ["역사", "세계사", "시험대비"],
 			date: "2025-10-12",
 		},
+
+		{
+			id: 4,
+			title: "세계사 흐름 쉽게 외우기",
+			content: "세계사의 큰 줄기를 시대별로 정리한 자료를 공유합니다.",
+			author: "김철수",
+			likes: 3,
+			comments: 1,
+			tags: ["역사", "세계사", "시험대비"],
+			date: "2025-10-12",
+		},
+
+		{
+			id: 5,
+			title: "세계사 흐름 쉽게 외우기",
+			content: "세계사의 큰 줄기를 시대별로 정리한 자료를 공유합니다.",
+			author: "김철수",
+			likes: 3,
+			comments: 1,
+			tags: ["역사", "세계사", "시험대비"],
+			date: "2025-10-12",
+		},
+
+		{
+			id: 6,
+			title: "세계사 흐름 쉽게 외우기",
+			content: "세계사의 큰 줄기를 시대별로 정리한 자료를 공유합니다.",
+			author: "김철수",
+			likes: 3,
+			comments: 1,
+			tags: ["역사", "세계사", "시험대비"],
+			date: "2025-10-12",
+		},
 	];
+
+	const postsPerPage = 4;
+	const [currentPage, setCurrentPage] = useState(1);
+
+	const totalPages = Math.ceil(posts.length / postsPerPage);
+
+	const displayedPosts = posts.slice(
+		(currentPage - 1) * postsPerPage,
+		currentPage * postsPerPage,
+	);
 
 	return (
 		<div className="mx-auto w-[1000px] px-10">
@@ -58,8 +102,15 @@ export default function GroupPostListPage() {
 
 			<div className="mt-8">
 				{/* 나중에 연결하면 post_type과 그룹id도 같이 넘겨야 함 */}
-				<PostList posts={posts} />
+				<PostList posts={displayedPosts} />
 			</div>
+
+			{/* <PageNation /> */}
+			<PageNation
+				currentPage={currentPage}
+				totalPages={totalPages}
+				onPageChange={setCurrentPage}
+			/>
 		</div>
 	);
 }
