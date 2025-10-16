@@ -53,7 +53,7 @@ function PostItem({ post }: { post: Post }) {
 						{post.tags.map((tag, idx) => (
 							<div
 								key={idx}
-								className="px-2 py-1 rounded-lg bg-[#ffc8e4] font-Regular text-xs"
+								className="px-2 py-1 rounded-lg bg-[#EDE9FE] font-Regular text-xs text-[#8B5CF6]"
 							>
 								#{tag}
 							</div>
