@@ -381,7 +381,7 @@ export default function RegisterEmailPage() {
 							<div className="relative">
 								<select
 									value={month}
-									onChange={(e) => setYear(e.target.value)}
+									onChange={(e) => setMonth(e.target.value)}
 									className={`w-full h-11 rounded-xl border border-[#D1D5DB] px-4 pr-10 outline-none appearance-none transition-all ${
 										errors.birthDate
 											? "border-[#EF4444] focus:border-[#EF4444]"
