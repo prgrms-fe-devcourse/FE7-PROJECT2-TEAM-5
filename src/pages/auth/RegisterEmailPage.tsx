@@ -2,6 +2,7 @@ import supabase from "../../utils/supabase";
 import { Link, useNavigate } from "react-router";
 import { useState, useEffect, useCallback } from "react";
 import type { UserRole, AuthForm } from "../../types/auth";
+import { ChevronDown } from "lucide-react";
 
 const initialErrors: AuthForm = {
 	email: "",
@@ -313,7 +314,7 @@ export default function RegisterEmailPage() {
 				</div>
 
 				{/* 소속 구분 */}
-				<div>
+				<div className="relative">
 					<select
 						value={role}
 						onChange={(e) => {
@@ -321,11 +322,11 @@ export default function RegisterEmailPage() {
 							setErrors((prev) => ({ ...prev, role: "" }));
 						}}
 						onBlur={() => validateAndSetErrors()}
-						className={`w-full h-11 rounded-xl border border-[#D1D5DB] px-4 outline-none bg-white ${
+						className={`w-full h-11 rounded-xl border px-4 pr-10 outline-none bg-white ${
 							errors.role
 								? "border-[#EF4444] focus:border-[#EF4444]"
 								: "border-[#D1D5DB] focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/50"
-						}`}
+						} appearance-none`} // 중요: appearance-none으로 기본 화살표 숨기기
 					>
 						<option value="" disabled>
 							소속 구분
@@ -334,6 +335,13 @@ export default function RegisterEmailPage() {
 						<option value="teacher">선생님</option>
 						<option value="parent">학부모</option>
 					</select>
+
+					{/* 오른쪽 화살표 아이콘 */}
+					<ChevronDown
+						size={18}
+						className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+					/>
+
 					<ErrorMessage message={errors.role} />
 				</div>
 
@@ -344,6 +352,7 @@ export default function RegisterEmailPage() {
 							className="grid grid-cols-[1.3fr_1fr_1fr] gap-3"
 							onBlur={() => validateAndSetErrors()}
 						>
+							{/* 년 */}
 							<div className="relative">
 								<select
 									value={year}
@@ -363,14 +372,16 @@ export default function RegisterEmailPage() {
 										</option>
 									))}
 								</select>
-								<span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-									▾
-								</span>
+								<ChevronDown
+									size={18}
+									className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+								/>
 							</div>
+							{/* 월 */}
 							<div className="relative">
 								<select
 									value={month}
-									onChange={(e) => setMonth(e.target.value)}
+									onChange={(e) => setYear(e.target.value)}
 									className={`w-full h-11 rounded-xl border border-[#D1D5DB] px-4 pr-10 outline-none appearance-none transition-all ${
 										errors.birthDate
 											? "border-[#EF4444] focus:border-[#EF4444]"
@@ -386,10 +397,12 @@ export default function RegisterEmailPage() {
 										</option>
 									))}
 								</select>
-								<span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-									▾
-								</span>
+								<ChevronDown
+									size={18}
+									className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+								/>
 							</div>
+							{/* 일 */}
 							<div className="relative">
 								<select
 									value={day}
@@ -409,9 +422,10 @@ export default function RegisterEmailPage() {
 										</option>
 									))}
 								</select>
-								<span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
-									▾
-								</span>
+								<ChevronDown
+									size={18}
+									className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+								/>
 							</div>
 						</div>
 						<ErrorMessage message={errors.birthDate} />

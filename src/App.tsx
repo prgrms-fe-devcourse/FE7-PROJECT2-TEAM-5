@@ -19,7 +19,7 @@ import { useEffect } from "react";
 import supabase from "./utils/supabase";
 import GroupPostListPage from "./pages/group/GroupPostListPage";
 import GroupPostDetailPage from "./pages/group/GroupPostDetailPage";
-import GroupAttendancePage from "./pages/group/GroupAttendancePage";
+import GroupAttendancePage from "./pages/group/GroupAttendance";
 import GroupPostCreatePage from "./pages/group/GroupPostCreatePage";
 
 export default function App() {

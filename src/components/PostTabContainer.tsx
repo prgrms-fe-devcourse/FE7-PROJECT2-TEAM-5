@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import Button from "./Button";
 
 type TabItem = {
 	key: string;
@@ -18,6 +19,11 @@ export default function PostTabContainer({
 	title,
 	tabs,
 }: PostTabContainerProps) {
+	const isNormalBoard = title === "게시판";
+	const isGroupBoard =
+		title === "그룹 게시판" &&
+		(activeTab === "information" || activeTab === "activity");
+
 	return (
 		<>
 			<h1 className="font-bold text-[28px] my-3">{title}</h1>
@@ -27,10 +33,10 @@ export default function PostTabContainer({
 				{/* 게시판 탭 버튼 */}
 				<div className="inline-flex gap-2">
 					{tabs.map((tab) => (
-						<button
+						<Button
 							key={tab.key}
 							onClick={() => setActiveTab(tab.key)}
-							className={`px-4 py-2 rounded-xl  text-xs font-medium transition-colors
+							className={`px-4 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer
 								${
 									activeTab === tab.key
 										? "bg-[#8B5CF6] text-white"
@@ -38,33 +44,42 @@ export default function PostTabContainer({
 								}`}
 						>
 							{tab.label}
-						</button>
+						</Button>
 					))}
 				</div>
 
-				{/* 검색 / 새 글 버튼 */}
-				<div className="inline-flex gap-2">
-					{title === "게시판" ? (
-						<>
-							<button
-								type="button"
-								className="px-4 py-2 rounded-xl bg-[#8B5CF6]
-						text-white text-xs hover:bg-[#B08DFF] transition-colors"
+				{/* 검색 / 새 글 / 그룹 생성 버튼 영역 */}
+				{(isNormalBoard || isGroupBoard) && (
+					<div className="inline-flex gap-2">
+						{/* 일반 게시판 전용: 검색 + 글 작성 */}
+						{isNormalBoard && (
+							<>
+								<Button
+									type="button"
+									className="px-4 py-2 rounded-xl bg-[#8B5CF6] text-white text-xs hover:bg-[#B08DFF] transition-colors"
+								>
+									검색
+								</Button>
+								<Link
+									to="create"
+									className="px-4 py-2 rounded-xl bg-[#8B5CF6] text-white text-xs hover:bg-[#B08DFF] transition-colors"
+								>
+									글 작성
+								</Link>
+							</>
+						)}
+
+						{/* 그룹 게시판 전용: 그룹 생성 */}
+						{isGroupBoard && (
+							<Link
+								to="create"
+								className="px-4 py-2 rounded-xl bg-[#8B5CF6] text-white text-xs hover:bg-[#B08DFF] transition-colors"
 							>
-								검색
-							</button>
-						</>
-					) : (
-						""
-					)}
-					<Link
-						to={"create"}
-						className="px-4 py-2 rounded-xl bg-[#8B5CF6]
-						text-white text-xs hover:bg-[#B08DFF] transition-colors"
-					>
-						{title === "게시판" ? "글 작성" : "그룹 생성"}
-					</Link>
-				</div>
+								그룹 생성
+							</Link>
+						)}
+					</div>
+				)}
 			</div>
 		</>
 	);
