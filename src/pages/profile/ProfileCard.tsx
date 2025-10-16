@@ -35,7 +35,7 @@ export default function ProfileCard({
 	if (!profile || !userId) return <p>로그인이 필요합니다.</p>;
 
 	const age = profile.birth_date ? getAge(profile.birth_date) : 0;
-	const grade = profile.role === "student" ? getGrade(age) : "";
+	const grade = profile.role === "student" && getGrade(age);
 
 	const roleMap: Record<string, string> = {
 		student: "학생",
@@ -94,10 +94,8 @@ export default function ProfileCard({
 						<div className="text-base font-normal text-gray-500 mb-5">
 							{roleMap[profile.role] || "알 수 없음"}
 							{profile.role === "parent" ? "" : " · "}
-							{grade ? `${grade}` : ""}
-							{profile.role === "teacher"
-								? `${profile.major}`
-								: ""}
+							{grade && `${grade}`}
+							{profile.role === "teacher" && `${profile.major}`}
 						</div>
 					</div>
 

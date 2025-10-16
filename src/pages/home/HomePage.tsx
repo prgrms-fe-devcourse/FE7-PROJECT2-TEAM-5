@@ -1,4 +1,4 @@
-import { MessageCircle, MessageSquareText, UsersRound } from "lucide-react";
+import { MessageCircle, UsersRound } from "lucide-react";
 import { Link } from "react-router";
 import { useProfileStore } from "../../stores/profileStore";
 import { useEffect } from "react";
