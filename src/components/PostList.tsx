@@ -2,14 +2,19 @@ import { Heart, MessageSquare } from "lucide-react";
 import { Link } from "react-router";
 
 type Post = {
-	id: number;
-	title: string;
+	adopted_comment_id: string | null;
+	board_type: string;
 	content: string;
-	author: string;
-	likes: number;
-	comments: number;
-	tags: string[];
-	date: string;
+	created_at: string;
+	group_board_type: string | null;
+	group_id: string | null;
+	hash_tag: string[] | null;
+	id: string;
+	title: string;
+	user_id: string;
+	users?: { nickname: string } | null;
+	likes?: string[] | null;
+	comments?: string[] | null;
 };
 
 type PostListProps = {
@@ -27,17 +32,24 @@ function PostItem({ post }: { post: Post }) {
 							{post.title}
 						</h2>
 						<p className="text-[14px] font-Regular text-[#1F2937]">
-							작성자: {post.author}
+							작성자:{" "}
+							{post.users?.nickname
+								? post.users.nickname
+								: "unknown"}
 						</p>
 					</div>
 					<div className="flex gap-3">
 						<div className="flex gap-1 items-center">
 							<Heart color="red" size={15} />
-							<p className="text-[14px]">{post.likes}</p>
+							<p className="text-[14px]">
+								{post.likes ? post.likes.length : "0"}
+							</p>
 						</div>
 						<div className="flex gap-1 items-center">
 							<MessageSquare color="#8B5CF6" size={15} />
-							<p className="text-[14px]">{post.comments}</p>
+							<p className="text-[14px]">
+								{post.comments ? post.comments.length : "0"}
+							</p>
 						</div>
 					</div>
 				</div>
@@ -50,7 +62,7 @@ function PostItem({ post }: { post: Post }) {
 				{/* 해시태그 + 날짜 */}
 				<div className="flex justify-between items-end">
 					<div className="flex flex-wrap gap-2">
-						{post.tags.map((tag, idx) => (
+						{post.hash_tag?.map((tag, idx) => (
 							<div
 								key={idx}
 								className="px-2 py-1 rounded-lg bg-[#EDE9FE] font-Regular text-xs text-[#8B5CF6]"
@@ -59,7 +71,9 @@ function PostItem({ post }: { post: Post }) {
 							</div>
 						))}
 					</div>
-					<p className="text-[14px] text-[#6B7280]">{post.date}</p>
+					<p className="text-[14px] text-[#6B7280]">
+						{post.created_at.slice(0, 10)}
+					</p>
 				</div>
 			</div>
 		</Link>
