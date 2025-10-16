@@ -130,11 +130,25 @@ export default function RegisterEmailPage() {
 		major,
 	]);
 
-	// auth 테이블에 회원가입 시도
+	// auth 테이블에 회원가입 시도하는 함수
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setMessage("");
 		setLoading(true);
+
+		//  먼저 필드 유효성 체크
+		const isValidFields = validateAndSetErrors();
+		if (!isValidFields) {
+			setLoading(false);
+			return;
+		}
+
+		//  이후 닉네임 중복 체크
+		const nicknameExists = await checkNicknameExists(nickname);
+		if (nicknameExists) {
+			setLoading(false);
+			return;
+		}
 
 		try {
 			const { data, error } = await supabase.auth.signUp({
@@ -215,6 +229,65 @@ export default function RegisterEmailPage() {
 		);
 	};
 
+	// 닉네임 중복 검사
+	const checkNicknameExists = useCallback(async (nickname: string) => {
+		if (!nickname.trim()) return false;
+
+		try {
+			const { data, error } = await supabase.functions.invoke(
+				"checkNicknameExists",
+				{ body: { nickname: nickname.trim() } },
+			);
+
+			if (error) throw error;
+
+			if (data?.exists) {
+				setErrors((prev) => ({
+					...prev,
+					nickname: "이미 사용 중인 닉네임입니다.",
+				}));
+				return true;
+			} else {
+				setErrors((prev) => ({ ...prev, nickname: "" }));
+				return false;
+			}
+		} catch {
+			setErrors((prev) => ({
+				...prev,
+				nickname: "닉네임 중복 검사 실패",
+			}));
+			return true;
+		}
+	}, []);
+
+	// 자녀코드로 자녀의 ID 확인
+	const getUserIdForChildCode = useCallback(async (childLinkCode: string) => {
+		if (!childLinkCode.trim()) return { exists: false };
+
+		try {
+			const { data, error } = await supabase.functions.invoke(
+				"getUserIdForChildCode",
+				{ body: { childLinkCode: childLinkCode.trim() } },
+			);
+
+			if (error) throw error;
+
+			if (data?.exists) {
+				// 자녀 코드가 유효하면 childId 반환
+				return { exists: true, childId: data.childId };
+			} else {
+				// 유효하지 않은 경우
+				setMessage(
+					`자녀 코드 ('${childLinkCode}')가 유효하지 않습니다.`,
+				);
+				return { exists: false };
+			}
+		} catch (err) {
+			console.error("Child code check error:", err);
+			setMessage("자녀 코드 확인 중 오류가 발생했습니다.");
+			return { exists: false };
+		}
+	}, []);
 	return (
 		<>
 			<h4 className="text-[28px] font-black mb-6 text-[#8b5cf6] text-center">
@@ -303,7 +376,10 @@ export default function RegisterEmailPage() {
 							setNickname(e.target.value);
 							setErrors((prev) => ({ ...prev, nickname: "" }));
 						}}
-						onBlur={() => validateAndSetErrors()}
+						onBlur={() => {
+							checkNicknameExists(nickname);
+							validateAndSetErrors();
+						}}
 						className={`w-full h-11 rounded-xl border px-4 outline-none transition-all ${
 							errors.nickname
 								? "border-[#EF4444] focus:border-[#EF4444]"
