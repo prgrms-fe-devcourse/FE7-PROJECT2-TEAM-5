@@ -18,6 +18,16 @@ export default function PostTabContainer({
 	title,
 	tabs,
 }: PostTabContainerProps) {
+	/* 공통 버튼 스타일 */
+	const buttonClass =
+		"px-4 py-2 rounded-xl bg-[#8B5CF6] text-white text-xs hover:bg-[#B08DFF] transition-colors";
+
+	// 렌더링 조건 로직
+	const isNormalBoard = title === "게시판";
+	const isGroupBoard =
+		title === "그룹 게시판" &&
+		(activeTab === "information" || activeTab === "activity");
+
 	return (
 		<>
 			<h1 className="font-bold text-[28px] my-3">{title}</h1>
@@ -30,7 +40,7 @@ export default function PostTabContainer({
 						<button
 							key={tab.key}
 							onClick={() => setActiveTab(tab.key)}
-							className={`px-4 py-2 rounded-xl  text-xs font-medium transition-colors
+							className={`px-4 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer
 								${
 									activeTab === tab.key
 										? "bg-[#8B5CF6] text-white"
@@ -42,29 +52,29 @@ export default function PostTabContainer({
 					))}
 				</div>
 
-				{/* 검색 / 새 글 버튼 */}
-				<div className="inline-flex gap-2">
-					{title === "게시판" ? (
-						<>
-							<button
-								type="button"
-								className="px-4 py-2 rounded-xl bg-[#8B5CF6]
-						text-white text-xs hover:bg-[#B08DFF] transition-colors"
-							>
-								검색
-							</button>
-						</>
-					) : (
-						""
-					)}
-					<Link
-						to={"create"}
-						className="px-4 py-2 rounded-xl bg-[#8B5CF6]
-						text-white text-xs hover:bg-[#B08DFF] transition-colors"
-					>
-						{title === "게시판" ? "글 작성" : "그룹 생성"}
-					</Link>
-				</div>
+				{/* 검색 / 새 글 / 그룹 생성 버튼 영역 */}
+				{(isNormalBoard || isGroupBoard) && (
+					<div className="inline-flex gap-2">
+						{/* 일반 게시판 전용: 검색 + 글 작성 */}
+						{isNormalBoard && (
+							<>
+								<button type="button" className={buttonClass}>
+									검색
+								</button>
+								<Link to="create" className={buttonClass}>
+									글 작성
+								</Link>
+							</>
+						)}
+
+						{/* 그룹 게시판 전용: 그룹 생성 */}
+						{isGroupBoard && (
+							<Link to="create" className={buttonClass}>
+								그룹 생성
+							</Link>
+						)}
+					</div>
+				)}
 			</div>
 		</>
 	);

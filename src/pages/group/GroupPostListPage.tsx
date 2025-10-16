@@ -2,6 +2,8 @@ import { useState } from "react";
 import PostTabContainer from "../../components/PostTabContainer";
 import PostList from "../../components/PostList";
 import PageNation from "../../components/PageNation";
+import GroupMembers from "./GroupMembers";
+import GroupAttendance from "./GroupAttendance";
 
 export default function GroupPostListPage() {
 	const [activeTab, setActiveTab] = useState<string>("information");
@@ -102,15 +104,31 @@ export default function GroupPostListPage() {
 
 			<div className="mt-8">
 				{/* 나중에 연결하면 post_type과 그룹id도 같이 넘겨야 함 */}
-				<PostList posts={displayedPosts} />
+				{activeTab === "information" && (
+					<>
+						<PostList posts={displayedPosts} />
+						{/* <PageNation /> */}
+						<PageNation
+							currentPage={currentPage}
+							totalPages={totalPages}
+							onPageChange={setCurrentPage}
+						/>
+					</>
+				)}
+				{activeTab === "activity" && (
+					<>
+						<PostList posts={displayedPosts} />
+						{/* <PageNation /> */}
+						<PageNation
+							currentPage={currentPage}
+							totalPages={totalPages}
+							onPageChange={setCurrentPage}
+						/>
+					</>
+				)}
+				{activeTab === "attendance" && <GroupAttendance />}
+				{activeTab === "member" && <GroupMembers />}
 			</div>
-
-			{/* <PageNation /> */}
-			<PageNation
-				currentPage={currentPage}
-				totalPages={totalPages}
-				onPageChange={setCurrentPage}
-			/>
 		</div>
 	);
 }
