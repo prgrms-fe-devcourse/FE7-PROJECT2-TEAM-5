@@ -168,28 +168,6 @@ export default function PostCreatePage() {
 							>
 								제목
 							</Input>
-							{/* <input
-								id="title"
-								className="peer w-full resize-none outline-none align-middle"
-								required
-								value={title}
-								onChange={(e) => setTitle(e.target.value)}
-							/>
-							<label
-								htmlFor="title"
-								className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-100 ease-in-out 
-								peer-focus:text-sm peer-focus:-translate-y-6 peer-focus:bg-white peer-focus:text-[#8B5CF6] 
-								peer-valid:-translate-y-6 peer-valid:text-sm peer-valid:bg-white peer-valid:text-[#8B5CF6]
-							    "
-							>
-								제목
-							</label>
-							<label
-								htmlFor="title"
-								className="absolute hidden left-6 -top-2 bg-white text-sm text-red-500 peer-user-invalid:block "
-							>
-								내용을 입력하세요.
-							</label> */}
 						</div>
 
 						{imgFiles[0] && (
@@ -273,31 +251,24 @@ export default function PostCreatePage() {
 							<div className="relative w-full px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB] outline-none user-invalid:border-red-500">
 								{hashTag.length < 10 && (
 									<div>
-										<input
+										<Input
 											id="hashTag"
 											type="text"
-											className="peer w-full resize-none outline-none"
 											value={inputTag}
 											onChange={(e) =>
 												setInputTag(e.target.value)
 											}
 											onKeyDown={(e) => activeEnter(e)}
-										/>
-										<label
-											htmlFor="title"
-											className="absolute left-6 top-4 text-[#C8C8C8] transition-all duration-100 ease-in-out 
-											peer-focus:text-sm peer-focus:-translate-y-6 peer-focus:bg-white peer-focus:text-[#8B5CF6]"
 										>
 											해시태그
-										</label>
+										</Input>
 									</div>
 								)}
 								{hashTag.length >= 10 && (
 									<div>
-										<input
+										<Input
 											id="hashTag"
 											type="text"
-											className="peer w-full resize-none outline-none text-[#C8C8C8]"
 											readOnly
 											value={
 												"해시태그는 10개까지 입력이 가능합니다."
@@ -306,7 +277,7 @@ export default function PostCreatePage() {
 												setInputTag(e.target.value)
 											}
 											onKeyDown={(e) => activeEnter(e)}
-										/>
+										></Input>
 									</div>
 								)}
 							</div>
