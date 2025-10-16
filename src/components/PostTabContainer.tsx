@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import Button from "./Button";
 
 type TabItem = {
 	key: string;
@@ -18,11 +19,6 @@ export default function PostTabContainer({
 	title,
 	tabs,
 }: PostTabContainerProps) {
-	/* 공통 버튼 스타일 */
-	const buttonClass =
-		"px-4 py-2 rounded-xl bg-[#8B5CF6] text-white text-xs hover:bg-[#B08DFF] transition-colors";
-
-	// 렌더링 조건 로직
 	const isNormalBoard = title === "게시판";
 	const isGroupBoard =
 		title === "그룹 게시판" &&
@@ -37,7 +33,7 @@ export default function PostTabContainer({
 				{/* 게시판 탭 버튼 */}
 				<div className="inline-flex gap-2">
 					{tabs.map((tab) => (
-						<button
+						<Button
 							key={tab.key}
 							onClick={() => setActiveTab(tab.key)}
 							className={`px-4 py-2 rounded-xl text-xs font-medium transition-colors cursor-pointer
@@ -48,7 +44,7 @@ export default function PostTabContainer({
 								}`}
 						>
 							{tab.label}
-						</button>
+						</Button>
 					))}
 				</div>
 
@@ -58,10 +54,16 @@ export default function PostTabContainer({
 						{/* 일반 게시판 전용: 검색 + 글 작성 */}
 						{isNormalBoard && (
 							<>
-								<button type="button" className={buttonClass}>
+								<Button
+									type="button"
+									className="px-4 py-2 rounded-xl bg-[#8B5CF6] text-white text-xs hover:bg-[#B08DFF] transition-colors"
+								>
 									검색
-								</button>
-								<Link to="create" className={buttonClass}>
+								</Button>
+								<Link
+									to="create"
+									className="px-4 py-2 rounded-xl bg-[#8B5CF6] text-white text-xs hover:bg-[#B08DFF] transition-colors"
+								>
 									글 작성
 								</Link>
 							</>
@@ -69,7 +71,10 @@ export default function PostTabContainer({
 
 						{/* 그룹 게시판 전용: 그룹 생성 */}
 						{isGroupBoard && (
-							<Link to="create" className={buttonClass}>
+							<Link
+								to="create"
+								className="px-4 py-2 rounded-xl bg-[#8B5CF6] text-white text-xs hover:bg-[#B08DFF] transition-colors"
+							>
 								그룹 생성
 							</Link>
 						)}
