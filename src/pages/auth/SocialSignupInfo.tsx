@@ -1,10 +1,10 @@
-import { Link } from "react-router";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { Link } from "react-router";
 
 type role = "" | "student" | "teacher" | "parent";
 
-export default function RegisterEmailPage() {
+export default function SocialSignupInfo() {
 	const [role, setRole] = useState<role>("");
 
 	const [year, setYear] = useState<string>("");
@@ -41,24 +41,10 @@ export default function RegisterEmailPage() {
 	return (
 		<>
 			<h4 className="text-[28px] font-black mb-6 text-[#8b5cf6] text-center">
-				회원가입
+				회원 정보 입력
 			</h4>
 
-			<form className="w-full flex flex-col gap-4 mb-7">
-				<input
-					id="login-email"
-					type="email"
-					placeholder="이메일"
-					className="w-full h-11 rounded-xl border border-[#D1D5DB] px-4 outline-none"
-				/>
-
-				<input
-					id="login-password"
-					type="password"
-					placeholder="비밀번호"
-					className="w-full h-11 rounded-xl border border-[#D1D5DB] px-4 outline-none"
-				/>
-
+			<form className="w-full flex flex-col gap-4">
 				<input
 					id="login-name"
 					type="text"
@@ -195,23 +181,7 @@ export default function RegisterEmailPage() {
 						회원가입
 					</button>
 				</Link>
-
-				<button
-					type="button"
-					className="cursor-pointer w-full h-11 text-white font-semibold rounded-xl bg-[#6B7280]"
-				>
-					뒤로가기
-				</button>
 			</form>
-
-			<div className="flex flex-col gap-4 items-center mb-3">
-				<div className="text-xs text-[#6B7280]">
-					이미 계정이 있나요?{" "}
-					<Link to="/login" className="text-[#8B5CF6] underline">
-						로그인
-					</Link>
-				</div>
-			</div>
 		</>
 	);
 }
