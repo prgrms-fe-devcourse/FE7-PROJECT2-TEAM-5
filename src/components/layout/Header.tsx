@@ -11,7 +11,7 @@ export default function Header() {
 				</Link>
 				<nav className="flex flex-row gap-6 text-[#6B7280] font-medium">
 					<Link to="/search">검색</Link>
-					<Link to="/postList">게시판</Link>
+					<Link to="/posts">게시판</Link>
 					<Link to="/groups">그룹</Link>
 					{isLoggedIn ? (
 						<>

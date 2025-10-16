@@ -1,18 +1,16 @@
-// 게시글 리스트 페이지
 import { useState } from "react";
 import PostTabContainer from "../../components/PostTabContainer";
 import PostList from "../../components/PostList";
 import PageNation from "../../components/PageNation";
-// import PageNation from "../../components/PageNation";
-export default function PostListPage() {
-	const [activeTab, setActiveTab] = useState<string>("all");
+
+export default function GroupPostListPage() {
+	const [activeTab, setActiveTab] = useState<string>("information");
 
 	const tabs = [
-		{ key: "all", label: "전체게시판" },
-		{ key: "free", label: "자유게시판" },
-		{ key: "elementary", label: "초등학생 게시판" },
-		{ key: "middle", label: "중학교 게시판" },
-		{ key: "high", label: "고등학교 게시판" },
+		{ key: "information", label: "공지사항" },
+		{ key: "activity", label: "활동 게시판" },
+		{ key: "attendance", label: "출석" },
+		{ key: "member", label: "멤버" },
 	] as const;
 
 	// 샘플 데이터 (나중에 Supabase 연동 시 대체 가능)
@@ -94,27 +92,25 @@ export default function PostListPage() {
 	);
 
 	return (
-		<>
-			<div className="w-[920px]">
-				<PostTabContainer
-					activeTab={activeTab}
-					setActiveTab={setActiveTab}
-					title="게시판"
-					tabs={tabs}
-				/>
+		<div className="mx-auto w-[1000px] px-10">
+			<PostTabContainer
+				activeTab={activeTab}
+				setActiveTab={setActiveTab}
+				title="그룹 게시판"
+				tabs={tabs}
+			/>
 
-				{/* 게시판 영역 */}
-				<div className="border-t border-gray-300 mt-2 pt-6">
-					<PostList posts={displayedPosts} />
-				</div>
-
-				{/* <PageNation /> */}
-				<PageNation
-					currentPage={currentPage}
-					totalPages={totalPages}
-					onPageChange={setCurrentPage}
-				/>
+			<div className="mt-8">
+				{/* 나중에 연결하면 post_type과 그룹id도 같이 넘겨야 함 */}
+				<PostList posts={displayedPosts} />
 			</div>
-		</>
+
+			{/* <PageNation /> */}
+			<PageNation
+				currentPage={currentPage}
+				totalPages={totalPages}
+				onPageChange={setCurrentPage}
+			/>
+		</div>
 	);
 }
