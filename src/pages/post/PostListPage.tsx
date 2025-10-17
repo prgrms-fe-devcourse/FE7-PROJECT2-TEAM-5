@@ -17,6 +17,7 @@ export default function PostListPage() {
 		{ key: "elementary", label: "초등학생 게시판" },
 		{ key: "middle", label: "중학교 게시판" },
 		{ key: "high", label: "고등학교 게시판" },
+		{ key: "resources", label: "자료 공유 게시판" },
 	] as const;
 
 	const [posts, setPosts] = useState<Post[]>([]);
