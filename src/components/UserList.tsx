@@ -6,6 +6,7 @@ export default function UserList() {
 	const [isOpen, setIsOpen] = useState(false);
 	/* 필요한 정보 */
 	/* 프로필 이미지, 이름, 소속, 학년(전공 과목), auth_id */
+
 	return (
 		<div className="absolute left-10 bottom-0 w-80 bg-white rounded-t-xl flex flex-col">
 			{/* 헤더 */}
@@ -25,7 +26,7 @@ export default function UserList() {
 
 			{/* 슬라이딩 리스트 */}
 			<div
-				className={`pt-2 overflow-hidden transition-all duration-500 ease-in-out ${
+				className={`overflow-y-auto transition-all duration-500 ease-in-out pb-2 ${
 					isOpen ? "max-h-160" : "max-h-0"
 				}`}
 			>
