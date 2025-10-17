@@ -10,36 +10,36 @@ export default function CreateGroup() {
   const navigate = useNavigate();
   const profile = useProfileStore((state) => state.profile);
 
-  
+  // form states
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
 
- 
+  // image preview (base64, file name)
   const [imgFiles, setImgFiles] = useState<{ file: string; fileName: string }[]>(
     [],
   );
 
   const [loading, setLoading] = useState(false);
 
-  
+  // 이미지 업로드(미리보기용 base64)
   const handleImgFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const files = e.target.files;
-  if (files) {
-    Array.from(files).map((file) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImgFiles((prev) => [
-          ...prev,
-          {
-            file: e.target?.result as string,
-            fileName: file.name,
-          },
-        ]);
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-};
+    const files = e.target.files;
+    if (files) {
+      Array.from(files).map((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setImgFiles((prev) => [
+            ...prev,
+            {
+              file: e.target?.result as string,
+              fileName: file.name,
+            },
+          ]);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
 
   const removeImgFiles = () => setImgFiles([]);
 
@@ -101,7 +101,7 @@ export default function CreateGroup() {
 
       <form method="post" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-5.5 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
-        
+          {/* 그룹 이름 */}
           <div className="relative w-full px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB] outline-none user-invalid:border-red-500">
             <Input
               id="groupName"
@@ -114,7 +114,7 @@ export default function CreateGroup() {
             </Input>
           </div>
 
-         
+          {/* 커버 이미지 업로드(미리보기) */}
           {imgFiles[0] ? (
             <div className="relative flex flex-col items-center px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB]">
               <div className="relative pb-2">
@@ -167,7 +167,7 @@ export default function CreateGroup() {
             </div>
           )}
 
-         
+          {/* 그룹 소개 */}
           <div className="relative w-full px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB] outline-none user-invalid:border-red-500">
             <textarea
               id="groupBio"
@@ -195,7 +195,7 @@ export default function CreateGroup() {
           </div>
         </div>
 
-        
+        {/* 액션 */}
         <div className="flex justify-end mt-7 gap-2">
           <Link
             to="/groups"
@@ -216,3 +216,4 @@ export default function CreateGroup() {
     </div>
   );
 }
+

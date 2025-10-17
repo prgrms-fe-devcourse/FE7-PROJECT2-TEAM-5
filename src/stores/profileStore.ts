@@ -1,4 +1,3 @@
-// src/store/profileStore.ts
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import supabase from "../utils/supabase";
@@ -10,11 +9,13 @@ type ProfileState = {
 	isLoggedIn: boolean;
 	error: string | null;
 	// fetchProfile: 현재 로그인한 사용자 정보 가져오기
-	fetchProfile: (targetAuthId?: string | null) => Promise<void>;
+	fetchProfile: (targetAuthId?: string | null) => void;
 	// updateProfile: 현재 로그인한 사용자 정보 수정
 	updateProfile: (updated: Partial<UserProfile>) => void;
 	// 로그아웃
 	logout: () => Promise<void>;
+	// deleteProfile: 현재 로그인한 사용자 삭제
+	deleteProfile: (targetAuthId?: string | null) => void;
 	// clearProfile: 로그아웃 시 상태 초기화
 	clearProfile: () => void;
 };
@@ -117,14 +118,58 @@ export const useProfileStore = create<ProfileState>()(
 		},
 
 		logout: async () => {
-			set({ loading: true, error: null });
+			set((state) => {
+				state.loading = true;
+				state.error = null;
+			});
 			try {
 				await supabase.auth.signOut();
 				get().clearProfile();
 			} catch (err: any) {
-				set({ error: err.message });
+				set((state) => {
+					state.error = err.message;
+				});
 			} finally {
-				set({ loading: false });
+				set((state) => {
+					state.loading = false;
+				});
+			}
+		},
+
+		deleteProfile: async () => {
+			const profile = get().profile;
+			if (!profile) return;
+
+			try {
+				// supabase Edge Function 호출 (Auth 계정 삭제)
+				const { data, error: funcError } =
+					await supabase.functions.invoke("deleteUser", {
+						body: { userId: profile.auth_id },
+					});
+
+				if (funcError) {
+					console.error("Auth 계정 삭제 실패:", funcError.message);
+					alert("계정 삭제에 실패했습니다. 다시 시도해주세요.");
+					return;
+				}
+
+				console.log("Auth 계정 삭제 성공:", data);
+
+				// 상태 초기화
+				set((state) => {
+					state.profile = null;
+					state.userId = null;
+					state.isLoggedIn = false;
+				});
+
+				// 로그아웃
+				await supabase.auth.signOut();
+
+				console.log("회원 완전 삭제 완료!");
+				alert("계정이 성공적으로 삭제되었습니다.");
+			} catch (err: any) {
+				console.error("회원 삭제 중 오류:", err.message ?? err);
+				alert("회원 삭제에 실패했습니다. 다시 시도해주세요.");
 			}
 		},
 

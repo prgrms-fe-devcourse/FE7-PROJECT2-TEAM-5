@@ -36,8 +36,6 @@ export default function App() {
 			}
 
 			const user = data.session?.user;
-
-			console.log(user);
 			if (user) {
 				// 로그인 상태라면 store 업데이트
 				fetchProfile(user.id);
