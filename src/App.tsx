@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router";
+import { Route, Routes, useLocation } from "react-router";
 import MainLayout from "./layouts/MainLayout";
 import AuthLayout from "./layouts/AuthLayout";
 import HomePage from "./pages/home/HomePage";
@@ -25,15 +25,20 @@ import SocialSignupInfo from "./pages/auth/SocialSignupInfo";
 
 export default function App() {
 	const fetchProfile = useProfileStore((state) => state.fetchProfile);
+	const location = useLocation();
 
 	useEffect(() => {
 		const initAuth = async () => {
 			const { data } = await supabase.auth.getSession();
 			const user = data.session?.user;
-			if (user) await fetchProfile(user.id);
+
+			// ProfilePage에 진입했으면 App에서 fetchProfile 호출하지 않음
+			if (!user || location.pathname.startsWith("/profile")) return;
+
+			await fetchProfile(user.id);
 		};
 		initAuth();
-	}, [fetchProfile]);
+	}, [fetchProfile, location.pathname]);
 
 	return (
 		<>

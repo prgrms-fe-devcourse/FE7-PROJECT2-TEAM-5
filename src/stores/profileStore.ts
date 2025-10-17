@@ -37,7 +37,7 @@ export const useProfileStore = create<ProfileState>()(
 		loading: false,
 		error: null,
 
-		// ✅ 로그인 유저 ID만 가져오기
+		// 로그인 유저 ID만 가져오기
 		fetchCurrentUserId: async () => {
 			try {
 				const {
@@ -58,7 +58,7 @@ export const useProfileStore = create<ProfileState>()(
 			}
 		},
 
-		// ✅ 프로필 데이터 가져오기
+		// 프로필 데이터 가져오기
 		fetchProfile: async (targetAuthId?: string | null) => {
 			set((state) => {
 				state.loading = true;
@@ -66,44 +66,57 @@ export const useProfileStore = create<ProfileState>()(
 			});
 
 			try {
-				let authId = targetAuthId;
-
-				// 로그인 유저 정보 확인
+				// 현재 로그인된 사용자 확인
 				const {
-					data: { user },
+					data: { user: currentUser },
 					error: userError,
 				} = await supabase.auth.getUser();
 				if (userError) throw userError;
-				if (!user) throw new Error("로그인 정보가 없습니다.");
 
-				// currentUserId는 로그인한 사용자로만 유지
+				if (!currentUser) throw new Error("로그인 정보가 없습니다.");
+
+				// 로그인 상태만 갱신 (currentUserId는 덮어쓰지 않음)
 				set((state) => {
-					if (!state.currentUserId) state.currentUserId = user.id;
 					state.isLoggedIn = true;
 				});
 
-				// targetAuthId가 없으면 내 프로필로 설정
-				if (!authId) authId = user.id;
+				// 불러올 프로필 대상 결정
+				let authId: string | null = null;
+				if (!targetAuthId || targetAuthId === "me") {
+					authId = currentUser.id; // 내 프로필
+				} else {
+					authId = targetAuthId; // 다른 사람 프로필
+				}
 
-				// ✅ users + child_parent_links 조회
+				// users 테이블에서 대상 프로필 가져오기
 				const { data: profileData, error: profileError } =
 					await supabase
 						.from("users")
 						.select("*")
 						.eq("auth_id", authId)
 						.single();
+
 				if (profileError) throw profileError;
 
-				const { data: childLinks, error: childError } = await supabase
-					.from("child_parent_links")
-					.select("child_id (auth_id, nickname, child_link_code)")
-					.eq("parent_id", authId);
-				if (childError) throw childError;
+				// 부모인 경우 자녀 목록도 가져오기
+				let childInfos: ChildInfo[] = [];
+				if (profileData.role === "parent") {
+					const { data: childLinks, error: childError } =
+						await supabase
+							.from("child_parent_links")
+							.select(
+								"child_id (auth_id, nickname, child_link_code)",
+							)
+							.eq("parent_id", authId);
+
+					if (childError) throw childError;
+					childInfos =
+						childLinks?.map((link: any) => link.child_id) ?? [];
+				}
 
 				set((state) => {
-					state.profile = profileData; // ✅ 현재 보고 있는 프로필
-					state.childInfos =
-						childLinks?.map((link: any) => link.child_id) ?? [];
+					state.profile = profileData;
+					state.childInfos = childInfos;
 					state.loading = false;
 					state.isLoggedIn = true;
 					state.error = null;
