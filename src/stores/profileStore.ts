@@ -181,60 +181,60 @@ export const useProfileStore = create<ProfileState>()(
 			}
 		},
 
-		// 프로필 수정 후 자녀 코드 저장
+		// 자녀 코드 업데이트 및 삭제 후 프로필 저장
 		updateValidChildCodes: async (codes: string[]) => {
 			const profile = get().profile;
 			if (!profile) return [];
 
 			const trimmedCodes = codes.map((c) => c.trim()).filter(Boolean);
 
-			// 빈 배열이면 상태 초기화
-			if (!trimmedCodes.length) {
-				set((state) => {
-					state.childInfos = [];
-				});
-				return [];
-			}
-
 			try {
-				// 유효한 자녀 조회
-				const { data: childrenData, error } = await supabase
-					.from("users")
-					.select("auth_id, nickname, child_link_code")
-					.in("child_link_code", trimmedCodes);
-				if (error) throw error;
-
-				const validChildren = childrenData ?? [];
-				const validCodes = validChildren.map((c) => c.child_link_code);
-
-				const invalidCodes = trimmedCodes.filter(
-					(c) => !validCodes.includes(c),
-				);
-				if (invalidCodes.length)
-					throw new Error(
-						`유효하지 않은 자녀코드: ${invalidCodes.join(", ")}`,
-					);
-
-				// 기존 부모-자녀 관계 조회
-				const { data: existingLinks } = await supabase
+				// 기존 부모-자녀 링크 조회
+				const { data: existingLinks, error: linkError } = await supabase
 					.from("child_parent_links")
 					.select("child_id")
 					.eq("parent_id", profile.auth_id);
+				if (linkError) throw linkError;
+
 				const existingIds = existingLinks?.map((l) => l.child_id) ?? [];
 
-				// 새 링크만 삽입
-				const newLinks = validChildren
-					.filter((c) => !existingIds.includes(c.auth_id))
-					.map((c) => ({
+				// 새 배열에 포함된 유효한 자녀 조회
+				const { data: validChildren, error: validError } =
+					await supabase
+						.from("users")
+						.select("auth_id, nickname, child_link_code")
+						.in("child_link_code", trimmedCodes);
+				if (validError) throw validError;
+
+				const validIds = validChildren?.map((c) => c.auth_id) ?? [];
+
+				// 삭제할 자녀 ID 계산 (기존에 있었지만 새 배열에는 없는 코드)
+				// 즉, 기존 링크 중 validIds에 없는 child_id
+				const idsToDelete = existingIds.filter(
+					(id) => !validIds.includes(id),
+				);
+
+				if (idsToDelete.length) {
+					const { error: deleteError } = await supabase
+						.from("child_parent_links")
+						.delete()
+						.in("child_id", idsToDelete)
+						.eq("parent_id", profile.auth_id);
+					if (deleteError) throw deleteError;
+				}
+
+				// 새 링크 삽입 (기존에 없는 것만)
+				const idsToInsert = validIds
+					.filter((id) => !existingIds.includes(id))
+					.map((id) => ({
 						parent_id: profile.auth_id,
-						child_id: c.auth_id,
+						child_id: id,
 					}));
 
-				if (newLinks.length) {
+				if (idsToInsert.length) {
 					const { error: insertError } = await supabase
 						.from("child_parent_links")
-						.insert(newLinks)
-						.select();
+						.insert(idsToInsert);
 					if (insertError) throw insertError;
 				}
 
@@ -243,7 +243,7 @@ export const useProfileStore = create<ProfileState>()(
 					state.childInfos = validChildren;
 				});
 
-				return validCodes;
+				return validChildren.map((c) => c.child_link_code);
 			} catch (err: any) {
 				console.error("자녀코드 업데이트 오류:", err.message);
 				throw err;
