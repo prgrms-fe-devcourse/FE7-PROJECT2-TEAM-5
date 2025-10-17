@@ -25,12 +25,11 @@ export default function InfoBlock({
 					{content}
 				</div>
 			)}
-			{childList &&
-				childList.map((child) => (
-					<div className="font-medium text-gray-800 leading-snug whitespace-pre-wrap">
-						{child.nickname}
-					</div>
-				))}
+			{childList && childList.length > 0 && (
+				<div className="font-medium text-gray-800 leading-snug whitespace-pre-wrap">
+					{childList.map((child) => child.nickname).join(", ")}
+				</div>
+			)}
 			{tags && (
 				<div className="flex flex-wrap gap-1 mt-1">
 					{tags.map((tag, index) => (

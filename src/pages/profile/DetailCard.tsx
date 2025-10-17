@@ -13,6 +13,7 @@ export default function DetailCard() {
 	const { profile, childInfos } = useProfileStore();
 
 	if (!profile) return null;
+	if (!childInfos) return null;
 
 	return (
 		<>
