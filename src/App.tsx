@@ -32,14 +32,32 @@ export default function App() {
 			const { data } = await supabase.auth.getSession();
 			const user = data.session?.user;
 
-			// ProfilePage에 진입했으면 App에서 fetchProfile 호출하지 않음
-			if (!user || location.pathname.startsWith("/profile")) return;
+			// 로그인 유저 정보 세팅
+			if (user) {
+				useProfileStore.setState((state) => {
+					state.currentUserId = user.id;
+					state.isLoggedIn = true;
+				});
+			}
 
-			await fetchProfile(user.id);
+			// 현재 경로가 프로필 페이지인지 확인
+			const pathMatch = location.pathname.match(/^\/profile\/([^/]+)/);
+			if (pathMatch) {
+				const targetId = pathMatch[1];
+				// "me" 처리: 내 프로필이면 로그인 유저 ID 사용
+				if (targetId === "me" && user) {
+					await fetchProfile(user.id);
+				} else {
+					await fetchProfile(targetId);
+				}
+			} else if (user) {
+				// 홈이나 다른 페이지에서는 로그인 유저 프로필 fetch
+				await fetchProfile(user.id);
+			}
 		};
+
 		initAuth();
 	}, [fetchProfile, location.pathname]);
-
 	return (
 		<>
 			<Routes>

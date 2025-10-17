@@ -59,6 +59,7 @@ export const useProfileStore = create<ProfileState>()(
 		},
 
 		// 프로필 데이터 가져오기
+		// 프로필 데이터 가져오기 (안전 수정 버전)
 		fetchProfile: async (targetAuthId?: string | null) => {
 			set((state) => {
 				state.loading = true;
@@ -101,33 +102,42 @@ export const useProfileStore = create<ProfileState>()(
 				// 부모인 경우 자녀 목록도 가져오기
 				let childInfos: ChildInfo[] = [];
 				if (profileData.role === "parent") {
-					const { data: childLinks, error: childError } =
-						await supabase
-							.from("child_parent_links")
-							.select(
-								"child_id (auth_id, nickname, child_link_code)",
-							)
-							.eq("parent_id", authId);
+					try {
+						const { data: childLinks, error: childError } =
+							await supabase
+								.from("child_parent_links")
+								.select(
+									"child_id (auth_id, nickname, child_link_code)",
+								)
+								.eq("parent_id", authId);
 
-					if (childError) throw childError;
-					childInfos =
-						childLinks?.map((link: any) => link.child_id) ?? [];
+						if (childError) throw childError;
+						childInfos =
+							childLinks?.map((link: any) => link.child_id) ?? [];
+					} catch (childErr) {
+						// 자녀 정보 불러오기 실패 시 로그만 남기고 진행
+						console.error(
+							"자녀 정보 로딩 실패:",
+							(childErr as any).message,
+						);
+						childInfos = [];
+					}
 				}
 
 				set((state) => {
 					state.profile = profileData;
 					state.childInfos = childInfos;
 					state.loading = false;
-					state.isLoggedIn = true;
 					state.error = null;
+					state.isLoggedIn = true; // 안전하게 로그인 상태 유지
 				});
 			} catch (err: any) {
 				set((state) => {
 					state.profile = null;
 					state.childInfos = [];
 					state.loading = false;
-					state.isLoggedIn = false;
 					state.error = err.message ?? "프로필 불러오기 실패";
+					// ⚠️ isLoggedIn 상태는 유지
 				});
 			}
 		},
