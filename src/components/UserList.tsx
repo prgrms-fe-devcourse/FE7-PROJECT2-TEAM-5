@@ -1,27 +1,22 @@
 import { ChevronDown } from "lucide-react";
 import UserListCard from "./UserListCard";
 import { useEffect, useState } from "react";
-import supabase from "../utils/supabase";
+import { useUserStore } from "../stores/userListStore";
+import { useLocation } from "react-router";
 
 export default function UserList() {
 	const [isOpen, setIsOpen] = useState(false);
+	const location = useLocation();
+	const { userList, fetchUsers } = useUserStore();
 
-	const [users, setUsers] = useState<any[]>([]);
+	// 페이지 이동 시 자동으로 닫기
+	useEffect(() => {
+		setIsOpen(false);
+	}, [location.pathname]);
 
 	useEffect(() => {
-		const fetchUsers = async () => {
-			try {
-				const { data, error } = await supabase
-					.from("users")
-					.select("*");
-				if (error) throw error;
-				setUsers(data || []);
-			} catch (err) {
-				console.error("유저 목록 로딩 오류:", err);
-			}
-		};
 		fetchUsers();
-	}, []);
+	}, [fetchUsers]);
 
 	/* 필요한 정보 */
 	/* 프로필 이미지, 이름, 소속, 학년(전공 과목), auth_id */
@@ -44,12 +39,12 @@ export default function UserList() {
 
 			{/* 슬라이딩 리스트 */}
 			<div
-				className={`overflow-y-auto transition-all duration-500 ease-in-out pb-4 ${
-					isOpen ? "h-160" : "h-0"
+				className={` transition-all duration-500 ease-in-out pb-4 ${
+					isOpen ? "h-160 overflow-y-auto" : "h-0 overflow-y-hidden"
 				}`}
 			>
 				<div className="flex flex-col">
-					{users.map((user) => (
+					{userList.map((user) => (
 						<UserListCard key={user.auth_id} user={user} />
 					))}
 				</div>

@@ -8,7 +8,7 @@ type UserListState = {
 	fetchUsers: () => Promise<void>;
 };
 
-export const userListStore = create<UserListState>()(
+export const useUserStore = create<UserListState>()(
 	immer((set) => ({
 		userList: [],
 		// 전체 유저 리스트 가져오기
