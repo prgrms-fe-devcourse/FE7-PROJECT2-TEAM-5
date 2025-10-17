@@ -295,7 +295,7 @@ export default function RegisterEmailPage() {
 				.select();
 
 			// 부모-자녀 연결
-			if (role === "parent" && childLinkCode.trim() && childExists) {
+			if (role === "parent" && childLinkCode.trim()) {
 				const { data: childUser, error: searchError } = await supabase
 					.from("users")
 					.select("auth_id")
