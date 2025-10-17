@@ -1,4 +1,4 @@
-import { MessageCircle, UsersRound } from "lucide-react";
+import { MessageCircle, Milestone, UsersRound } from "lucide-react";
 import { Link } from "react-router";
 import { useProfileStore } from "../../stores/profileStore";
 import { useEffect } from "react";
@@ -62,37 +62,36 @@ export default function HomePage() {
 				{/* 카드들 */}
 				<div className="h-[193px] flex items-center flex-nowrap gap-5">
 					{/* 게시판 카드 => Link 태그로 수정할 예정 */}
-					<Link to="/posts">
-						<div className="w-[320px] h-[187px] px-6 py-7 bg-white rounded-xl">
-							<div className="flex items-center gap-2 mb-4">
-								<div className="w-[18px] h-[18px] bg-[#D9D9D9]">
-									{/* 아이콘 */}
-								</div>
-								<h3 className="font-bold text-xl text-[#8B5CF6]">
-									게시판
-								</h3>
-							</div>
-							<div className="text-[#6B7280] space-y-2 mb-3">
-								<p className="text-sm">
-									질문과 답변, 학습 팁, 경험담을 나누는 공간
-								</p>
-								<p className="text-xs">
-									게시글 120개 · 최근 글 2시간 전 · 💬 8개 ·
-									❤️ 15개
-								</p>
-							</div>
-							<div className="flex flex-row gap-2 text-xs text-[#8B5CF6]">
-								{/* 반복 함수 구현 예정 */}
-								<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
-									#수학
-								</span>
-								<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
-									#스터디
-								</span>
-								<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
-									#중학생
-								</span>
-							</div>
+					<Link
+						to="/posts"
+						className="w-[320px] h-full px-6 py-7 bg-white rounded-xl shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+					>
+						<div className="flex items-center gap-2 mb-4">
+							<Milestone size={18} />
+							<h3 className="font-bold text-xl text-[#8B5CF6]">
+								게시판
+							</h3>
+						</div>
+						<div className="text-[#6B7280] space-y-2 mb-3">
+							<p className="text-sm">
+								질문과 답변, 학습 팁, 경험담을 나누는 공간
+							</p>
+							<p className="text-xs">
+								게시글 120개 · 최근 글 2시간 전 · 💬 8개 · ❤️
+								15개
+							</p>
+						</div>
+						<div className="flex flex-row gap-2 text-xs text-[#8B5CF6]">
+							{/* 반복 함수 구현 예정 */}
+							<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
+								#수학
+							</span>
+							<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
+								#스터디
+							</span>
+							<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
+								#중학생
+							</span>
 						</div>
 					</Link>
 					{/* 그룹 카드 */}
