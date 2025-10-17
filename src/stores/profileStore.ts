@@ -118,14 +118,21 @@ export const useProfileStore = create<ProfileState>()(
 		},
 
 		logout: async () => {
-			set({ loading: true, error: null });
+			set((state) => {
+				state.loading = true;
+				state.error = null;
+			});
 			try {
 				await supabase.auth.signOut();
 				get().clearProfile();
 			} catch (err: any) {
-				set({ error: err.message });
+				set((state) => {
+					state.error = err.message;
+				});
 			} finally {
-				set({ loading: false });
+				set((state) => {
+					state.loading = false;
+				});
 			}
 		},
 
