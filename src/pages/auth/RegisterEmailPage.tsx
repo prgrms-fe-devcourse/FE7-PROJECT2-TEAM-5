@@ -295,7 +295,7 @@ export default function RegisterEmailPage() {
 				.select();
 
 			// 부모-자녀 연결
-			if (role === "parent" && childLinkCode.trim() && childExists) {
+			if (role === "parent" && childLinkCode.trim()) {
 				const { data: childUser, error: searchError } = await supabase
 					.from("users")
 					.select("auth_id")
@@ -379,7 +379,7 @@ export default function RegisterEmailPage() {
 					<input
 						id="login-password"
 						type="password"
-						placeholder="비밀번호 (최소 6자, 영문/숫자 필수)"
+						placeholder="비밀번호 (최소 8자, 영문/숫자 필수)"
 						value={password}
 						onChange={(e) => {
 							setPassword(e.target.value);
