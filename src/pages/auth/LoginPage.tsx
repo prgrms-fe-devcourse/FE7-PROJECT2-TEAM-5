@@ -1,6 +1,7 @@
 import supabase from "../../utils/supabase";
 import { Link, useNavigate } from "react-router";
 import { useState } from "react";
+import { socialSignIn } from "../../utils/useSocialAuth";
 
 export default function LoginPage() {
 	const navigate = useNavigate();
@@ -136,6 +137,7 @@ export default function LoginPage() {
 				<button
 					type="button"
 					className="cursor-pointer w-full h-11 rounded-xl bg-[#FEE500] font-medium"
+					onClick={() => socialSignIn("kakao")}
 				>
 					Kakao 로그인
 				</button>
