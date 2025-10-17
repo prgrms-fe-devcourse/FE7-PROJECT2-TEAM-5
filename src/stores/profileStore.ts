@@ -1,4 +1,3 @@
-// src/store/profileStore.ts
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import supabase from "../utils/supabase";
@@ -9,8 +8,6 @@ type ProfileState = {
 	loading: boolean;
 	isLoggedIn: boolean;
 	error: string | null;
-	hasFetched: boolean; // 한 번만 fetch 체크
-
 	// fetchProfile: 현재 로그인한 사용자 정보 가져오기
 	fetchProfile: (targetAuthId?: string | null) => void;
 	// updateProfile: 현재 로그인한 사용자 정보 수정
@@ -30,13 +27,9 @@ export const useProfileStore = create<ProfileState>()(
 		isLoggedIn: false,
 		loading: false,
 		error: null,
-		hasFetched: false,
 
 		// 프로필 저장
 		fetchProfile: async (targetAuthId?: string | null) => {
-			const state = get();
-			if (state.hasFetched) return;
-
 			set((state) => {
 				state.loading = true;
 				state.error = null;
@@ -58,7 +51,6 @@ export const useProfileStore = create<ProfileState>()(
 							state.userId = null;
 							state.isLoggedIn = false;
 							state.loading = false;
-							state.hasFetched = true;
 						});
 						return;
 					}
@@ -82,7 +74,6 @@ export const useProfileStore = create<ProfileState>()(
 						state.isLoggedIn = true;
 					}
 					state.loading = false;
-					state.hasFetched = true;
 				});
 			} catch (err: any) {
 				set((state) => {
@@ -91,7 +82,6 @@ export const useProfileStore = create<ProfileState>()(
 					state.userId = null;
 					state.isLoggedIn = false;
 					state.loading = false;
-					state.hasFetched = true;
 				});
 			}
 		},
@@ -128,21 +118,14 @@ export const useProfileStore = create<ProfileState>()(
 		},
 
 		logout: async () => {
-			set((state) => {
-				state.loading = true;
-				state.error = null;
-			});
+			set({ loading: true, error: null });
 			try {
 				await supabase.auth.signOut();
 				get().clearProfile();
 			} catch (err: any) {
-				set((state) => {
-					state.error = err.message;
-				});
+				set({ error: err.message });
 			} finally {
-				set((state) => {
-					state.loading = false;
-				});
+				set({ loading: false });
 			}
 		},
 
@@ -170,7 +153,6 @@ export const useProfileStore = create<ProfileState>()(
 					state.profile = null;
 					state.userId = null;
 					state.isLoggedIn = false;
-					state.hasFetched = false;
 				});
 
 				// 로그아웃
@@ -191,7 +173,6 @@ export const useProfileStore = create<ProfileState>()(
 				state.isLoggedIn = false;
 				state.error = null;
 				state.loading = false;
-				state.hasFetched = false;
 			});
 		},
 	})),
