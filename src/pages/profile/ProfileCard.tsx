@@ -31,7 +31,6 @@ export default function ProfileCard({ isMyProfile = false }: Props) {
 		try {
 			await deleteProfile();
 			setIsModalOpen(false);
-			alert("계정이 삭제되었습니다.");
 			navigate("/");
 		} catch (err) {
 			console.error("탈퇴 실패:", err);

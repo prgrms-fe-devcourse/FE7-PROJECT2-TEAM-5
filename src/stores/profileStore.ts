@@ -150,24 +150,38 @@ export const useProfileStore = create<ProfileState>()(
 			const profile = get().profile;
 			if (!profile) return;
 
-			const { error } = await supabase
-				.from("users")
-				.delete()
-				.eq("auth_id", profile.auth_id);
+			try {
+				// supabase Edge Function 호출 (Auth 계정 삭제)
+				const { data, error: funcError } =
+					await supabase.functions.invoke("deleteUser", {
+						body: { userId: profile.auth_id },
+					});
 
-			if (error) {
-				console.error("회원 삭제 실패:", error.message);
-				return;
+				if (funcError) {
+					console.error("Auth 계정 삭제 실패:", funcError.message);
+					alert("계정 삭제에 실패했습니다. 다시 시도해주세요.");
+					return;
+				}
+
+				console.log("Auth 계정 삭제 성공:", data);
+
+				// 상태 초기화
+				set((state) => {
+					state.profile = null;
+					state.userId = null;
+					state.isLoggedIn = false;
+					state.hasFetched = false;
+				});
+
+				// 로그아웃
+				await supabase.auth.signOut();
+
+				console.log("회원 완전 삭제 완료!");
+				alert("계정이 성공적으로 삭제되었습니다.");
+			} catch (err: any) {
+				console.error("회원 삭제 중 오류:", err.message ?? err);
+				alert("회원 삭제에 실패했습니다. 다시 시도해주세요.");
 			}
-
-			set((state) => {
-				state.profile = null;
-				state.userId = null;
-				state.isLoggedIn = false;
-				state.hasFetched = false; // 다시 fetch 가능하게
-			});
-
-			console.log("회원 삭제 완료!");
 		},
 
 		clearProfile: () => {

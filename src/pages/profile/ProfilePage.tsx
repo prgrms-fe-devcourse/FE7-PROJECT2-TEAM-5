@@ -36,7 +36,7 @@ export default function ProfilePage() {
 			</>
 		);
 
-	if (error) return <p>❌ 오류: {error}</p>;
+	if (error) return <p>오류: {error}</p>;
 
 	return (
 		<div className="mx-auto w-[1024px]">
