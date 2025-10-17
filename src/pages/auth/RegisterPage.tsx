@@ -13,7 +13,7 @@ export default function RegisterPage() {
 		const { data, error } = await supabase.auth.signInWithOAuth({
 			provider: "kakao",
 			options: {
-				redirectTo: `${import.meta.env.VITE_URL}/`,
+				redirectTo: "/",
 			},
 		});
 
