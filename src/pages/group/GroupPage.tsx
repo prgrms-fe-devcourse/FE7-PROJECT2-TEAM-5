@@ -1,12 +1,8 @@
 import { Link } from "react-router";
 import { useEffect, useMemo, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import supabase from "../../utils/supabase";
 import GroupCard from "./GroupCard";
 
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL!,
-  import.meta.env.VITE_SUPABASE_ANON_KEY!,
-);
 
 type GroupRow = {
   id: string;
@@ -20,6 +16,7 @@ type GroupView = GroupRow & {
   member_count: number;
   joined: boolean;
 };
+
 
 function timeAgo(iso: string) {
   const t = new Date(iso).getTime();
@@ -44,6 +41,7 @@ async function safeGetUser() {
   return data.user ?? null;
 }
 
+
 // 전체 그룹 + 멤버수 + 내 가입여부
 async function fetchAll(): Promise<GroupView[]> {
   const user = await safeGetUser();
@@ -55,7 +53,7 @@ async function fetchAll(): Promise<GroupView[]> {
     .order("created_at", { ascending: false });
   if (gErr) throw gErr;
 
-  const ids = groups.map((g) => g.id);
+  const ids = (groups ?? []).map((g) => g.id);
   if (ids.length === 0) return [];
 
   const { data: members, error: mErr } = await supabase
@@ -67,12 +65,12 @@ async function fetchAll(): Promise<GroupView[]> {
   const countMap = new Map<string, number>();
   const joinedSet = new Set<string>();
 
-  for (const row of members) {
+  for (const row of members ?? []) {
     countMap.set(row.group_id, (countMap.get(row.group_id) ?? 0) + 1);
     if (row.user_id === myId) joinedSet.add(row.group_id);
   }
 
-  return groups.map((g) => ({
+  return (groups ?? []).map((g) => ({
     ...(g as GroupRow),
     member_count: countMap.get(g.id) ?? 0,
     joined: joinedSet.has(g.id),
@@ -90,7 +88,7 @@ async function fetchMine(): Promise<GroupView[]> {
     .eq("user_id", user.id);
   if (lErr) throw lErr;
 
-  const ids = links.map((r) => r.group_id);
+  const ids = (links ?? []).map((r) => r.group_id);
   if (ids.length === 0) return [];
 
   const { data: groups, error: gErr } = await supabase
@@ -106,26 +104,29 @@ async function fetchMine(): Promise<GroupView[]> {
   if (mErr) throw mErr;
 
   const countMap = new Map<string, number>();
-  for (const row of members) {
+  for (const row of members ?? []) {
     countMap.set(row.group_id, (countMap.get(row.group_id) ?? 0) + 1);
   }
 
-  return groups.map((g) => ({
+  return (groups ?? []).map((g) => ({
     ...(g as GroupRow),
     member_count: countMap.get(g.id) ?? 0,
     joined: true,
   }));
 }
 
-/** ============== 참여/탈퇴 요청 ============== */
+
+// 참여/탈퇴 요청
 async function reqJoin(groupId: string) {
   const user = await safeGetUser();
   if (!user) throw new Error("로그인이 필요합니다.");
   const { error } = await supabase
     .from("group_members")
     .insert({ group_id: groupId, user_id: user.id });
-  if (error && (error as any).code !== "23505") throw error; 
+
+  if (error && (error as any).code !== "23505") throw error;
 }
+
 async function reqLeave(groupId: string) {
   const user = await safeGetUser();
   if (!user) throw new Error("로그인이 필요합니다.");
@@ -137,6 +138,7 @@ async function reqLeave(groupId: string) {
   if (error) throw error;
 }
 
+// ─────────────────────────────────────────────────────────────
 export default function GroupPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -160,7 +162,7 @@ export default function GroupPage() {
           msg.includes("Auth session missing") ||
           (e as any)?.status === 400
         ) {
-          setError(null);
+          setError(null); 
         } else {
           setError("그룹을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.");
         }
@@ -173,48 +175,43 @@ export default function GroupPage() {
     };
   }, []);
 
-  
+  // 참여/탈퇴 토글
   const toggleJoin = async (g: GroupView, wantJoin: boolean) => {
-  // 낙관적 업데이트
-  setAll((prev) =>
-    prev.map((x) =>
-      x.id === g.id
-        ? {
-            ...x,
-            member_count: x.member_count + (wantJoin ? 1 : -1),
-            joined: wantJoin,
-          }
-        : x,
-    ),
-  );
+    setAll((prev) =>
+      prev.map((x) =>
+        x.id === g.id
+          ? {
+              ...x,
+              member_count: x.member_count + (wantJoin ? 1 : -1),
+              joined: wantJoin,
+            }
+          : x,
+      ),
+    );
 
-  setMine((prev) =>
-    wantJoin
-      ? prev.some((x) => x.id === g.id)
-        ? prev
-        : [
-            ...prev,
-            {
-              ...g,
-              joined: true,
-              member_count: g.member_count + 1,
-            },
-          ]
-      : prev.filter((x) => x.id !== g.id),
-  );
+    setMine((prev) =>
+      wantJoin
+        ? prev.some((x) => x.id === g.id)
+          ? prev
+          : [
+              ...prev,
+              { ...g, joined: true, member_count: g.member_count + 1 },
+            ]
+        : prev.filter((x) => x.id !== g.id),
+    );
 
-  try {
-    if (wantJoin) await reqJoin(g.id);
-    else await reqLeave(g.id);
-  } catch {
-    // 실패 시 롤백: 서버 기준으로 재조회
-    const [all, mine] = await Promise.all([fetchAll(), fetchMine()]);
-    setAll(all);
-    setMine(mine);
-    alert("요청이 실패했어요. 다시 시도해주세요.");
-  }
-};
-void toggleJoin;
+    try {
+      if (wantJoin) await reqJoin(g.id);
+      else await reqLeave(g.id);
+    } catch {
+      const [all, mine] = await Promise.all([fetchAll(), fetchMine()]);
+      setAll(all);
+      setMine(mine);
+      alert("요청이 실패했어요. 다시 시도해주세요.");
+    }
+  };
+
+  
   const adaptForCard = (g: GroupView) => ({
     group_id: g.id,
     title: g.name ?? "이름 없음",
@@ -255,7 +252,12 @@ void toggleJoin;
               const card = adaptForCard(g);
               return (
                 <div key={g.id} className="space-y-2">
-                  <GroupCard group={card} />
+                  {/* 내 그룹 목록은 링크 없이 카드만 */}
+                  <GroupCard
+                    group={card}
+                    onJoinToggle={() => toggleJoin(g, false)}
+                    joined={true}
+                  />
                 </div>
               );
             })}
@@ -279,8 +281,13 @@ void toggleJoin;
               const card = adaptForCard(g);
               return (
                 <div key={g.id} className="space-y-2">
-                  <Link to={`${card.title}/posts`}>
-                    <GroupCard group={card} />
+                 
+                  <Link to={`${card.title}/posts`} className="block">
+                    <GroupCard
+                      group={card}
+                      onJoinToggle={() => toggleJoin(g, !g.joined)}
+                      joined={g.joined}
+                    />
                   </Link>
                 </div>
               );
