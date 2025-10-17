@@ -10,7 +10,7 @@ export default function DetailCard() {
 		"info" | "activities" | "friends"
 	>("info");
 
-	const { profile } = useProfileStore();
+	const { profile, childInfos } = useProfileStore();
 
 	if (!profile) return null;
 
@@ -20,7 +20,9 @@ export default function DetailCard() {
 			<TabContainer activeTab={activeTab} setActiveTab={setActiveTab} />
 
 			<div className="flex flex-col bg-white rounded-xl shadow-xl p-6 space-y-6">
-				{activeTab === "info" && <Info profile={profile} />}
+				{activeTab === "info" && (
+					<Info profile={profile} childInfos={childInfos} />
+				)}
 				{activeTab === "activities" && <Activities />}
 				{activeTab === "friends" && <Friends />}
 			</div>

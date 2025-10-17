@@ -5,9 +5,10 @@ import { useEffect } from "react";
 
 export default function HomePage() {
 	const userId = useProfileStore((state) => state.userId);
-	const { fetchProfile, logout } = useProfileStore();
-
 	const loading = useProfileStore((state) => state.loading);
+	const fetchProfile = useProfileStore((state) => state.fetchProfile);
+
+	const { logout } = useProfileStore();
 
 	useEffect(() => {
 		if (!userId) {

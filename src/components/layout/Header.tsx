@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import { useProfileStore } from "../../stores/profileStore";
 
 export default function Header() {
-	const { isLoggedIn } = useProfileStore();
+	const isLoggedIn = useProfileStore((state) => state.isLoggedIn);
 	return (
 		<>
 			<header className="z-10 w-full h-[70px] px-6 flex justify-between items-center border-b border-[#E6E9EE] shadow-[0_2px_6px_rgba(0,0,0,0.05)]">

@@ -28,20 +28,10 @@ export default function App() {
 
 	useEffect(() => {
 		const initAuth = async () => {
-			// OAuth 후 리다이렉트 시 토큰 처리
-			const { data, error } = await supabase.auth.getSession(); // 현재 세션 확인
-			if (error) {
-				console.error("getSession error", error);
-				return;
-			}
-
+			const { data } = await supabase.auth.getSession();
 			const user = data.session?.user;
-			if (user) {
-				// 로그인 상태라면 store 업데이트
-				fetchProfile(user.id);
-			}
+			if (user) await fetchProfile(user.id);
 		};
-
 		initAuth();
 	}, [fetchProfile]);
 

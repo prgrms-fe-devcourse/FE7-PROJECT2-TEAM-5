@@ -2,7 +2,13 @@ import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
 import InfoBlock from "./InfoBlock";
 
-export default function Info({ profile }: { profile: UserProfile }) {
+export default function Info({
+	profile,
+	childInfos,
+}: {
+	profile: UserProfile;
+	childInfos: ChildInfo[];
+}) {
 	const age = profile.birth_date ? getAge(profile.birth_date) : 0;
 	const grade = profile.role === "student" ? getGrade(age) : "";
 
@@ -49,7 +55,9 @@ export default function Info({ profile }: { profile: UserProfile }) {
 					<>
 						{/* 성별 / 자녀 */}
 						<InfoBlock title="성별" content={profile.gender} />
-						<InfoBlock title="자녀" content="자녀코드" />
+						{childInfos.map((child) => (
+							<InfoBlock title="자녀" content={child.nickname} />
+						))}
 						{/* 지역 / 전공 과목 */}
 						<InfoBlock title="지역" content={profile.region} />
 						{profile.role === "teacher" && (

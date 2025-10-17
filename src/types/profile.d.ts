@@ -34,3 +34,9 @@ type UserProfile = {
 	// 소속
 	role: string;
 };
+
+type ChildInfo = {
+	auth_id: string;
+	nickname: string;
+	child_link_code: string;
+};
