@@ -1,26 +1,7 @@
 import { MessageCircle, Milestone, UsersRound } from "lucide-react";
 import { Link } from "react-router";
-import { useProfileStore } from "../../stores/profileStore";
-import { useEffect } from "react";
 
-export default function HomePage() {
-	const userId = useProfileStore((state) => state.userId);
-	const loading = useProfileStore((state) => state.loading);
-	const fetchProfile = useProfileStore((state) => state.fetchProfile);
-
-	const { logout } = useProfileStore();
-
-	useEffect(() => {
-		if (!userId) {
-			fetchProfile();
-		}
-	}, [userId, fetchProfile]);
-
-	if (loading) {
-		/* 스켈레톤 UI 추가 예정 */
-		return <p>로딩중...</p>;
-	}
-
+export default function Home() {
 	return (
 		<>
 			<div className="mt-30 flex flex-col items-center">
@@ -35,29 +16,9 @@ export default function HomePage() {
 						<strong>StudyHub</strong>에 오신 것을 환영합니다.
 					</p>
 					<div className="space-x-4">
-						{userId ? (
-							<button
-								onClick={logout}
-								className="cursor-pointer inline-block px-6 py-4 bg-white rounded-xl font-bold text-[#8B5CF6] shadow-[inset_0_0_0_2px_#8B5CF6]"
-							>
-								로그아웃
-							</button>
-						) : (
-							<>
-								<Link
-									to="/register"
-									className="inline-block px-6 py-4 bg-[#8B5CF6] rounded-xl font-bold text-white"
-								>
-									회원가입
-								</Link>
-								<Link
-									to="/login"
-									className="inline-block px-6 py-4 bg-white rounded-xl font-bold text-[#8B5CF6] shadow-[inset_0_0_0_2px_#8B5CF6]"
-								>
-									로그인
-								</Link>
-							</>
-						)}
+						<div className="cursor-pointer inline-block px-6 py-4 bg-white rounded-xl font-bold text-[#8B5CF6] shadow-[inset_0_0_0_2px_#8B5CF6]">
+							로그아웃
+						</div>
 					</div>
 				</div>
 				{/* 카드들 */}
@@ -118,38 +79,6 @@ export default function HomePage() {
 							</Link>
 						</div>
 					</div>
-					{/* 그룹활동 o */}
-					{/* <Link
-						to="groups"
-						className="w-[320px] h-[187px] px-6 py-7 bg-white rounded-xl shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-					>
-						<div className="flex items-center gap-2 mb-4">
-							<UsersRound size={18} />
-							<h3 className="font-bold text-xl text-[#8B5CF6]">
-								현재 속한 그룹 이름
-							</h3>
-						</div>
-						<div className="text-[#6B7280] space-y-2 mb-3">
-							<p className="text-sm">
-								중학생 수학 공부를 함께하는 그룹
-							</p>
-							<p className="text-xs">
-								멤버 30명 · 최근 글 1시간 전 · 💬 15개
-							</p>
-						</div>
-						<div className="flex flex-row gap-2 text-xs text-[#8B5CF6]">
-							<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
-								#수학
-							</span>
-							<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
-								#스터디
-							</span>
-							<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
-								#중학생
-							</span>
-						</div>
-					</Link> */}
-					{/* 메시지 카드 => Link 태그로 수정할 예정 */}
 					<Link
 						to="/msg/1"
 						className="w-[320px] h-full px-6 py-7 bg-white rounded-xl shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"

@@ -4,7 +4,7 @@ import { useProfileStore } from "../../stores/profileStore";
 import { getAge } from "../../utils/getAge";
 import { ageToBirthDate } from "../../utils/ageToBirthDate";
 import EditProfileSkeleton from "../../components/loading/profile/EditProfileSkeleton";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 
 const ALL_INTERESTS: string[] = [
 	"국어",
@@ -35,24 +35,28 @@ const ALL_INTERESTS: string[] = [
 
 export default function EditProfile() {
 	const navigate = useNavigate();
-	const { profile, fetchProfile, updateProfile, loading, error, userId } =
-		useProfileStore();
+	const {
+		profile,
+		updateProfile,
+		updateValidChildCodes,
+		loading,
+		error,
+		userId,
+		childInfos: storeChildInfos,
+	} = useProfileStore();
 
 	const [formData, setFormData] = useState<Partial<UserProfile>>({});
+	const [childInfos, setChildInfos] = useState<ChildInfo[]>([]); // 자녀 정보
 
+	// 페이지 로드 시 프로필 세팅 및 부모 자녀 코드 fetch
 	useEffect(() => {
-		fetchProfile();
-	}, [fetchProfile]);
+		if (!profile) return;
+		setFormData(profile);
+		setChildInfos(storeChildInfos); // Zustand childInfos 바로 반영
+	}, [profile, storeChildInfos]);
 
-	useEffect(() => {
-		if (profile) {
-			setFormData(profile);
-		}
-	}, [profile]);
-
-	if (loading) return <EditProfileSkeleton />;
+	if (loading || !profile) return <EditProfileSkeleton />;
 	if (error) return <p>❌ 오류: {error}</p>;
-	if (!profile || !userId) return <p>로그인이 필요합니다.</p>;
 
 	const handleChange =
 		(key: keyof UserProfile) =>
@@ -60,38 +64,23 @@ export default function EditProfile() {
 			e: React.ChangeEvent<
 				HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
 			>,
-		) => {
-			const value = e.target.value;
-			setFormData((prev) => ({
-				...prev,
-				[key]: value,
-			}));
-		};
+		) =>
+			setFormData((prev) => ({ ...prev, [key]: e.target.value }));
 
-	// formData.birth_date 기반으로 나이 계산
 	const age = formData.birth_date ? getAge(formData.birth_date) : "";
 
-	// input 숫자 변경 처리
+	// 프로필 DB에 나이를 0000.00.00 형태로 집어넣기
 	const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const inputAge = Number(e.target.value);
-		if (!isNaN(inputAge)) {
-			setFormData((prev) => ({
-				...prev,
-				birth_date: ageToBirthDate(inputAge),
-			}));
-		} else {
-			// 비어있을 때 birth_date를 undefined로 처리 가능
-			setFormData((prev) => ({
-				...prev,
-				birth_date: undefined,
-			}));
-		}
+		setFormData((prev) => ({
+			...prev,
+			birth_date: !isNaN(inputAge) ? ageToBirthDate(inputAge) : undefined,
+		}));
 	};
 
 	// 취미
 	const handleHabitsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const value = e.target.value;
-		const habitsArray = value.split(/\s+/).filter(Boolean); // 공백 기준으로 배열화
+		const habitsArray = e.target.value.split(/\s+/).filter(Boolean);
 		setFormData((prev) => ({ ...prev, habits: habitsArray }));
 	};
 
@@ -108,9 +97,41 @@ export default function EditProfile() {
 		});
 	};
 
+	// 추가
+	const addChildInfo = () =>
+		setChildInfos((prev) => [
+			...prev,
+			{ auth_id: "", nickname: "", child_link_code: "" },
+		]);
+
+	// input 값 변경
+	const updateChildInfoAt = (index: number, value: string) =>
+		setChildInfos((prev) =>
+			prev.map((c, i) =>
+				i === index ? { ...c, child_link_code: value } : c,
+			),
+		);
+
+	// 삭제
+	const removeChildInfoAt = (index: number) =>
+		setChildInfos((prev) => prev.filter((_, i) => i !== index));
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		await updateProfile(formData); // async 완료 기다리기
+		await updateProfile(formData);
+
+		if (profile.role === "teacher" || profile.role === "parent") {
+			try {
+				await updateValidChildCodes(
+					childInfos.map((c) => c.child_link_code),
+				);
+			} catch (err: any) {
+				alert(err.message);
+				return;
+			}
+		}
+
+		alert("수정이 완료되었습니다!");
 		navigate(`/profile/${userId}`);
 	};
 
@@ -122,40 +143,31 @@ export default function EditProfile() {
 			<h1 className="text-2xl font-bold text-[#8b5cf6] mb-4">
 				프로필 수정
 			</h1>
-
 			<div className="grid grid-cols-[334px_468px] gap-8">
 				{/* 좌측 폼 */}
 				<div className="space-y-3">
 					{/* 이름 */}
 					<div>
-						<label
-							htmlFor="name"
-							className="block mb-1 text-gray-600 text-sm"
-						>
+						<label className="block mb-1 text-gray-600 text-sm">
 							이름
 						</label>
 						<input
-							id="name"
 							value={formData.nickname ?? ""}
 							onChange={handleChange("nickname")}
-							className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-purple-400"
+							className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-violet-400"
 						/>
 					</div>
 
 					{/* 성별 */}
 					<div>
-						<label
-							htmlFor="gender"
-							className="block mb-1 text-gray-600 text-sm"
-						>
+						<label className="block mb-1 text-gray-600 text-sm">
 							성별
 						</label>
 						<div className="relative">
 							<select
-								id="gender"
-								value={formData.gender}
+								value={formData.gender || ""}
 								onChange={handleChange("gender")}
-								className="w-full border border-gray-300 rounded-lg px-3 py-2 appearance-none focus:outline-none focus:border-2 focus:border-purple-400"
+								className="w-full border border-gray-300 rounded-lg px-3 py-2 appearance-none focus:outline-none focus:border-2 focus:border-violet-400"
 							>
 								<option value="" disabled>
 									선택해주세요
@@ -170,88 +182,130 @@ export default function EditProfile() {
 						</div>
 					</div>
 
-					{/* 나이 */}
-					<div>
-						<label className="block mb-1 text-gray-600 text-sm">
-							나이
-						</label>
-						<input
-							type="number"
-							value={age}
-							onChange={handleAgeChange}
-							className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-purple-400"
-						/>
-					</div>
+					{/* 학생 전용 */}
+					{profile.role === "student" && (
+						<>
+							{/* 나이 */}
+							<div>
+								<label className="block mb-1 text-gray-600 text-sm">
+									나이
+								</label>
+								<input
+									type="number"
+									value={age}
+									onChange={handleAgeChange}
+									className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-violet-400"
+								/>
+							</div>
+						</>
+					)}
 
 					{/* 지역 */}
-					<div>
-						<label
-							htmlFor="region"
-							className="block mb-1 text-gray-600 text-sm"
-						>
-							지역
-						</label>
-						<input
-							id="region"
-							value={formData.region}
-							onChange={handleChange("region")}
-							className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-purple-400"
-						/>
-					</div>
+					{(profile.role === "student" ||
+						profile.role === "teacher" ||
+						profile.role === "parent") && (
+						<div>
+							<label className="block mb-1 text-gray-600 text-sm">
+								지역
+							</label>
+							<input
+								value={formData.region ?? ""}
+								onChange={handleChange("region")}
+								className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-violet-400"
+							/>
+						</div>
+					)}
 
-					{/* 취미 */}
-					<div>
-						<label
-							htmlFor="hobby"
-							className="block mb-1 text-gray-600 text-sm"
-						>
-							취미
-						</label>
-						<input
-							id="hobby"
-							value={(formData.habits ?? []).join(" ")}
-							onChange={handleHabitsChange}
-							className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-purple-400"
-						/>
-					</div>
+					{/* 학생 전용 취미 */}
+					{profile.role === "student" && (
+						<div>
+							<label className="block mb-1 text-gray-600 text-sm">
+								취미
+							</label>
+							<input
+								value={(formData.habits ?? []).join(" ")}
+								onChange={handleHabitsChange}
+								className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-violet-400"
+							/>
+						</div>
+					)}
 
-					{/* 뱃지 */}
-					<div>
-						<label
-							htmlFor="badge"
-							className="block mb-1 text-gray-600 text-sm"
-						>
-							활동 배지
-						</label>
-						<select
-							id="badge"
-							value={formData.representative_badge_id}
-							onChange={handleChange("representative_badge_id")}
-							className="w-full border border-gray-300 rounded-lg px-3 py-2 appearance-none focus:outline-none focus:border-2 focus:border-purple-400"
-						>
-							{/* 옵션 아직 더 추가해야함 */}
-							<option value="" disabled>
-								아직 획득한 뱃지가 없습니다.
-							</option>
-						</select>
-					</div>
+					{/* 교사 전용 전공/경력 */}
+					{profile.role === "teacher" && (
+						<>
+							<div>
+								<label className="block mb-1 text-gray-600 text-sm">
+									전공
+								</label>
+								<input
+									value={formData.major ?? ""}
+									onChange={handleChange("major")}
+									className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-violet-400"
+								/>
+							</div>
+							<div>
+								<label className="block mb-1 text-gray-600 text-sm">
+									경력
+								</label>
+								<input
+									value={formData.experience ?? ""}
+									onChange={handleChange("experience")}
+									className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-violet-400"
+								/>
+							</div>
+						</>
+					)}
+
+					{/* 부모 전용 자녀 코드 */}
+					{childInfos.length > 0 ||
+					profile.role === "parent" ||
+					profile.role === "teacher" ? (
+						<div>
+							<label className="block mb-1 text-gray-600 text-sm">
+								자녀 코드
+							</label>
+							{childInfos.map((child, idx) => (
+								<div
+									key={idx}
+									className="relative flex items-center gap-2 mb-1"
+								>
+									<input
+										type="text"
+										value={child.child_link_code}
+										onChange={(e) =>
+											updateChildInfoAt(
+												idx,
+												e.target.value,
+											)
+										}
+										className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-2 focus:border-violet-400"
+									/>
+									<X
+										className="absolute right-2 cursor-pointer hover:text-gray-300"
+										onClick={() => removeChildInfoAt(idx)}
+									/>
+								</div>
+							))}
+							<div
+								onClick={addChildInfo}
+								className="w-full border border-gray-300 rounded-lg px-3 py-2 hover:bg-violet-100 cursor-pointer"
+							>
+								자녀 코드 추가
+							</div>
+						</div>
+					) : null}
 				</div>
 
-				{/* 우측 */}
+				{/* 우측 폼: 자기소개 + 관심 분야 */}
 				<div className="space-y-3">
-					{/* 자기소개 */}
 					<div>
-						<label
-							htmlFor="bio"
-							className="block mb-1 text-gray-600 text-sm"
-						>
+						<label className="block mb-1 text-gray-600 text-sm">
 							자기소개
 						</label>
 						<textarea
-							id="bio"
-							value={formData.bio}
+							value={formData.bio ?? ""}
 							onChange={handleChange("bio")}
-							className="w-full h-[264px] border border-gray-300 rounded-lg px-3 py-2 resize-none focus:outline-none focus:border-2 focus:border-purple-400"
+							className="w-full h-[264px] border border-gray-300 rounded-lg px-3 py-2 resize-none focus:outline-none focus:border-2 focus:border-violet-400"
 						/>
 					</div>
 
@@ -269,12 +323,7 @@ export default function EditProfile() {
 										key={tag}
 										type="button"
 										onClick={() => toggleInterest(tag)}
-										className={[
-											"px-2 py-1 rounded-lg text-sm",
-											active
-												? "bg-purple-500 text-white "
-												: "bg-gray-100 text-gray-700 hover:bg-gray-200",
-										].join(" ")}
+										className={`px-2 py-1 rounded-lg text-sm ${active ? "bg-violet-500 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}
 									>
 										{tag}
 									</button>
@@ -289,14 +338,13 @@ export default function EditProfile() {
 				<Link
 					to=".."
 					relative="path"
-					className="px-4 py-2 rounded-lg border border-purple-300 text-purple-600 bg-white hover:bg-purple-50"
+					className="px-4 py-2 rounded-lg border border-violet-300 text-violet-600 bg-white hover:bg-violet-50"
 				>
 					취소
 				</Link>
-
 				<button
 					type="submit"
-					className="px-4 py-2 rounded-lg bg-purple-500 text-white hover:bg-purple-600"
+					className="px-4 py-2 rounded-lg bg-violet-500 text-white hover:bg-violet-600"
 				>
 					저장
 				</button>

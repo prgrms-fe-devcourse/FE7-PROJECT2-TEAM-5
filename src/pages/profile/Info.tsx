@@ -1,8 +1,16 @@
+import { useParams } from "react-router";
 import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
 import InfoBlock from "./InfoBlock";
 
-export default function Info({ profile }: { profile: UserProfile }) {
+export default function Info({
+	profile,
+	childInfos,
+}: {
+	profile: UserProfile;
+	childInfos: ChildInfo[];
+}) {
+	const isMe = "me" === useParams().id;
 	const age = profile.birth_date ? getAge(profile.birth_date) : 0;
 	const grade = profile.role === "student" ? getGrade(age) : "";
 
@@ -44,37 +52,43 @@ export default function Info({ profile }: { profile: UserProfile }) {
 							title="가입일"
 							content={profile.created_at.toString().slice(0, 10)}
 						/>
+						{/* 학생일 때, 보임 */}
+						{isMe && (
+							<InfoBlock
+								title="자녀 코드"
+								content={profile.child_link_code}
+							/>
+						)}
 					</>
 				) : (
 					<>
-						{/* 성별 / 나이 */}
+						{/* 성별 / 자녀 */}
 						<InfoBlock title="성별" content={profile.gender} />
-						<InfoBlock title="자녀" content="자녀코드" />
-						{/* 학년 / 지역 */}
+						{childInfos ? (
+							<InfoBlock title="자녀" childList={childInfos} />
+						) : (
+							<InfoBlock title="자녀" content="자녀 없음" />
+						)}
+
+						{/* 지역 / 전공 과목 */}
+						<InfoBlock title="지역" content={profile.region} />
 						{profile.role === "teacher" && (
 							<>
 								<InfoBlock
 									title="전공 과목"
 									content={profile.major}
 								/>
+								{/* 경력 / 활동 뱃지 */}
 								<InfoBlock
-									title="지역"
-									content={profile.region}
+									title="경력"
+									content={profile.experience}
 								/>
-								{/* 취미 / 활동 뱃지 */}
 								<InfoBlock
-									title="취미"
-									content={profile.habits
-										?.join("")
-										.split(",")
-										.join(", ")}
+									title="활동 뱃지"
+									badges={["🏆 초보 수학 마스터"]}
 								/>
 							</>
 						)}
-						<InfoBlock
-							title="활동 뱃지"
-							badges={["🏆 초보 수학 마스터"]}
-						/>
 						{/* 관심 분야 / 가입일 */}
 						<InfoBlock title="관심 분야" tags={profile.interests} />
 						<InfoBlock

@@ -1,6 +1,7 @@
 interface InfoBlockProps {
 	title: string;
 	content?: string | number;
+	childList?: ChildInfo[];
 	tags?: string[];
 	badges?: string[];
 	isFullWidth?: boolean;
@@ -9,6 +10,7 @@ interface InfoBlockProps {
 export default function InfoBlock({
 	title,
 	content,
+	childList,
 	tags,
 	badges,
 	isFullWidth = false,
@@ -21,6 +23,11 @@ export default function InfoBlock({
 			{content && (
 				<div className="font-medium text-gray-800 leading-snug whitespace-pre-wrap">
 					{content}
+				</div>
+			)}
+			{childList && childList.length > 0 && (
+				<div className="font-medium text-gray-800 leading-snug whitespace-pre-wrap">
+					{childList.map((child) => child.nickname).join(", ")}
 				</div>
 			)}
 			{tags && (
