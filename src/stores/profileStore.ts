@@ -13,7 +13,7 @@ type ProfileState = {
 	fetchProfile: (targetAuthId?: string | null) => void;
 	// updateProfile: 현재 로그인한 사용자 정보 수정
 	updateProfile: (updated: Partial<UserProfile>) => void;
-	// 유효성 검사 후 업데이트
+	// updateValidChildCodes: 유효성 검사 후 업데이트
 	updateValidChildCodes: (codes: string[]) => Promise<string[]>;
 	// 로그아웃
 	logout: () => Promise<void>;
@@ -42,7 +42,6 @@ export const useProfileStore = create<ProfileState>()(
 			try {
 				let authId = targetAuthId;
 				// 1. targetAuthId 없으면 현재 로그인 유저 정보 가져오기
-
 				if (!authId) {
 					const {
 						data: { user },
@@ -82,7 +81,7 @@ export const useProfileStore = create<ProfileState>()(
 					state.profile = profileData;
 					state.userId = authId;
 					state.isLoggedIn = true;
-					// 자녀 정보 바로 Zustand에 세팅
+					// 자녀 정보 바로 Zustand에 세팅, 자녀가 없으면 빈 배열
 					state.childInfos =
 						childLinks?.map((link: any) => link.child_id) ?? [];
 					state.loading = false;
@@ -161,7 +160,7 @@ export const useProfileStore = create<ProfileState>()(
 			}
 		},
 
-		// 프로필 수정 후 저장
+		// 프로필 수정 후 자녀 코드 저장
 		updateValidChildCodes: async (codes: string[]) => {
 			const profile = get().profile;
 			if (!profile) return [];
