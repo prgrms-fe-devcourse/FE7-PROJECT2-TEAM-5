@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 
+//isMulti: 다중 파일 업로드가 가능한지에 대한 boolean 값
 type InputFileProps = {
 	imgFiles: { file: string; fileName: string }[];
 	setImgFiles: React.Dispatch<

@@ -148,11 +148,13 @@ export default function PostCreatePage() {
 							</Input>
 						</div>
 
+						{/* 파일 업로드 */}
 						<InputFile
 							imgFiles={imgFiles}
 							setImgFiles={setImgFiles}
 							isMulti={true}
 						/>
+
 						<div className="relative w-full px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB] outline-none user-invalid:border-red-500">
 							<textarea
 								id="content"

@@ -1,6 +1,9 @@
 type InputProps = React.ComponentPropsWithoutRef<"input"> & {
 	validationText?: string;
 };
+
+// validationText: validation 안내문구
+// childer: lable 이름
 export default function Input({
 	validationText,
 	children,
