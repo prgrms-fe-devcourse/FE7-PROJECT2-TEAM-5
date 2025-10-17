@@ -1,6 +1,7 @@
 import { Outlet } from "react-router";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
+import UserList from "../components/UserList";
 
 export default function MainLayout() {
 	return (
@@ -11,13 +12,15 @@ export default function MainLayout() {
 				<Header />
 
 				{/* 스크롤 영역 */}
-				<main className="overflow-y-auto bg-[#F3F4F6] flex flex-col items-center h-[calc(100vh-70px)]">
+				<main className="relative overflow-y-auto bg-[#F3F4F6] flex flex-col items-center h-[calc(100vh-70px)]">
 					<div className="min-h-[calc(100%)]">
 						<div className="min-h-[calc(100%-90px)] pt-10">
 							<Outlet />
 						</div>
 						<Footer />
 					</div>
+					{/* 유저 리스트 모달 */}
+					<UserList />
 				</main>
 			</div>
 		</>
