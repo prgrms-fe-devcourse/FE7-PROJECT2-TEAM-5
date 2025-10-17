@@ -4,17 +4,17 @@ import { useProfileStore } from "../../stores/profileStore";
 import { useEffect } from "react";
 
 export default function HomePage() {
-	const userId = useProfileStore((state) => state.userId);
+	const currentUserId = useProfileStore((state) => state.currentUserId);
 	const loading = useProfileStore((state) => state.loading);
 	const fetchProfile = useProfileStore((state) => state.fetchProfile);
 
 	const { logout } = useProfileStore();
 
 	useEffect(() => {
-		if (!userId) {
+		if (!currentUserId) {
 			fetchProfile();
 		}
-	}, [userId, fetchProfile]);
+	}, [currentUserId, fetchProfile]);
 
 	if (loading) {
 		/* 스켈레톤 UI 추가 예정 */
@@ -35,7 +35,7 @@ export default function HomePage() {
 						<strong>StudyHub</strong>에 오신 것을 환영합니다.
 					</p>
 					<div className="space-x-4">
-						{userId ? (
+						{currentUserId ? (
 							<button
 								onClick={logout}
 								className="cursor-pointer inline-block px-6 py-4 bg-white rounded-xl font-bold text-[#8B5CF6] shadow-[inset_0_0_0_2px_#8B5CF6]"

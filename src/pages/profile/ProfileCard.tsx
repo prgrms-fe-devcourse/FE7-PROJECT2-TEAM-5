@@ -2,23 +2,32 @@ import { Link, useNavigate } from "react-router";
 import { useProfileStore } from "../../stores/profileStore";
 import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import basicImage from "../../assets/basic_image.png";
 import { SquarePen, Trash2 } from "lucide-react";
 import Modal from "../../components/Modal";
 import Button from "../../components/Button";
 
 type Props = {
-	isMyProfile?: boolean;
+	profile: UserProfile | null;
 };
 
-export default function ProfileCard({ isMyProfile = false }: Props) {
+export default function ProfileCard({ profile }: Props) {
 	const navigate = useNavigate();
-	const { profile, deleteProfile } = useProfileStore();
+	const { deleteProfile, currentUserId } = useProfileStore();
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 
 	if (!profile) return null;
+
+	// 현재 보고 있는 프로필이 내 프로필인지 판별
+	const isMyProfile = useMemo(
+		() => profile.auth_id === currentUserId,
+		[profile, currentUserId],
+	);
+
+	const age = profile.birth_date ? getAge(profile.birth_date) : 0;
+	const grade = profile.role === "student" && getGrade(age);
 
 	const roleMap: Record<string, string> = {
 		student: "학생",
@@ -38,10 +47,6 @@ export default function ProfileCard({ isMyProfile = false }: Props) {
 			setIsDeleting(false);
 		}
 	};
-
-	const age = profile.birth_date ? getAge(profile.birth_date) : 0;
-	const grade = profile.role === "student" && getGrade(age);
-
 	return (
 		<>
 			{/* // 왼쪽 영역 - 프로필 카드 */}
@@ -89,14 +94,12 @@ export default function ProfileCard({ isMyProfile = false }: Props) {
 
 					{/* 본인 프로필일 때만 수정 버튼 */}
 					{isMyProfile ? (
-						<>
-							<Link
-								to={`/profile/me/edit`}
-								className="bg-violet-500 rounded-xl text-center px-4 py-2 cursor-pointer text-base font-normal text-white"
-							>
-								프로필 수정
-							</Link>
-						</>
+						<Link
+							to={`/profile/me/edit`}
+							className="bg-violet-500 rounded-xl text-center px-4 py-2 cursor-pointer text-base font-normal text-white"
+						>
+							프로필 수정
+						</Link>
 					) : (
 						<div className="flex flex-row gap-2">
 							<Button className="w-1/2 bg-violet-500 rounded-xl text-center px-4 py-2 cursor-pointer text-base font-normal text-white">
@@ -145,14 +148,9 @@ export default function ProfileCard({ isMyProfile = false }: Props) {
 					{profile.role === "teacher" ? (
 						<div className="w-full rounded-xl mt-6 px-6 py-4 bg-violet-500 text-white space-y-1">
 							<p>보유 포인트</p>
-							<div className="flex flex-row items-end justify-between">
-								<span className="text-xl font-medium">
-									1000p
-								</span>
-								<span className="text-xs underline">
-									내역보기
-								</span>
-							</div>
+							<span className="text-xl font-medium">
+								{profile.current_point} point
+							</span>
 						</div>
 					) : (
 						""

@@ -4,15 +4,20 @@ import supabase from "../utils/supabase";
 
 type ProfileState = {
 	profile: UserProfile | null;
-	userId: string | null; // Supabase Auth ID 저장
+	currentUserId: string | null; // Supabase Auth ID 저장
 	childInfos: ChildInfo[]; // 기존 자녀 정보
 	loading: boolean;
 	isLoggedIn: boolean;
 	error: string | null;
+	// fetchProfile: 로그인 유저 ID만 갱신
+	fetchCurrentUserId: () => Promise<void>;
 	// fetchProfile: 현재 로그인한 사용자 정보 가져오기
-	fetchProfile: (targetAuthId?: string | null) => void;
+	fetchProfile: (targetAuthId?: string | null) => Promise<void>;
 	// updateProfile: 현재 로그인한 사용자 정보 수정
-	updateProfile: (updated: Partial<UserProfile>) => void;
+	updateProfile: (
+		updates: Partial<UserProfile>,
+		childCodes?: string[],
+	) => void;
 	// updateValidChildCodes: 유효성 검사 후 업데이트
 	updateValidChildCodes: (codes: string[]) => Promise<string[]>;
 	// 로그아웃
@@ -26,13 +31,34 @@ type ProfileState = {
 export const useProfileStore = create<ProfileState>()(
 	immer((set, get) => ({
 		profile: null,
-		userId: null,
+		currentUserId: null,
 		childInfos: [],
 		isLoggedIn: false,
 		loading: false,
 		error: null,
 
-		// 프로필 저장
+		// ✅ 로그인 유저 ID만 가져오기
+		fetchCurrentUserId: async () => {
+			try {
+				const {
+					data: { user },
+					error,
+				} = await supabase.auth.getUser();
+				if (error) throw error;
+
+				set((state) => {
+					state.currentUserId = user?.id ?? null;
+					state.isLoggedIn = !!user;
+				});
+			} catch {
+				set((state) => {
+					state.currentUserId = null;
+					state.isLoggedIn = false;
+				});
+			}
+		},
+
+		// ✅ 프로필 데이터 가져오기
 		fetchProfile: async (targetAuthId?: string | null) => {
 			set((state) => {
 				state.loading = true;
@@ -41,26 +67,25 @@ export const useProfileStore = create<ProfileState>()(
 
 			try {
 				let authId = targetAuthId;
-				// 1. targetAuthId 없으면 현재 로그인 유저 정보 가져오기
-				if (!authId) {
-					const {
-						data: { user },
-						error: userError,
-					} = await supabase.auth.getUser();
-					if (userError) throw userError;
-					if (!user)
-						return set((state) => {
-							state.profile = null;
-							state.userId = null;
-							state.isLoggedIn = false;
-							state.childInfos = [];
-							state.loading = false;
-						});
-					authId = user.id;
-				}
 
-				// 2. users + child_parent_links 조인으로 한 번에 가져오기
-				// 1) 부모 정보
+				// 로그인 유저 정보 확인
+				const {
+					data: { user },
+					error: userError,
+				} = await supabase.auth.getUser();
+				if (userError) throw userError;
+				if (!user) throw new Error("로그인 정보가 없습니다.");
+
+				// currentUserId는 로그인한 사용자로만 유지
+				set((state) => {
+					if (!state.currentUserId) state.currentUserId = user.id;
+					state.isLoggedIn = true;
+				});
+
+				// targetAuthId가 없으면 내 프로필로 설정
+				if (!authId) authId = user.id;
+
+				// ✅ users + child_parent_links 조회
 				const { data: profileData, error: profileError } =
 					await supabase
 						.from("users")
@@ -69,31 +94,27 @@ export const useProfileStore = create<ProfileState>()(
 						.single();
 				if (profileError) throw profileError;
 
-				// 2) 자녀 정보
 				const { data: childLinks, error: childError } = await supabase
 					.from("child_parent_links")
 					.select("child_id (auth_id, nickname, child_link_code)")
 					.eq("parent_id", authId);
 				if (childError) throw childError;
 
-				// 3. 상태 업데이트
 				set((state) => {
-					state.profile = profileData;
-					state.userId = authId;
-					state.isLoggedIn = true;
-					// 자녀 정보 바로 Zustand에 세팅, 자녀가 없으면 빈 배열
+					state.profile = profileData; // ✅ 현재 보고 있는 프로필
 					state.childInfos =
 						childLinks?.map((link: any) => link.child_id) ?? [];
 					state.loading = false;
+					state.isLoggedIn = true;
+					state.error = null;
 				});
 			} catch (err: any) {
 				set((state) => {
-					state.error = err.message;
 					state.profile = null;
-					state.userId = null;
-					state.isLoggedIn = false;
 					state.childInfos = [];
 					state.loading = false;
+					state.isLoggedIn = false;
+					state.error = err.message ?? "프로필 불러오기 실패";
 				});
 			}
 		},
@@ -112,49 +133,26 @@ export const useProfileStore = create<ProfileState>()(
 				const { profile } = get();
 				if (!profile) throw new Error("프로필이 없습니다.");
 
+				// 1. 유저 정보 업데이트
 				const { error } = await supabase
 					.from("users")
 					.update(updates)
 					.eq("auth_id", profile.auth_id);
 				if (error) throw error;
 
+				// 2. 자녀 코드가 있으면 updateValidChildCodes 호출
 				if (childCodes?.length) {
-					// 기존 자녀 링크 조회
-					const { data: existingLinks } = await supabase
-						.from("child_parent_links")
-						.select("child_id")
-						.eq("parent_id", profile.auth_id);
-					const existingIds =
-						existingLinks?.map((l) => l.child_id) ?? [];
-
-					// 중복 제외하고 새 링크만 DB에 삽입
-					const { error: insertError } = await supabase
-						.from("child_parent_links")
-						.insert(
-							childCodes
-								.map((code) => ({
-									parent_id: profile.auth_id,
-									child_link_code: code,
-								}))
-								.filter(
-									(c) =>
-										!existingIds.includes(
-											c.child_link_code,
-										),
-								),
-						)
-						.select();
-					if (insertError) throw insertError;
+					await get().updateValidChildCodes(childCodes);
 				}
 
-				// 최신 프로필 재로딩
-				await get().fetchProfile();
-				set((state) => {
-					state.loading = false;
-				});
+				// 3. 최신 프로필 재로딩
+				await get().fetchProfile(profile.auth_id);
 			} catch (err: any) {
 				set((state) => {
 					state.error = err.message;
+				});
+			} finally {
+				set((state) => {
 					state.loading = false;
 				});
 			}
@@ -166,6 +164,8 @@ export const useProfileStore = create<ProfileState>()(
 			if (!profile) return [];
 
 			const trimmedCodes = codes.map((c) => c.trim()).filter(Boolean);
+
+			// 빈 배열이면 상태 초기화
 			if (!trimmedCodes.length) {
 				set((state) => {
 					state.childInfos = [];
@@ -215,19 +215,9 @@ export const useProfileStore = create<ProfileState>()(
 					if (insertError) throw insertError;
 				}
 
-				// 🔹 Zustand 상태 업데이트
+				// Zustand 상태 업데이트
 				set((state) => {
-					state.childInfos = [
-						...validChildren.filter((c) =>
-							existingIds.includes(c.auth_id),
-						),
-						...newLinks.map(
-							(link) =>
-								validChildren.find(
-									(c) => c.auth_id === link.child_id,
-								)!,
-						),
-					];
+					state.childInfos = validChildren;
 				});
 
 				return validCodes;
@@ -271,7 +261,7 @@ export const useProfileStore = create<ProfileState>()(
 
 				set((state) => {
 					state.profile = null;
-					state.userId = null;
+					state.currentUserId = null;
 					state.isLoggedIn = false;
 					state.childInfos = [];
 				});
@@ -286,7 +276,7 @@ export const useProfileStore = create<ProfileState>()(
 		clearProfile: () => {
 			set((state) => {
 				state.profile = null;
-				state.userId = null;
+				state.currentUserId = null;
 				state.isLoggedIn = false;
 				state.childInfos = [];
 				state.error = null;

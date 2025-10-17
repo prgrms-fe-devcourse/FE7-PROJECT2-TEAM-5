@@ -33,6 +33,8 @@ type UserProfile = {
 	representative_badge_id?: string;
 	// 소속
 	role: string;
+	// 팔로잉 상태 전용 필드
+	temporaryFollowing?: string[];
 };
 
 type ChildInfo = {

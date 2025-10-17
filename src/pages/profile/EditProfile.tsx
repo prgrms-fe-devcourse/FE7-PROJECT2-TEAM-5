@@ -38,7 +38,6 @@ export default function EditProfile() {
 	const {
 		profile,
 		updateProfile,
-		updateValidChildCodes,
 		loading,
 		error,
 		userId,
@@ -52,8 +51,10 @@ export default function EditProfile() {
 	useEffect(() => {
 		if (!profile) return;
 		setFormData(profile);
-		setChildInfos(storeChildInfos); // Zustand childInfos 바로 반영
-	}, [profile, storeChildInfos]);
+		if (storeChildInfos.length && childInfos.length === 0) {
+			setChildInfos(storeChildInfos);
+		}
+	}, [profile]);
 
 	if (loading || !profile) return <EditProfileSkeleton />;
 	if (error) return <p>❌ 오류: {error}</p>;
@@ -118,21 +119,20 @@ export default function EditProfile() {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		await updateProfile(formData);
-
-		if (profile.role === "teacher" || profile.role === "parent") {
-			try {
-				await updateValidChildCodes(
-					childInfos.map((c) => c.child_link_code),
+		try {
+			if (profile.role === "parent" || profile.role === "teacher") {
+				await updateProfile(
+					formData,
+					childInfos.map((c) => c.child_link_code || ""),
 				);
-			} catch (err: any) {
-				alert(err.message);
-				return;
+			} else {
+				await updateProfile(formData);
 			}
+			alert("수정이 완료되었습니다!");
+			navigate(`/profile/${userId}`);
+		} catch (err: any) {
+			alert(err.message);
 		}
-
-		alert("수정이 완료되었습니다!");
-		navigate(`/profile/${userId}`);
 	};
 
 	return (
@@ -257,9 +257,8 @@ export default function EditProfile() {
 					)}
 
 					{/* 부모 전용 자녀 코드 */}
-					{childInfos.length > 0 ||
-					profile.role === "parent" ||
-					profile.role === "teacher" ? (
+					{(profile.role === "parent" ||
+						profile.role === "teacher") && (
 						<div>
 							<label className="block mb-1 text-gray-600 text-sm">
 								자녀 코드
@@ -293,7 +292,7 @@ export default function EditProfile() {
 								자녀 코드 추가
 							</div>
 						</div>
-					) : null}
+					)}
 				</div>
 
 				{/* 우측 폼: 자기소개 + 관심 분야 */}
