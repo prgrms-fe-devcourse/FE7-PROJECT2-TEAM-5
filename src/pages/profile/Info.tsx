@@ -64,9 +64,12 @@ export default function Info({
 					<>
 						{/* 성별 / 자녀 */}
 						<InfoBlock title="성별" content={profile.gender} />
-						{childInfos.map((child) => (
-							<InfoBlock title="자녀" content={child.nickname} />
-						))}
+						{childInfos ? (
+							<InfoBlock title="자녀" childList={childInfos} />
+						) : (
+							<InfoBlock title="자녀" content="자녀 없음" />
+						)}
+
 						{/* 지역 / 전공 과목 */}
 						<InfoBlock title="지역" content={profile.region} />
 						{profile.role === "teacher" && (

@@ -120,7 +120,7 @@ export const useProfileStore = create<ProfileState>()(
 				if (error) throw error;
 
 				if (childCodes?.length) {
-					// 🔹 기존 자녀 링크 조회
+					// 기존 자녀 링크 조회
 					const { data: existingLinks } = await supabase
 						.from("child_parent_links")
 						.select("child_id")
@@ -128,7 +128,7 @@ export const useProfileStore = create<ProfileState>()(
 					const existingIds =
 						existingLinks?.map((l) => l.child_id) ?? [];
 
-					// 🔹 중복 제외하고 새 링크만 DB에 삽입
+					// 중복 제외하고 새 링크만 DB에 삽입
 					const { error: insertError } = await supabase
 						.from("child_parent_links")
 						.insert(
@@ -148,7 +148,7 @@ export const useProfileStore = create<ProfileState>()(
 					if (insertError) throw insertError;
 				}
 
-				// 🔹 최신 프로필 재로딩
+				// 최신 프로필 재로딩
 				await get().fetchProfile();
 				set((state) => {
 					state.loading = false;
@@ -175,7 +175,7 @@ export const useProfileStore = create<ProfileState>()(
 			}
 
 			try {
-				// 🔹 유효한 자녀 조회
+				// 유효한 자녀 조회
 				const { data: childrenData, error } = await supabase
 					.from("users")
 					.select("auth_id, nickname, child_link_code")
@@ -193,14 +193,14 @@ export const useProfileStore = create<ProfileState>()(
 						`유효하지 않은 자녀코드: ${invalidCodes.join(", ")}`,
 					);
 
-				// 🔹 기존 부모-자녀 관계 조회
+				// 기존 부모-자녀 관계 조회
 				const { data: existingLinks } = await supabase
 					.from("child_parent_links")
 					.select("child_id")
 					.eq("parent_id", profile.auth_id);
 				const existingIds = existingLinks?.map((l) => l.child_id) ?? [];
 
-				// 🔹 새 링크만 삽입
+				// 새 링크만 삽입
 				const newLinks = validChildren
 					.filter((c) => !existingIds.includes(c.auth_id))
 					.map((c) => ({

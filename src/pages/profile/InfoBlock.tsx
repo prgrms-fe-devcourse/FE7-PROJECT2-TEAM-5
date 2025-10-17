@@ -1,6 +1,7 @@
 interface InfoBlockProps {
 	title: string;
 	content?: string | number;
+	childList?: ChildInfo[];
 	tags?: string[];
 	badges?: string[];
 	isFullWidth?: boolean;
@@ -9,6 +10,7 @@ interface InfoBlockProps {
 export default function InfoBlock({
 	title,
 	content,
+	childList,
 	tags,
 	badges,
 	isFullWidth = false,
@@ -23,6 +25,12 @@ export default function InfoBlock({
 					{content}
 				</div>
 			)}
+			{childList &&
+				childList.map((child) => (
+					<div className="font-medium text-gray-800 leading-snug whitespace-pre-wrap">
+						{child.nickname}
+					</div>
+				))}
 			{tags && (
 				<div className="flex flex-wrap gap-1 mt-1">
 					{tags.map((tag, index) => (
