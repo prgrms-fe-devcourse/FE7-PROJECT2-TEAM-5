@@ -1,3 +1,4 @@
+import { useParams } from "react-router";
 import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
 import InfoBlock from "./InfoBlock";
@@ -9,6 +10,7 @@ export default function Info({
 	profile: UserProfile;
 	childInfos: ChildInfo[];
 }) {
+	const isMe = "me" === useParams().id;
 	const age = profile.birth_date ? getAge(profile.birth_date) : 0;
 	const grade = profile.role === "student" ? getGrade(age) : "";
 
@@ -50,6 +52,13 @@ export default function Info({
 							title="가입일"
 							content={profile.created_at.toString().slice(0, 10)}
 						/>
+						{/* 학생일 때, 보임 */}
+						{isMe && (
+							<InfoBlock
+								title="자녀 코드"
+								content={profile.child_link_code}
+							/>
+						)}
 					</>
 				) : (
 					<>
