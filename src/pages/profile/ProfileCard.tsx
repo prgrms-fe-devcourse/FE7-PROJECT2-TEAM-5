@@ -175,7 +175,7 @@ export default function ProfileCard({ isMyProfile = false }: Props) {
 				title="회원 탈퇴"
 			>
 				<p className="text-gray-600 mb-5">
-					정말로 이 친구를 삭제하시겠습니까?
+					정말로 이 계정를 삭제하시겠습니까?
 					<br />이 작업은 되돌릴 수 없습니다.
 				</p>
 				<div className="flex justify-center gap-3">
