@@ -20,7 +20,6 @@ export default function PostCreatePage() {
 	// const [imgFileNames, setImgFileNames] = useState<string[]>([]);
 
 	const boardTypes = [
-		{ key: "all", label: "전체게시판" },
 		{ key: "free", label: "자유게시판" },
 		{ key: "elementary", label: "초등학생 게시판" },
 		{ key: "middle", label: "중학교 게시판" },
