@@ -3,9 +3,9 @@ export default function CreateGroup() {
   const preventSubmit = (e: React.FormEvent) => e.preventDefault();
 
   return (
-    // full-bleed 유지(레이아웃 좁음 대응)
+    
     <div className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] w-screen">
-      {/* ✅ 폭 살짝 줄임: 880px */}
+     
       <main className="mx-auto w-full max-w-[880px] px-8 py-10">
         <h1 className="text-[28px] md:text-[32px] font-semibold tracking-tight">
           그룹 생성하기
