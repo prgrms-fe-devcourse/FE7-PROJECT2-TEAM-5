@@ -1,9 +1,20 @@
 import { Link } from "react-router";
+import { getAge } from "../utils/getAge";
+import { getGrade } from "../utils/getGrade";
 
-export default function UserListCard() {
+export default function UserListCard({ user }: { user: User }) {
+	const age = user.birth_date ? getAge(user.birth_date) : 0;
+	const grade = user.role === "student" && getGrade(age);
+
+	const roleMap: Record<string, string> = {
+		student: "학생",
+		teacher: "선생님",
+		parent: "학부모",
+	};
+
 	return (
 		<>
-			<Link to={`/profile/해당 프로필 유저 Id`}>
+			<Link to={`/profile/${user.auth_id}`}>
 				<div className="flex flex-row justify-between items-center py-4 px-5 hover:bg-[#F1F3F5]">
 					{/* left */}
 					<div className="flex flex-row items-center gap-2.5">
@@ -17,9 +28,13 @@ export default function UserListCard() {
 						{/* 정보 */}
 						<div className="flex flex-col gap-1 text-sm">
 							{/* 이름 */}
-							<div>홍길동</div>
+							<div className="line-clamp-1">{user.nickname}</div>
 							{/* 소속, 학년 (선생님은 전공) */}
-							<div>학생, 3학년</div>
+							<div>
+								{roleMap[user.role] || "알 수 없음"}
+								{user.role === "student" && `, ${grade}`}{" "}
+								{user.role === "teacher" && `, ${user.major}`}
+							</div>
 						</div>
 					</div>
 					{/* right */}
