@@ -379,7 +379,7 @@ export default function RegisterEmailPage() {
 					<input
 						id="login-password"
 						type="password"
-						placeholder="비밀번호 (최소 6자, 영문/숫자 필수)"
+						placeholder="비밀번호 (최소 8자, 영문/숫자 필수)"
 						value={password}
 						onChange={(e) => {
 							setPassword(e.target.value);
