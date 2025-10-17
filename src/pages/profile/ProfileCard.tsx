@@ -180,12 +180,19 @@ export default function ProfileCard({ isMyProfile = false }: Props) {
 					<br />이 작업은 되돌릴 수 없습니다.
 				</p>
 				<div className="flex justify-center gap-3">
-					<button
-						onClick={() => setIsModalOpen(false)}
-						className="px-8 py-3 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
-					>
-						취소
-					</button>
+					{isDeleting ? (
+						""
+					) : (
+						<>
+							<button
+								onClick={() => setIsModalOpen(false)}
+								className="px-8 py-3 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+							>
+								취소
+							</button>
+						</>
+					)}
+
 					<button
 						onClick={handleDeleteAccount}
 						disabled={isDeleting}
