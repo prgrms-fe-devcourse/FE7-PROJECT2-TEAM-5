@@ -120,7 +120,7 @@ export default function EditProfile() {
 		e.preventDefault();
 		await updateProfile(formData);
 
-		if (profile.role === "parent") {
+		if (profile.role === "teacher" || profile.role === "parent") {
 			try {
 				await updateValidChildCodes(
 					childInfos.map((c) => c.child_link_code),
