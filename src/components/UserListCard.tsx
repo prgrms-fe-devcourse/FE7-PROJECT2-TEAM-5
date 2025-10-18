@@ -39,10 +39,25 @@ export default function UserListCard({ user }: { user: User }) {
 					</div>
 					{/* right */}
 					<div className="space-x-2 text-xs">
-						<button className="cursor-pointer px-2 py-1 bg-violet-500 text-white rounded hover:bg-violet-600">
+						<button
+							className="cursor-pointer px-2 py-1 bg-violet-500 text-white rounded hover:bg-violet-600"
+							onClick={(e) => {
+								e.stopPropagation();
+								e.preventDefault();
+								console.log("팔로우 버튼 구현 예정");
+							}}
+						>
 							팔로우
 						</button>
-						<button className="cursor-pointer px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">
+
+						<button
+							className="cursor-pointer px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+							onClick={(e) => {
+								e.stopPropagation();
+								e.preventDefault();
+								console.log("메시지 버튼 구현 예정");
+							}}
+						>
 							메시지
 						</button>
 					</div>

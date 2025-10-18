@@ -39,7 +39,7 @@ export default function UserList() {
 
 			{/* 슬라이딩 리스트 */}
 			<div
-				className={` transition-all duration-500 ease-in-out pb-4 ${
+				className={` transition-all duration-500 ease-in-out ${
 					isOpen ? "h-160 overflow-y-auto" : "h-0 overflow-y-hidden"
 				}`}
 			>
