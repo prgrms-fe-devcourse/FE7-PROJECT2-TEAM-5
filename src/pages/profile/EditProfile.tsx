@@ -40,7 +40,6 @@ export default function EditProfile() {
 		updateProfile,
 		loading,
 		error,
-		userId,
 		childInfos: storeChildInfos,
 	} = useProfileStore();
 
@@ -129,7 +128,7 @@ export default function EditProfile() {
 				await updateProfile(formData);
 			}
 			alert("수정이 완료되었습니다!");
-			navigate(`/profile/${userId}`);
+			navigate(`/profile/me`);
 		} catch (err: any) {
 			alert(err.message);
 		}

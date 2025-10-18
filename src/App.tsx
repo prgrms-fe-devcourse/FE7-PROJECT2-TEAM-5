@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router";
+import { Route, Routes, useLocation } from "react-router";
 import MainLayout from "./layouts/MainLayout";
 import AuthLayout from "./layouts/AuthLayout";
 import HomePage from "./pages/home/HomePage";
@@ -25,16 +25,39 @@ import SocialSignupInfo from "./pages/auth/SocialSignupInfo";
 
 export default function App() {
 	const fetchProfile = useProfileStore((state) => state.fetchProfile);
+	const location = useLocation();
 
 	useEffect(() => {
 		const initAuth = async () => {
 			const { data } = await supabase.auth.getSession();
 			const user = data.session?.user;
-			if (user) await fetchProfile(user.id);
-		};
-		initAuth();
-	}, [fetchProfile]);
 
+			// 로그인 유저 정보 세팅
+			if (user) {
+				useProfileStore.setState((state) => {
+					state.currentUserId = user.id;
+					state.isLoggedIn = true;
+				});
+			}
+
+			// 현재 경로가 프로필 페이지인지 확인
+			const pathMatch = location.pathname.match(/^\/profile\/([^/]+)/);
+			if (pathMatch) {
+				const targetId = pathMatch[1];
+				// "me" 처리: 내 프로필이면 로그인 유저 ID 사용
+				if (targetId === "me" && user) {
+					await fetchProfile(user.id);
+				} else {
+					await fetchProfile(targetId);
+				}
+			} else if (user) {
+				// 홈이나 다른 페이지에서는 로그인 유저 프로필 fetch
+				await fetchProfile(user.id);
+			}
+		};
+
+		initAuth();
+	}, [fetchProfile, location.pathname]);
 	return (
 		<>
 			<Routes>

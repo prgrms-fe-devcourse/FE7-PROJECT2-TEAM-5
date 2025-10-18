@@ -19,16 +19,20 @@ export default function ProfilePage() {
 
 	// 로그인 유저 ID 먼저 가져오기
 	useEffect(() => {
-		if (!currentUserId) {
-			fetchCurrentUserId();
-		}
-	}, [currentUserId, fetchCurrentUserId]);
+		fetchCurrentUserId();
+	}, [fetchCurrentUserId]);
+
+	// 로그인 유저 ID 먼저 가져오기
+	useEffect(() => {
+		fetchCurrentUserId();
+	}, [fetchCurrentUserId]);
 
 	// URL이 바뀌면 해당 프로필 로딩
 	useEffect(() => {
 		if (!id || !currentUserId) return;
 
 		const targetAuthId = id === "me" ? currentUserId : id;
+
 		fetchProfile(targetAuthId);
 	}, [id, currentUserId, fetchProfile]);
 
