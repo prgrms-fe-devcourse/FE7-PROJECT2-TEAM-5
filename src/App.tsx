@@ -22,7 +22,7 @@ import GroupPostDetailPage from "./pages/group/GroupPostDetailPage";
 import GroupAttendancePage from "./pages/group/GroupAttendance";
 import GroupPostCreatePage from "./pages/group/GroupPostCreatePage";
 import SocialSignupInfo from "./pages/auth/SocialSignupInfo";
-import { useCheckProfileCompleted } from "./hooks/useProfileCompletionCheck";
+import { useCheckProfileCompleted } from "./hooks/useCheckProfileCompleted";
 
 export default function App() {
 	const fetchProfile = useProfileStore((state) => state.fetchProfile);

@@ -31,6 +31,10 @@ src/
  │   │   └─ Sidebar.tsx
  │   └─ 추가 예정
  │
+ │─ hooks/          # 커스텀 훅
+ │   └── useCheckProfileCompleted.tsx
+ │
+ │
  ├─ pages/               # 페이지 단위
  │   ├─ auth/            # 로그인/회원가입
  │   │   ├─ LoginPage.tsx
@@ -77,6 +81,10 @@ src/
 
     재사용 가능한 UI 컴포넌트 모음
     - layout/: Header, Sidebar 등 레이아웃 단위 컴포넌트
+
+- hooks/
+
+    커스텀 훅
 
 - pages/
 
