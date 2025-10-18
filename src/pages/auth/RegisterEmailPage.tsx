@@ -1,10 +1,16 @@
 import supabase from "../../utils/supabase";
 import { Link, useNavigate } from "react-router";
 import { useState, useEffect, useCallback } from "react";
-import type { UserRole, AuthForm } from "../../types/auth";
+import type { UserRole, AuthFormFields } from "../../types/auth";
 import { ChevronDown } from "lucide-react";
+import {
+	checkAuthNicknameDuplicate,
+	checkAuthChildCodeExists,
+	validateAuthForm,
+} from "../../utils/authValidation";
+import { FormErrorMessage } from "../../components/FormErrorMessage";
 
-const initialErrors: AuthForm = {
+const initialErrors: AuthFormFields = {
 	email: "",
 	password: "",
 	confirmPassword: "",
@@ -41,7 +47,7 @@ export default function RegisterEmailPage() {
 	// UI state
 	const [loading, setLoading] = useState<boolean>(false);
 	const [message, setMessage] = useState<string>(""); // 성공 또는 실패 메시지
-	const [errors, setErrors] = useState<AuthForm>(initialErrors); // 필드별 오류 메시지 State 추가
+	const [errors, setErrors] = useState<AuthFormFields>(initialErrors); // 필드별 오류 메시지 State 추가
 
 	// 생년월일 범위
 	const studentsYears = Array.from({ length: 20 }, (_, i) =>
@@ -68,67 +74,35 @@ export default function RegisterEmailPage() {
 	}, [role]);
 
 	/* 정합성 체크 요소들 */
-	// 이메일 정합성 체크
-	const isValidEmail = (e: string) => /\S+@\S+\.\S+/.test(e);
-
-	// 비밀번호 정규식 (최소 8자 이상, 영문자 1개 이상, 숫자 1개 이상)
-	const isValidPassword = (p: string) =>
-		p.length >= 8 && /[a-zA-Z]/.test(p) && /[0-9]/.test(p);
-
 	// 필드별 유효성 검사 및 에러 상태 업데이트
 	const validateAndSetErrors = useCallback((): boolean => {
-		let newErrors: AuthForm = { ...initialErrors };
-		let isValid = true;
+		const validation = validateAuthForm({
+			email,
+			password,
+			confirmPassword,
+			nickname,
+			role,
+			year,
+			month,
+			day,
+			major,
+			childLinkCode,
+		});
 
-		if (!isValidEmail(email)) {
-			newErrors.email = "올바른 이메일 형식이 아닙니다.";
-			isValid = false;
-		}
+		// AuthFormFields 타입에 맞게 변환, 폼 관련 에러메시지만 저장
+		const authFormErrors: AuthFormFields = {
+			email: validation.errors.email,
+			password: validation.errors.password,
+			confirmPassword: validation.errors.confirmPassword,
+			nickname: validation.errors.nickname,
+			role: validation.errors.role,
+			birthDate: validation.errors.birthDate,
+			major: validation.errors.major,
+			childLinkCode: validation.errors.childLinkCode,
+		};
 
-		if (!isValidPassword(password)) {
-			newErrors.password =
-				"비밀번호는 최소 8자, 영문/숫자 각 1개 이상 포함해야 합니다.";
-			isValid = false;
-		}
-
-		if (password !== confirmPassword) {
-			newErrors.confirmPassword = "비밀번호가 다릅니다.";
-			isValid = false;
-		} else if (confirmPassword.trim() === "") {
-			newErrors.confirmPassword = "비밀번호 확인을 입력해주세요.";
-			isValid = false;
-		}
-
-		if (nickname.trim() === "") {
-			newErrors.nickname = "닉네임을 입력해주세요.";
-			isValid = false;
-		}
-
-		if (role === "") {
-			newErrors.role = "소속 구분을 선택해주세요.";
-			isValid = false;
-		}
-
-		if (role !== "") {
-			// 역할이 선택되었을 때만 생년월일 검사
-			if (year === "" || month === "" || day === "") {
-				newErrors.birthDate = "출생 연월일을 모두 선택해주세요.";
-				isValid = false;
-			}
-		}
-
-		if (role === "teacher" && major.trim() === "") {
-			newErrors.major = "주 과목을 입력해주세요.";
-			isValid = false;
-		}
-
-		if (role === "parent" && childLinkCode.trim() === "") {
-			newErrors.childLinkCode = "자녀코드를 입력해주세요.";
-			isValid = false;
-		}
-
-		setErrors(newErrors);
-		return isValid;
+		setErrors(authFormErrors);
+		return validation.isValid;
 	}, [
 		email,
 		password,
@@ -144,33 +118,26 @@ export default function RegisterEmailPage() {
 
 	// 닉네임 중복 검사
 	const checkNicknameExists = useCallback(async (): Promise<boolean> => {
-		if (!nickname.trim()) return false;
+		const result = await checkAuthNicknameDuplicate(nickname);
 
-		try {
-			const { data, error } = await supabase.functions.invoke(
-				"checkNicknameExists",
-				{ body: { nickname: nickname.trim() } },
-			);
-
-			if (error) throw error;
-
-			if (data?.exists) {
-				setErrors((prev) => ({
-					...prev,
-					nickname: "이미 사용 중인 닉네임입니다.",
-				}));
-				return true;
-			} else {
-				setErrors((prev) => ({ ...prev, nickname: "" }));
-				return false;
-			}
-		} catch {
+		if (result.error) {
 			setErrors((prev) => ({
 				...prev,
-				nickname: "닉네임 중복 검사 실패",
+				nickname: result.error!,
 			}));
 			return true;
 		}
+
+		if (result.exists) {
+			setErrors((prev) => ({
+				...prev,
+				nickname: "이미 사용 중인 닉네임입니다.",
+			}));
+			return true;
+		}
+
+		setErrors((prev) => ({ ...prev, nickname: "" }));
+		return false;
 	}, [nickname]);
 
 	// 학부모일 경우, 자녀코드 존재 여부 체크
@@ -178,40 +145,27 @@ export default function RegisterEmailPage() {
 		exists: boolean;
 		childId?: string;
 	}> => {
-		if (!childLinkCode.trim()) {
+		const result = await checkAuthChildCodeExists(childLinkCode);
+
+		if (result.error) {
 			setErrors((prev) => ({
 				...prev,
-				childLinkCode: "자녀코드를 입력해주세요.",
+				childLinkCode: result.error!,
 			}));
 			return { exists: false };
 		}
 
-		try {
-			const { data, error } = await supabase.functions.invoke(
-				"getUserIdForChildCode",
-				{ body: { childLinkCode: childLinkCode.trim() } },
-			);
-
-			if (error) throw error;
-
-			if (!data?.exists) {
-				setErrors((prev) => ({
-					...prev,
-					childLinkCode: "존재하지 않는 자녀 코드입니다.",
-				}));
-				return { exists: false };
-			}
-
-			// 유효하면 에러 제거 + childId 반환
-			setErrors((prev) => ({ ...prev, childLinkCode: "" }));
-			return { exists: true, childId: data.childId };
-		} catch {
+		if (!result.exists) {
 			setErrors((prev) => ({
 				...prev,
-				childLinkCode: "자녀 코드 확인 중 오류가 발생했습니다.",
+				childLinkCode: "존재하지 않는 자녀 코드입니다.",
 			}));
 			return { exists: false };
 		}
+
+		// 유효하면 에러 제거 + childId 반환
+		setErrors((prev) => ({ ...prev, childLinkCode: "" }));
+		return { exists: true, childId: result.childId };
 	}, [childLinkCode]);
 
 	// auth 테이블에 회원가입 시도하는 함수
@@ -332,16 +286,6 @@ export default function RegisterEmailPage() {
 		}
 	};
 
-	// 오류 메시지를 표시하는 컴포넌트
-	const ErrorMessage = ({ message }: { message: string }) => {
-		if (!message) return null;
-		return (
-			<p className="text-[#EF4444] text-xs mt-1 px-1 transition-opacity duration-300">
-				{message}
-			</p>
-		);
-	};
-
 	return (
 		<>
 			<h4 className="text-[28px] font-black mb-6 text-[#8b5cf6] text-center">
@@ -371,7 +315,7 @@ export default function RegisterEmailPage() {
 								: "border-[#D1D5DB] focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/50"
 						}`}
 					/>
-					<ErrorMessage message={errors.email} />
+					<FormErrorMessage message={errors.email || ""} />
 				</div>
 
 				{/* 비밀번호 입력 */}
@@ -392,7 +336,7 @@ export default function RegisterEmailPage() {
 								: "border-[#D1D5DB] focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/50"
 						}`}
 					/>
-					<ErrorMessage message={errors.password} />
+					<FormErrorMessage message={errors.password || ""} />
 				</div>
 
 				{/* 비밀번호 확인 입력 */}
@@ -416,7 +360,7 @@ export default function RegisterEmailPage() {
 								: "border-[#D1D5DB] focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/50"
 						}`}
 					/>
-					<ErrorMessage message={errors.confirmPassword} />
+					<FormErrorMessage message={errors.confirmPassword || ""} />
 				</div>
 
 				{/* 닉네임 입력 */}
@@ -440,7 +384,7 @@ export default function RegisterEmailPage() {
 								: "border-[#D1D5DB] focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/50"
 						}`}
 					/>
-					<ErrorMessage message={errors.nickname} />
+					<FormErrorMessage message={errors.nickname || ""} />
 				</div>
 
 				{/* 소속 구분 */}
@@ -456,7 +400,7 @@ export default function RegisterEmailPage() {
 							errors.role
 								? "border-[#EF4444] focus:border-[#EF4444]"
 								: "border-[#D1D5DB] focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/50"
-						} appearance-none`} // 중요: appearance-none으로 기본 화살표 숨기기
+						} appearance-none`}
 					>
 						<option value="" disabled>
 							소속 구분
@@ -472,7 +416,7 @@ export default function RegisterEmailPage() {
 						className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
 					/>
 
-					<ErrorMessage message={errors.role} />
+					<FormErrorMessage message={errors.role || ""} />
 				</div>
 
 				{/* 출생연월일 (Birth Date Selects) */}
@@ -558,7 +502,7 @@ export default function RegisterEmailPage() {
 								/>
 							</div>
 						</div>
-						<ErrorMessage message={errors.birthDate} />
+						<FormErrorMessage message={errors.birthDate || ""} />
 					</div>
 				)}
 
@@ -580,7 +524,7 @@ export default function RegisterEmailPage() {
 									: "border-[#D1D5DB] focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/50"
 							}`}
 						/>
-						<ErrorMessage message={errors.major} />
+						<FormErrorMessage message={errors.major || ""} />
 					</div>
 				)}
 
@@ -609,7 +553,9 @@ export default function RegisterEmailPage() {
 									: "border-[#D1D5DB] focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/50"
 							}`}
 						/>
-						<ErrorMessage message={errors.childLinkCode} />
+						<FormErrorMessage
+							message={errors.childLinkCode || ""}
+						/>
 					</div>
 				)}
 				<button
@@ -627,12 +573,8 @@ export default function RegisterEmailPage() {
 					뒤로가기
 				</button>
 			</form>
-			{/* signup 함수 수행에서 발생한 에러 메세지 출력 */}
-			{message && (
-				<div className="text-sm text-center text-[#EF4444]">
-					{message}
-				</div>
-			)}
+			{/* 폼 입력 에러가 아닌, signup중 발생한 서버/시스템 에러는 여기다가 표시 */}
+			<FormErrorMessage message={message} />
 			<div className="flex flex-col gap-4 items-center mb-3">
 				<div className="text-xs text-[#6B7280]">
 					이미 계정이 있나요?{" "}
