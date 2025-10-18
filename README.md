@@ -34,7 +34,6 @@ src/
  │─ hooks/          # 커스텀 훅
  │   └── useCheckProfileCompleted.tsx
  │
- │
  ├─ pages/               # 페이지 단위
  │   ├─ auth/            # 로그인/회원가입
  │   │   ├─ LoginPage.tsx
