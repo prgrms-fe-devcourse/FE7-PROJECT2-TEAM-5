@@ -3,11 +3,8 @@ import { useEffect, useState } from "react";
 import PostTabContainer from "../../components/PostTabContainer";
 import PostList from "../../components/PostList";
 import PageNation from "../../components/PageNation";
-import type { Database } from "../../types/database";
-import supabase from "../../utils/supabase";
-// import PageNation from "../../components/PageNation";
+import { usePostsStore } from "../../stores/postsStore";
 
-type Post = Database["public"]["Tables"]["posts"]["Row"];
 export default function PostListPage() {
 	const [activeTab, setActiveTab] = useState<string>("all");
 
@@ -20,48 +17,11 @@ export default function PostListPage() {
 		{ key: "resources", label: "자료 공유 게시판" },
 	] as const;
 
-	const [posts, setPosts] = useState<Post[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
+	const { posts, isLoading, fetchPosts } = usePostsStore();
+
 	useEffect(() => {
-		const getPosts = async () => {
-			setIsLoading(true);
-			if (activeTab === "all") {
-				try {
-					const { data: posts, error } = await supabase
-						.from("posts")
-						.select(
-							"*, users(nickname), likes:post_likes(id), comments:comments!comments_post_id_fkey(id)",
-						)
-						.order("created_at", { ascending: false });
-
-					if (error) throw error;
-					setPosts(posts);
-				} catch (e) {
-					console.error(e);
-				} finally {
-					setIsLoading(false);
-				}
-			} else {
-				try {
-					const { data: posts, error } = await supabase
-						.from("posts")
-						.select(
-							"*, users(nickname), likes:post_likes(id), comments:comments!comments_post_id_fkey(id)",
-						)
-						.eq("board_type", activeTab)
-						.order("created_at", { ascending: false });
-
-					if (error) throw error;
-					setPosts(posts);
-				} catch (e) {
-					console.error(e);
-				} finally {
-					setIsLoading(false);
-				}
-			}
-			console.log(posts);
-		};
-		getPosts();
+		fetchPosts(activeTab);
+		console.log("게시물 불러옴");
 	}, [activeTab]);
 
 	const postsPerPage = 4;
