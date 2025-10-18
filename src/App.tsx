@@ -22,10 +22,23 @@ import GroupPostDetailPage from "./pages/group/GroupPostDetailPage";
 import GroupAttendancePage from "./pages/group/GroupAttendance";
 import GroupPostCreatePage from "./pages/group/GroupPostCreatePage";
 import SocialSignupInfo from "./pages/auth/SocialSignupInfo";
+import { usePostStore } from "./stores/postStore";
 
 export default function App() {
+	// 게시글 및 댓글
+	const fetchPosts = usePostStore((state) => state.fetchPosts);
+	const fetchComments = usePostStore((state) => state.fetchComments);
+
+	// 유저
 	const fetchProfile = useProfileStore((state) => state.fetchProfile);
 	const location = useLocation();
+
+	// 게시글 초기 로드 + 실시간 구독
+	useEffect(() => {
+		// 초기 데이터 로드
+		fetchPosts();
+		fetchComments();
+	}, [fetchPosts, fetchComments]);
 
 	useEffect(() => {
 		const initAuth = async () => {

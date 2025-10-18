@@ -2,9 +2,11 @@ import { useState } from "react";
 import ActivitiesTab from "./ActivitiesTab";
 import ActivitiesPosts from "./ActivitiesPosts";
 import ActivitiesComments from "./ActivitiesComments";
+import { usePostStore } from "../../stores/postStore";
 
 export default function Activities() {
 	const [activeTab, setActiveTab] = useState<"posts" | "comments">("posts");
+	const { allPosts, allComments } = usePostStore();
 
 	return (
 		<div>
@@ -18,9 +20,9 @@ export default function Activities() {
 			{/* 탭 내용 */}
 			<div className="mt-4">
 				{activeTab === "posts" ? (
-					<ActivitiesPosts />
+					<ActivitiesPosts posts={allPosts} />
 				) : (
-					<ActivitiesComments />
+					<ActivitiesComments comments={allComments} />
 				)}
 			</div>
 		</div>

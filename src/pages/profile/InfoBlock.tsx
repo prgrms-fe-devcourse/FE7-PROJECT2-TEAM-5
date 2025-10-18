@@ -1,8 +1,10 @@
+import type { ChildInfo } from "../../types/profile";
+
 interface InfoBlockProps {
 	title: string;
-	content?: string | number;
+	content?: string | number | null;
 	childList?: ChildInfo[];
-	tags?: string[];
+	tags?: string[] | null;
 	badges?: string[];
 	isFullWidth?: boolean;
 }

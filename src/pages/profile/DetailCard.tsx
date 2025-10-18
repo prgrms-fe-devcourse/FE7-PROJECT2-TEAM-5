@@ -14,7 +14,6 @@ export default function DetailCard() {
 
 	if (!profile) return null;
 	if (!childInfos) return null;
-
 	return (
 		<>
 			{/* 탭 버튼 컨테이너 */}
