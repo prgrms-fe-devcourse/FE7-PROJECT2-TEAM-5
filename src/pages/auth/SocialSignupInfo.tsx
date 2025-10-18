@@ -240,34 +240,35 @@ export default function SocialSignupInfo() {
 				</div>
 
 				{/* 소속 구분 */}
-				<div className="relative">
-					<select
-						value={role}
-						onChange={(e) => {
-							setRole(e.target.value as UserRole);
-							setErrors((prev) => ({ ...prev, role: "" }));
-						}}
-						onBlur={() => validateAndSetErrors()}
-						className={`w-full h-11 rounded-xl border px-4 pr-10 outline-none bg-white ${
-							errors.role
-								? "border-[#EF4444] focus:border-[#EF4444]"
-								: "border-[#D1D5DB] focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/50"
-						} appearance-none`}
-					>
-						<option value="" disabled>
-							소속 구분
-						</option>
-						<option value="student">학생</option>
-						<option value="teacher">선생님</option>
-						<option value="parent">학부모</option>
-					</select>
+				<div>
+					<div className="relative">
+						<select
+							value={role}
+							onChange={(e) => {
+								setRole(e.target.value as UserRole);
+								setErrors((prev) => ({ ...prev, role: "" }));
+							}}
+							onBlur={() => validateAndSetErrors()}
+							className={`w-full h-11 rounded-xl border px-4 pr-10 outline-none bg-white ${
+								errors.role
+									? "border-[#EF4444] focus:border-[#EF4444]"
+									: "border-[#D1D5DB] focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/50"
+							} appearance-none`}
+						>
+							<option value="" disabled>
+								소속 구분
+							</option>
+							<option value="student">학생</option>
+							<option value="teacher">선생님</option>
+							<option value="parent">학부모</option>
+						</select>
 
-					{/* 오른쪽 화살표 아이콘 */}
-					<ChevronDown
-						size={18}
-						className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
-					/>
-
+						{/* 오른쪽 화살표 아이콘 */}
+						<ChevronDown
+							size={18}
+							className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+						/>
+					</div>
 					<FormErrorMessage message={errors.role || ""} />
 				</div>
 
