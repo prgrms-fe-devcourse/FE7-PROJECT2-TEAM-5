@@ -22,9 +22,13 @@ import GroupPostDetailPage from "./pages/group/GroupPostDetailPage";
 import GroupAttendancePage from "./pages/group/GroupAttendance";
 import GroupPostCreatePage from "./pages/group/GroupPostCreatePage";
 import SocialSignupInfo from "./pages/auth/SocialSignupInfo";
+import { useCheckProfileCompleted } from "./hooks/useProfileCompletionCheck";
 
 export default function App() {
 	const fetchProfile = useProfileStore((state) => state.fetchProfile);
+
+	// 프로필 완성 여부 확인 훅
+	useCheckProfileCompleted();
 
 	useEffect(() => {
 		const initAuth = async () => {

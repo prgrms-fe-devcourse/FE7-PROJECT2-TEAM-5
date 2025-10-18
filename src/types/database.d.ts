@@ -414,15 +414,15 @@ export type Database = {
 				};
 				Relationships: [
 					{
-						foreignKeyName: "fk_notifications_user_id_users_id";
-						columns: ["user_id"];
+						foreignKeyName: "notifications_actor_id_fkey";
+						columns: ["actor_id"];
 						isOneToOne: false;
 						referencedRelation: "users";
 						referencedColumns: ["auth_id"];
 					},
 					{
-						foreignKeyName: "notifications_actor_id_fkey";
-						columns: ["actor_id"];
+						foreignKeyName: "notifications_user_id_fkey";
+						columns: ["user_id"];
 						isOneToOne: false;
 						referencedRelation: "users";
 						referencedColumns: ["auth_id"];
@@ -536,14 +536,7 @@ export type Database = {
 				};
 				Relationships: [
 					{
-						foreignKeyName: "fk_posts_user_id_users_id";
-						columns: ["user_id"];
-						isOneToOne: false;
-						referencedRelation: "users";
-						referencedColumns: ["auth_id"];
-					},
-					{
-						foreignKeyName: "posts_adoption_fkey";
+						foreignKeyName: "posts_adopted_comment_id_fkey";
 						columns: ["adopted_comment_id"];
 						isOneToOne: false;
 						referencedRelation: "comments";
@@ -555,6 +548,13 @@ export type Database = {
 						isOneToOne: false;
 						referencedRelation: "groups";
 						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "posts_user_id_fkey1";
+						columns: ["user_id"];
+						isOneToOne: false;
+						referencedRelation: "users";
+						referencedColumns: ["auth_id"];
 					},
 				];
 			};
