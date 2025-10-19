@@ -4,7 +4,6 @@ import supabase from "../../utils/supabase";
 import { useProfileStore } from "../../stores/profileStore";
 import Input from "../../components/Input";
 import InputFile from "../../components/InputFile";
-import { usePostStore } from "../../stores/postStore";
 
 // 게시글 생성 페이지
 export default function PostCreatePage() {
@@ -19,9 +18,6 @@ export default function PostCreatePage() {
 		{ file: string; fileName: string }[]
 	>([]);
 	// const [imgFileNames, setImgFileNames] = useState<string[]>([]);
-
-	// 게시글 및 댓글
-	const fetchPosts = usePostStore((state) => state.fetchPosts);
 
 	const boardTypes = [
 		{ key: "free", label: "자유게시판" },
@@ -75,8 +71,6 @@ export default function PostCreatePage() {
 				console.log(postData);
 				navigate("/posts");
 			}
-
-			fetchPosts();
 		} catch (e) {
 			console.error(e);
 		}

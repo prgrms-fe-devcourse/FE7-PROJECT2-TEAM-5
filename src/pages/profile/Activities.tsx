@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import ActivitiesTab from "./ActivitiesTab";
 import ActivitiesPosts from "./ActivitiesPosts";
 import ActivitiesComments from "./ActivitiesComments";
-import { usePostStore } from "../../stores/postStore";
+import { usePostStore } from "../../stores/profileActivityStore";
 
 export default function Activities({ userId }: { userId: string }) {
 	const [activeTab, setActiveTab] = useState<"posts" | "comments">("posts");
