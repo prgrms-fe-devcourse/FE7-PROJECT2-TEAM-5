@@ -1,44 +1,54 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import type { Post } from "../types/post";
 import supabase from "../utils/supabase";
+import type { Post } from "../types/post";
 import type { Comment } from "../types/comment";
 
 type PostState = {
-	allPosts: Post[]; // 전체 게시글 List
-	allComments: Comment[]; // 전체 댓글 List
+	userPosts: Post[]; // 전체 게시글 List
+	userComments: Comment[]; // 전체 댓글 List
 	// fetchPosts: 전체 게시글 불러오기
-	fetchPosts: () => Promise<void>;
+	fetchUserPosts: (userId: string) => Promise<void>;
 	// fetchComments: 전체 댓글 불러오기
-	fetchComments: () => Promise<void>;
+	fetchUserComments: (userId: string) => Promise<void>;
 };
 
 export const usePostStore = create<PostState>()(
 	immer((set) => ({
-		allPosts: [],
-		allComments: [],
+		userPosts: [],
+		userComments: [],
 
 		// 전체 게시글
-		fetchPosts: async () => {
-			const { data, error } = await supabase.from("posts").select("*");
+		fetchUserPosts: async (userId: string) => {
+			const { data, error } = await supabase
+				.from("posts")
+				.select("*")
+				.eq("user_id", userId);
+
 			if (error) {
 				console.error("Failed to fetch posts:", error.message);
 				return;
 			}
+
 			set((state) => {
-				state.allPosts = data || [];
+				state.userPosts = data || [];
 			});
 		},
 
 		// 전체 댓글
-		fetchComments: async () => {
-			const { data, error } = await supabase.from("comments").select("*");
+		fetchUserComments: async (userId: string) => {
+			const { data, error } = await supabase
+				.from("comments")
+				.select("*")
+				.eq("user_id", userId);
+
 			if (error) {
 				console.error("Failed to fetch comments:", error.message);
 				return;
 			}
+
 			set((state) => {
-				state.allComments = data || [];
+				state.userComments = data || [];
 			});
 		},
 	})),

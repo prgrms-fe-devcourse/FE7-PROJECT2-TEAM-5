@@ -93,7 +93,7 @@ export default function MemberCard({ friend }: { friend: Friend }) {
 									prev === friend.id ? null : friend.id,
 								)
 							}
-							className="cursor-pointer friend-button text-xs flex items-center gap-2 px-6 py-2 bg-[#EA489A] text-white rounded-lg hover:bg-[#d63f8b] transition-colors"
+							className="cursor-pointer friend-button text-xs flex items-center gap-2 w-27 px-6 py-2 bg-[#EA489A] text-white rounded-lg hover:bg-[#d63f8b] transition-colors"
 						>
 							<span>팔로잉</span>
 							<ChevronDown
@@ -106,18 +106,18 @@ export default function MemberCard({ friend }: { friend: Friend }) {
 					)}
 
 					<div
-						className={`friend-dropdown z-50 absolute right-0 mt-1 p-1 bg-white rounded-md shadow-lg overflow-hidden transform transition-all duration-200 origin-top ${
+						className={`friend-dropdown z-50 absolute right-0 mt-1 p-1 w-27 bg-white rounded-md shadow-lg overflow-hidden transform transition-all duration-200 origin-top ${
 							openId === friend.id
 								? "opacity-100 scale-100 translate-y-0"
 								: "opacity-0 scale-95 -translate-y-2 pointer-events-none"
 						}`}
 					>
-						<button className="block w-full text-left px-3 py-2 hover:bg-gray-100 text-gray-800 text-xs">
+						<button className="cursor-pointer block w-full text-left p-2 hover:bg-gray-100 text-gray-800 text-xs">
 							메시지 보내기
 						</button>
 						<button
 							onClick={handleFollow}
-							className="block w-full text-left px-3 py-2 hover:bg-gray-100 text-red-700 text-xs"
+							className="cursor-pointer block w-full text-left p-2 hover:bg-gray-100 text-red-700 text-xs"
 						>
 							팔로우 취소
 						</button>

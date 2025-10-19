@@ -3,30 +3,16 @@ import ActivitiesTab from "./ActivitiesTab";
 import ActivitiesPosts from "./ActivitiesPosts";
 import ActivitiesComments from "./ActivitiesComments";
 import { usePostStore } from "../../stores/postStore";
-import type { Post } from "../../types/post";
-import type { Comment } from "../../types/comment";
 
 export default function Activities({ userId }: { userId: string }) {
 	const [activeTab, setActiveTab] = useState<"posts" | "comments">("posts");
-	const { allPosts, allComments } = usePostStore();
-	const [userPosts, setUserPosts] = useState<Post[]>([]);
-	const [userComments, setUserComments] = useState<Comment[]>([]);
+	const { userPosts, userComments, fetchUserPosts, fetchUserComments } =
+		usePostStore();
 
-	// userId와 같은 user_id를 가진 게시글, 댓글만 필터링
 	useEffect(() => {
-		if (allPosts && allComments && userId) {
-			const filteredPosts = allPosts.filter(
-				(post) => post.user_id === userId,
-			);
-
-			const filteredComments = allComments.filter(
-				(comment) => comment.user_id === userId,
-			);
-
-			setUserPosts(filteredPosts);
-			setUserComments(filteredComments);
-		}
-	}, [allPosts, allComments, userId]);
+		fetchUserPosts(userId);
+		fetchUserComments(userId);
+	}, []);
 
 	return (
 		<div>
