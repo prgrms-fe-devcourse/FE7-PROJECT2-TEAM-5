@@ -81,23 +81,34 @@ export default function UserListCard({ user }: { user: User }) {
 					</div>
 					{/* right */}
 					<div className="space-x-2 text-xs">
-						<button
-							className={`cursor-pointer px-2 py-1 rounded ${
-								isFollowing
-									? "bg-violet-500 text-white hover:bg-violet-600"
-									: "bg-white border border-violet-500 text-violet-500 hover:bg-violet-100"
-							}`}
-							onClick={handleFollowClick}
-						>
-							{isFollowing ? "팔로잉" : "팔로우"}
-						</button>
+						{user.auth_id === currentUserId ? (
+							<Link
+								to={"/profile/me"}
+								className="block px-2 py-1 rounded bg-violet-500 text-white hover:bg-violet-600"
+							>
+								프로필 보기
+							</Link>
+						) : (
+							<>
+								<button
+									className={`cursor-pointer px-2 py-1 rounded ${
+										isFollowing
+											? "bg-violet-500 text-white hover:bg-violet-600"
+											: "bg-white border border-violet-500 text-violet-500 hover:bg-violet-100"
+									}`}
+									onClick={handleFollowClick}
+								>
+									{isFollowing ? "팔로잉" : "팔로우"}
+								</button>
 
-						<button
-							className="cursor-pointer px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-							onClick={handleMessageClick}
-						>
-							메시지
-						</button>
+								<button
+									className="cursor-pointer px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+									onClick={handleMessageClick}
+								>
+									메시지
+								</button>
+							</>
+						)}
 					</div>
 				</div>
 			</Link>

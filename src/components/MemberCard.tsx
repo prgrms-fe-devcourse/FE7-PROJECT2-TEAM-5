@@ -75,9 +75,8 @@ export default function MemberCard({ friend, onUnfollow }: MemberCardProps) {
 				<div className="flex-1 space-y-2">
 					<p className="line-clamp-1">{friend.users?.nickname}</p>
 					<p className="text-xs text-gray-500">
-						{status === true
-							? "현재 활동 중"
-							: `최근 1시간 전 활동`}
+						{status === true ? "현재 활동 중" : `(수정 예정)`}
+						{/* 최근 1시간 전 활동 */}
 					</p>
 				</div>
 
