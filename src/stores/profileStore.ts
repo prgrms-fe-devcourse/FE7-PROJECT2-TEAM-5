@@ -99,9 +99,12 @@ export const useProfileStore = create<ProfileState>()(
 
 				if (profileError) throw profileError;
 
-				// 부모인 경우 자녀 목록도 가져오기
+				// 부모 또는 선생님인 경우 자녀 목록도 가져오기
 				let childInfos: ChildInfo[] = [];
-				if (profileData.role === "parent") {
+				if (
+					profileData.role === "parent" ||
+					profileData.role === "teacher"
+				) {
 					try {
 						const { data: childLinks, error: childError } =
 							await supabase
