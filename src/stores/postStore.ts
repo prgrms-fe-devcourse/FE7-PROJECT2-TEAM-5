@@ -17,8 +17,6 @@ export const usePostStore = create<PostState>()(
 	immer((set) => ({
 		allPosts: [],
 		allComments: [],
-		userPosts: [],
-		userComments: [],
 
 		// 전체 게시글
 		fetchPosts: async () => {
