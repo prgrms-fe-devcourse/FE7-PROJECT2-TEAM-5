@@ -23,8 +23,12 @@ import GroupAttendancePage from "./pages/group/GroupAttendance";
 import GroupPostCreatePage from "./pages/group/GroupPostCreatePage";
 import SocialSignupInfo from "./pages/auth/SocialSignupInfo";
 import { usePostStore } from "./stores/postStore";
+import { useCheckProfileCompleted } from "./hooks/useCheckProfileCompleted";
 
 export default function App() {
+	// 프로필 완성 여부 확인 훅
+	useCheckProfileCompleted();
+
 	// 게시글 및 댓글
 	const fetchPosts = usePostStore((state) => state.fetchPosts);
 	const fetchComments = usePostStore((state) => state.fetchComments);

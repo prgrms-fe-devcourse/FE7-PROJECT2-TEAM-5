@@ -21,7 +21,7 @@ export default function UserList() {
 	/* 필요한 정보 */
 	/* 프로필 이미지, 이름, 소속, 학년(전공 과목), auth_id */
 	return (
-		<div className="absolute left-10 bottom-0 w-90 bg-white rounded-t-xl flex flex-col">
+		<div className="fixed left-10 bottom-0 w-90 bg-white rounded-t-xl flex flex-col">
 			{/* 헤더 */}
 			<div
 				className="cursor-pointer flex flex-row justify-between items-center px-5 py-3 w-full bg-violet-500 rounded-t-xl"
