@@ -4,7 +4,7 @@ import supabase from "../utils/supabase";
 import type { Comment } from "../types/comment";
 import type { Post } from "../types/post";
 
-type PostState = {
+type ActPostState = {
 	userPosts: Post[]; // 유저 게시글 List
 	userComments: Comment[]; // 유저 댓글 List
 	// fetchUserPosts: 유저 게시글 불러오기
@@ -13,7 +13,7 @@ type PostState = {
 	fetchUserComments: (userId: string) => Promise<void>;
 };
 
-export const usePostStore = create<PostState>()(
+export const useActPostStore = create<ActPostState>()(
 	immer((set) => ({
 		userPosts: [],
 		userComments: [],
