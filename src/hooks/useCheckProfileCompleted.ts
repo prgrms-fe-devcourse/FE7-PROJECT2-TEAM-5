@@ -9,7 +9,7 @@ import { useProfileStore } from "../stores/profileStore";
  */
 export const useCheckProfileCompleted = () => {
 	const navigate = useNavigate();
-	const { profile, isLoggedIn, loading } = useProfileStore();
+	const { profile, isLoggedIn, loading, currentUserId } = useProfileStore();
 	const [isChecking, setIsChecking] = useState(false);
 
 	useEffect(() => {
@@ -19,6 +19,18 @@ export const useCheckProfileCompleted = () => {
 
 			// 프로필이 없으면 체크하지 않음
 			if (!profile) return;
+
+			// 본인 프로필 페이지일 때만 실행하도록 제한
+			const pathMatch = location.pathname.match(/^\/profile\/([^/]+)/);
+			const targetId = pathMatch ? pathMatch[1] : null;
+
+			// "내 프로필" 페이지이거나 현재 유저의 auth_id와 동일할 때만 검사
+			const isMyProfile =
+				location.pathname === "/profile/me" ||
+				targetId === currentUserId;
+
+			// 본인 프로필이 아니면 아무 동작 안 함
+			if (!isMyProfile) return;
 
 			// 이미 프로필이 완성된 경우 체크하지 않음
 			if (profile.is_profile_completed) return;
@@ -52,7 +64,15 @@ export const useCheckProfileCompleted = () => {
 		};
 
 		CheckProfileCompleted();
-	}, [isLoggedIn, loading, profile, navigate, isChecking]);
+	}, [
+		isLoggedIn,
+		loading,
+		profile,
+		navigate,
+		isChecking,
+		location.pathname,
+		currentUserId,
+	]);
 
 	return { isChecking };
 };
