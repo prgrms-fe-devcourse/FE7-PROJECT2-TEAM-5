@@ -25,11 +25,9 @@ import SocialSignupInfo from "./pages/auth/SocialSignupInfo";
 import { useCheckProfileCompleted } from "./hooks/useCheckProfileCompleted";
 
 export default function App() {
-	// 프로필 완성 여부 확인 훅
-	useCheckProfileCompleted();
-
 	// 유저
 	const fetchProfile = useProfileStore((state) => state.fetchProfile);
+	const currentUserId = useProfileStore((state) => state.currentUserId);
 	const location = useLocation();
 
 	useEffect(() => {
@@ -63,6 +61,18 @@ export default function App() {
 
 		initAuth();
 	}, [fetchProfile, location.pathname]);
+
+	// 로그인한 본인 프로필일 때만 훅 실행
+	useEffect(() => {
+		const pathMatch = location.pathname.match(/^\/profile\/([^/]+)/);
+		const targetId = pathMatch ? pathMatch[1] : null;
+
+		// 현재 페이지가 "내 프로필"이거나, 내 ID에 해당할 때만 실행
+		if (location.pathname === "/profile/me" || targetId === currentUserId) {
+			useCheckProfileCompleted();
+		}
+	}, [location.pathname, currentUserId]);
+
 	return (
 		<>
 			<Routes>
