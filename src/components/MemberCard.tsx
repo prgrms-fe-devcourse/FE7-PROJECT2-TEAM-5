@@ -60,32 +60,24 @@ export default function MemberCard({ friend, onUnfollow }: MemberCardProps) {
 				className="w-auto flex items-center gap-3 p-4 rounded-xl transition-colors duration-200 hover:bg-violet-100"
 			>
 				{/* 이미지 */}
-				<div className="w-15 h-15">
+				<div className="relative w-15 h-15">
 					<img
 						className="w-full h-full rounded-full bg-amber-400 object-cover"
 						src={friend.users?.profile_image_url || basicImage}
 						alt={`${friend.users?.nickname} 프로필`}
 					/>
+					<div
+						className={`absolute right-0 bottom-0 w-4 h-4 bg-${status ? "green" : "red"}-500 rounded-full border-2 border-white`}
+					></div>
 				</div>
 
 				{/* 텍스트 */}
 				<div className="flex-1 space-y-2">
-					<div>
-						<p className="line-clamp-1">{friend.users?.nickname}</p>
-						<span
-							className={`font-medium text-xs ${
-								status === true
-									? "text-[#10B981]"
-									: "text-gray-400"
-							}`}
-						>
-							{status ? "온라인" : "오프라인"}
-						</span>
-					</div>
+					<p className="line-clamp-1">{friend.users?.nickname}</p>
 					<p className="text-xs text-gray-500">
 						{status === true
 							? "현재 활동 중"
-							: `마지막 활동: 최근 1시간 전`}
+							: `최근 1시간 전 활동`}
 					</p>
 				</div>
 
