@@ -1,8 +1,22 @@
 import { Link } from "react-router";
 import { getAge } from "../utils/getAge";
 import { getGrade } from "../utils/getGrade";
+import { useProfileStore } from "../stores/profileStore";
+import { useMemberStore } from "../stores/profileMemberStore";
 
 export default function UserListCard({ user }: { user: User }) {
+	const { currentUserId } = useProfileStore();
+	const {
+		followStatus,
+		followedUser,
+		unFollowUser,
+		setFriends,
+		fetchUserFollowings,
+		removeFriend,
+	} = useMemberStore();
+
+	const isFollowing = followStatus[user.auth_id] || false;
+
 	const age = user.birth_date ? getAge(user.birth_date) : 0;
 	const grade = user.role === "student" && getGrade(age);
 
@@ -10,6 +24,28 @@ export default function UserListCard({ user }: { user: User }) {
 		student: "학생",
 		teacher: "선생님",
 		parent: "학부모",
+	};
+
+	const handleFollowClick = async (e: React.MouseEvent) => {
+		e.stopPropagation();
+		e.preventDefault();
+
+		if (!currentUserId) return;
+
+		if (isFollowing) {
+			await unFollowUser(currentUserId, user.auth_id);
+			removeFriend(user.auth_id); // friends 배열에서도 제거
+		} else {
+			await followedUser(currentUserId, user.auth_id);
+			await fetchUserFollowings(currentUserId);
+			setFriends(useMemberStore.getState().userFollowed);
+		}
+	};
+
+	const handleMessageClick = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		e.preventDefault();
+		console.log("메시지 버튼 구현 예정");
 	};
 
 	return (
@@ -40,23 +76,19 @@ export default function UserListCard({ user }: { user: User }) {
 					{/* right */}
 					<div className="space-x-2 text-xs">
 						<button
-							className="cursor-pointer px-2 py-1 bg-violet-500 text-white rounded hover:bg-violet-600"
-							onClick={(e) => {
-								e.stopPropagation();
-								e.preventDefault();
-								console.log("팔로우 버튼 구현 예정");
-							}}
+							className={`cursor-pointer px-2 py-1 rounded ${
+								isFollowing
+									? "bg-violet-500 text-white hover:bg-violet-600"
+									: "bg-white border border-violet-500 text-violet-500 hover:bg-violet-100"
+							}`}
+							onClick={handleFollowClick}
 						>
-							팔로우
+							{isFollowing ? "팔로잉" : "팔로우"}
 						</button>
 
 						<button
 							className="cursor-pointer px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
-							onClick={(e) => {
-								e.stopPropagation();
-								e.preventDefault();
-								console.log("메시지 버튼 구현 예정");
-							}}
+							onClick={handleMessageClick}
 						>
 							메시지
 						</button>

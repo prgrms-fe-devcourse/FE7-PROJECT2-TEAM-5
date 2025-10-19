@@ -1,7 +1,8 @@
 import type { Database } from "./database";
 
-type Post = Database["public"]["Tables"]["follows"]["Row"] & {
+type Friend = Database["public"]["Tables"]["follows"]["Row"] & {
 	users?: {
+		auth_id: string;
 		nickname: string;
 		profile_image_url: string | null;
 	} | null;

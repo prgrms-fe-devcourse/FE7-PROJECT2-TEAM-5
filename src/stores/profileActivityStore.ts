@@ -28,7 +28,10 @@ export const useActPostStore = create<ActPostState>()(
 				.eq("user_id", userId);
 
 			if (error) {
-				console.error("Failed to fetch posts:", error.message);
+				console.error(
+					"user의 posts 테이블 불러오기 실패:",
+					error.message,
+				);
 				return;
 			}
 
@@ -45,7 +48,10 @@ export const useActPostStore = create<ActPostState>()(
 				.eq("user_id", userId);
 
 			if (error) {
-				console.error("Failed to fetch comments:", error.message);
+				console.error(
+					"user의 comments 테이블 불러오기 실패:",
+					error.message,
+				);
 				return;
 			}
 
