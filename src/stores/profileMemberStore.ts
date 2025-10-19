@@ -8,6 +8,7 @@ type MemberState = {
 	userFollowed: Friend[]; // 유저가 팔로우한 친구 List
 	userFollowing: Friend[]; // 유저를 팔로우한 친구 List
 	followStatus: Record<string, boolean>; // 팔로잉 여부 관리 (UI용)
+	onlineStatus: Record<string, boolean>; // 접속 여부 상태
 
 	// fetchUserPosts: 해당 User와 팔로잉 중인 users 불러오기
 	fetchUserFollowings: (userId: string) => Promise<void>;
@@ -19,6 +20,11 @@ type MemberState = {
 	// friends 상태 조작용
 	setFriends: (friends: Friend[]) => void;
 	removeFriend: (friendId: string) => void;
+
+	// 개별 유저 상태 설정
+	setOnlineStatus: (userId: string, status: boolean) => void;
+	// 여러 유저 상태 한번에 업데이트
+	updateOnlineStatus: (statuses: Record<string, boolean>) => void;
 };
 
 export const useMemberStore = create<MemberState>()(
@@ -27,6 +33,7 @@ export const useMemberStore = create<MemberState>()(
 		userFollowed: [],
 		userFollowing: [],
 		followStatus: {},
+		onlineStatus: {},
 
 		// 해당 User와 팔로잉 중인 users 불러오기
 		fetchUserFollowings: async (userId: string) => {
@@ -126,6 +133,7 @@ export const useMemberStore = create<MemberState>()(
 			});
 		},
 
+		// friends 상태 조작용
 		setFriends: (friends) =>
 			set((state) => {
 				state.friends = friends;
@@ -135,6 +143,18 @@ export const useMemberStore = create<MemberState>()(
 				state.friends = state.friends.filter(
 					(f) => f.users?.auth_id !== friendId,
 				);
+			}),
+
+		// 개별 유저 온라인 상태 변경
+		setOnlineStatus: (userId, status) =>
+			set((state) => {
+				state.onlineStatus[userId] = status;
+			}),
+
+		// 여러 명 상태 한 번에 업데이트
+		updateOnlineStatus: (statuses) =>
+			set((state) => {
+				state.onlineStatus = { ...state.onlineStatus, ...statuses };
 			}),
 	})),
 );
