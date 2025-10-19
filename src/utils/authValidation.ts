@@ -151,14 +151,20 @@ export const validateAuthForm = (
 	}
 
 	// 생년월일 검사
-	if (
-		fields.year !== undefined &&
-		fields.month !== undefined &&
-		fields.day !== undefined
-	) {
-		if (!fields.year || !fields.month || !fields.day) {
-			errors.birthDate = "생년월일을 모두 선택해주세요.";
-			isValid = false;
+	if (fields.role !== undefined && fields.role !== "") {
+		if (
+			fields.year !== undefined &&
+			fields.month !== undefined &&
+			fields.day !== undefined
+		) {
+			if (
+				!fields.year.trim() ||
+				!fields.month.trim() ||
+				!fields.day.trim()
+			) {
+				errors.birthDate = "생년월일을 모두 선택해주세요.";
+				isValid = false;
+			}
 		}
 	}
 
