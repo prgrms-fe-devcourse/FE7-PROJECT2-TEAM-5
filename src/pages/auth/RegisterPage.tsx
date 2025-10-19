@@ -27,6 +27,7 @@ export default function RegisterPage() {
 					type="button"
 					className="w-full h-11 rounded-xl bg-[#4285F4] hover:bg-blue-600 active:bg-blue-700
 						text-white font-medium"
+					onClick={() => socialSignIn("google")}
 				>
 					Google로 가입하기
 				</button>

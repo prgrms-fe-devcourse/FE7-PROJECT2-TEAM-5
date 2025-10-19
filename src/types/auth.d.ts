@@ -1,31 +1,18 @@
 export type UserRole = "" | "student" | "teacher" | "parent";
 
-export interface AuthForm {
-	email: string;
-	password: string;
-	confirmPassword: string;
-	nickname: string;
-	role: string;
-	birthDate: string;
-	major: string;
-	childLinkCode: string;
-}
-
-export interface StudentProfileUpdateForm {
-	nickname: string;
-	role: string;
-	birthDate: string;
-	major: string;
-}
-export interface TeacherProfileUpdateForm {
-	nickname: string;
-	role: string;
-	birthDate: string;
-	major: string;
-}
-export interface ParentProfileUpdateForm {
-	nickname: string;
-	role: string;
-	birthDate: string;
-	childLinkCode: string;
+/**
+ * 인증 폼 필드 타입 (모든 필드 optional)
+ */
+export interface AuthFormFields {
+	email?: string;
+	password?: string;
+	confirmPassword?: string;
+	nickname?: string;
+	role?: string;
+	year?: string;
+	month?: string;
+	day?: string;
+	major?: string;
+	childLinkCode?: string;
+	birthDate?: string; // 생년월일 통합 필드
 }
