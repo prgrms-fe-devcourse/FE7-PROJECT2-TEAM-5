@@ -204,9 +204,16 @@ export default function RegisterEmailPage() {
 				password,
 			});
 			if (error) {
-				setMessage(`회원가입 실패: ${error.message}`);
+				// 이메일 중복 에러 처리
+				if (error.message === "User already registered") {
+					setErrors((prev) => ({
+						...prev,
+						email: "이미 사용 중인 이메일입니다.",
+					}));
+				} else {
+					setMessage(`회원가입 실패: ${error.message}`);
+				}
 				setLoading(false);
-
 				return;
 			}
 			const user = data && "user" in data ? data.user : (data as any);
