@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import PageNation from "../../components/PageNation";
 import type { Post } from "../../types/post";
+import { Heart, MessageSquare } from "lucide-react";
 
 export default function ActivitiesPosts({ posts }: { posts: Post[] }) {
 	if (!posts.length) return <p>작성한 게시글이 없습니다.</p>;
@@ -37,14 +38,28 @@ export default function ActivitiesPosts({ posts }: { posts: Post[] }) {
 										key={index}
 										className="px-2 py-1 bg-[#F291C2] rounded-full text-white text-xs"
 									>
-										{tag}
+										#{tag}
 									</span>
 								))}
 							</div>
 						</div>
 						{/* right */}
-						<div className="text-sm text-[#9CA3AF]">
-							2025-09-20 · 좋아요 12 · 댓글 5
+						<div className="text-sm text-[#9CA3AF] flex flex-row items-start gap-1">
+							<div>{post.created_at.slice(0, 10)}</div>
+							<span>·</span>
+							<div className="flex flex-row gap-1 items-center">
+								<Heart color="red" size={15} />
+								<span>
+									{post.likes ? post.likes.length : "0"}
+								</span>
+							</div>
+							<span>·</span>
+							<div className="flex flex-row gap-1 items-center">
+								<MessageSquare color="#8B5CF6" size={15} />
+								<span>
+									{post.comments ? post.comments.length : "0"}
+								</span>
+							</div>
 						</div>
 					</div>
 				</Link>
