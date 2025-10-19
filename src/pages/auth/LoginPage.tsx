@@ -131,6 +131,7 @@ export default function LoginPage() {
 				<button
 					type="button"
 					className="cursor-pointer w-full h-11 text-white rounded-xl bg-[#4285F4] font-medium"
+					onClick={() => socialSignIn("google")}
 				>
 					Google 로그인
 				</button>
