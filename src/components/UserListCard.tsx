@@ -3,6 +3,7 @@ import { getAge } from "../utils/getAge";
 import { getGrade } from "../utils/getGrade";
 import { useProfileStore } from "../stores/profileStore";
 import { useMemberStore } from "../stores/profileMemberStore";
+import basicImage from "../assets/basic_image.png";
 
 export default function UserListCard({ user }: { user: User }) {
 	const { currentUserId } = useProfileStore();
@@ -55,7 +56,12 @@ export default function UserListCard({ user }: { user: User }) {
 					{/* left */}
 					<div className="flex flex-row items-center gap-2.5">
 						{/* 이미지 */}
-						<div className="relative w-12 h-12 bg-amber-300 rounded-lg">
+						<div className="relative w-12 h-12 rounded-lg">
+							<img
+								className="w-full h-full rounded-lg object-cover"
+								src={user.profile_image_url || basicImage}
+								alt={`${user.nickname} 프로필`}
+							/>
 							{/* 온라인 */}
 							<div className="absolute right-0 bottom-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
 							{/* 오프라인 */}

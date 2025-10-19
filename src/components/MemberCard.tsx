@@ -62,7 +62,7 @@ export default function MemberCard({ friend, onUnfollow }: MemberCardProps) {
 				{/* 이미지 */}
 				<div className="relative w-15 h-15">
 					<img
-						className="w-full h-full rounded-full bg-amber-400 object-cover"
+						className="w-full h-full rounded-full object-cover"
 						src={friend.users?.profile_image_url || basicImage}
 						alt={`${friend.users?.nickname} 프로필`}
 					/>
