@@ -17,11 +17,12 @@ export default function PostListPage() {
 		{ key: "resources", label: "자료 공유 게시판" },
 	] as const;
 
-	const { posts, isLoading, fetchPosts } = usePostsStore();
+	const posts = usePostsStore((state) => state.posts);
+	const isLoading = usePostsStore((state) => state.isLoading);
+	const fetchPosts = usePostsStore((state) => state.fetchPosts);
 
 	useEffect(() => {
 		fetchPosts(activeTab);
-		console.log("게시물 불러옴");
 	}, [activeTab]);
 
 	const postsPerPage = 4;
