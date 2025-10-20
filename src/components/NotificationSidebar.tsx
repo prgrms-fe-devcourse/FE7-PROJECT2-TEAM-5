@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router";
 import { MessageCircle, Bell, Heart, UserPlus, ThumbsUp } from "lucide-react";
 import type { Notification } from "../types/notification";
 import { useNotificationStore } from "../stores/notificationStore";
@@ -14,6 +15,7 @@ export default function NotificationSidebar({
 	isOpen,
 	onClose,
 }: NotificationSidebarProps) {
+	const navigate = useNavigate();
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 	const {
 		notifications,
@@ -60,8 +62,60 @@ export default function NotificationSidebar({
 
 	// 알림 클릭
 	const handleNotificationClick = async (notification: Notification) => {
-		// TODO: 해당 페이지로 이동하는 로직 구현
-		console.log("알림 이동:", notification);
+		// 알림 타입별 페이지 이동 로직
+		switch (notification.type) {
+			case "CHILD_LINKED":
+				// 부모의 프로필 페이지로 이동
+				navigate(`/profile/${notification.targetId}`);
+				onClose();
+
+				break;
+
+			case "NEW_POST_BY_CHILD":
+				// 자녀가 작성한 게시글 페이지로 이동
+				navigate(`/posts/${notification.targetId}`);
+				onClose();
+				break;
+
+			case "COMMENT_ADOPTED":
+				// 채택된 댓글이 있는 게시글 페이지로 이동
+				navigate(`/posts/${notification.targetId}`);
+				onClose();
+				break;
+
+			case "COMMENT_LIKE":
+				// 좋아요 받은 댓글이 있는 게시글 페이지로 이동
+				navigate(`/posts/${notification.targetId}`);
+				onClose();
+				break;
+
+			case "NEW_COMMENT":
+				// 새 댓글이 달린 게시글 페이지로 이동
+				navigate(`/posts/${notification.targetId}`);
+				onClose();
+				break;
+
+			case "NEW_MESSAGE":
+				// DM 페이지로 이동
+				navigate(`/msg/${notification.targetId}`);
+				onClose();
+				break;
+
+			case "POST_LIKE":
+				// 좋아요 받은 게시글 페이지로 이동
+				navigate(`/posts/${notification.targetId}`);
+				onClose();
+				break;
+
+			case "NEW_REPLY":
+				// 답글이 달린 댓글이 있는 게시글 페이지로 이동
+				navigate(`/posts/${notification.targetId}`);
+				onClose();
+				break;
+
+			default:
+				console.log("알 수 없는 알림 타입:", notification.type);
+		}
 
 		// 알림 삭제
 		await deleteNotification(notification.id);
