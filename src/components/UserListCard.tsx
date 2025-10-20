@@ -62,10 +62,13 @@ export default function UserListCard({ user }: { user: User }) {
 								src={user.profile_image_url || basicImage}
 								alt={`${user.nickname} 프로필`}
 							/>
-							{/* 온라인 */}
-							<div className="absolute right-0 bottom-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
-							{/* 오프라인 */}
-							{/* <div className="absolute right-0 bottom-0 w-4 h-4 bg-gray-400 rounded-full border-2 border-white"></div> */}
+							<div
+								className={`absolute right-0 bottom-0 w-4 h-4 rounded-full border-2 border-white ${
+									user.is_online
+										? "bg-green-500"
+										: "bg-gray-400"
+								}`}
+							></div>
 						</div>
 						{/* 정보 */}
 						<div className="flex flex-col gap-1 text-sm">
