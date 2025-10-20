@@ -4,7 +4,7 @@ import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
 import { useMemo, useState } from "react";
 import basicImage from "../../assets/basic_image.png";
-import { SquarePen, Trash2 } from "lucide-react";
+import { SquarePen, Trash2, X } from "lucide-react";
 import Modal from "../../components/Modal";
 import Button from "../../components/Button";
 import type { UserProfile } from "../../types/profile";
@@ -98,6 +98,10 @@ export default function ProfileCard({ profile }: Props) {
 		}
 	};
 
+	const removeImgFile = () => {
+		setImgFile(null);
+	};
+
 	return (
 		<>
 			{/* // 왼쪽 영역 - 프로필 카드 */}
@@ -124,14 +128,53 @@ export default function ProfileCard({ profile }: Props) {
 									title="프로필 수정"
 								>
 									<form method="post" onSubmit={handleSubmit}>
-										<input
-											id="profile_img"
-											type="file"
-											accept="image/*"
-											name="profileImg"
-											onChange={handleImgFileUpload}
-											className="border"
-										/>
+										<div className="mb-4">
+											{!imgFile && (
+												<div className="flex flex-col gap-2 items-center px-6 py-4 rounded-xl bg-white border-2 border-[#E5E7EB] border-dashed">
+													<input
+														id="imgFile"
+														accept="image/*"
+														className="hidden"
+														type="file"
+														name="imgFile"
+														onChange={
+															handleImgFileUpload
+														}
+													/>
+													<p className="text-[#6B7280]">
+														Upload image
+													</p>
+													<label
+														htmlFor="imgFile"
+														className="px-6 py-4 rounded-xl text-[#6B7280] bg-[#E5E7EB] cursor-pointer"
+													>
+														Choose Img File
+													</label>
+												</div>
+											)}
+											{imgFile && (
+												<div className="relative flex flex-col items-center px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB]">
+													<div className="relative py-2">
+														<img
+															src={imgFile}
+															alt={"image" + 0}
+															className="relative z-1 max-h-50 min-h-30 object-cover bg-white"
+														/>
+													</div>
+
+													<Button
+														type="button"
+														className="absolute z-9 top-1.5 right-1.5 p-1 rounded-full text-red-500 border-1 border-[#E5E7EB] bg-white"
+														onClick={removeImgFile}
+													>
+														<X
+															className="z-99"
+															size={14}
+														/>
+													</Button>
+												</div>
+											)}
+										</div>
 										<div className="flex justify-center gap-3">
 											{isUpdating ? (
 												""
