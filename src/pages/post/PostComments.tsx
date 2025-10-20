@@ -18,7 +18,7 @@ type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
 			};
 		};
 	};
-	comment_likes?: string[] | null;
+	comment_likes?: { user_id: string }[];
 };
 type PostCommentsProps = {
 	comments: Comment[] | null | undefined;
@@ -29,19 +29,19 @@ export default function PostComments(props: PostCommentsProps) {
 	const navigate = useNavigate();
 	const [inputComment, setInputComment] = useState("");
 	const [mention, setMention] = useState("");
-	const user = useProfileStore((state) => state.currentUserId);
+	const currentUserId = useProfileStore((state) => state.currentUserId);
 
 	const writeComment = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (inputComment.trim() === "") return;
 		try {
-			console.log(props.postId, user);
+			console.log(props.postId, currentUserId);
 			const { data: commentData, error } = await supabase
 				.from("comments")
 				.insert([
 					{
 						post_id: props.postId,
-						user_id: user,
+						user_id: currentUserId,
 						content: inputComment,
 					},
 				])
@@ -68,6 +68,30 @@ export default function PostComments(props: PostCommentsProps) {
 		}
 	});
 
+	const pressLike = async (comment: Comment) => {
+		if (
+			currentUserId &&
+			comment?.comment_likes?.some(
+				(like) => like.user_id === currentUserId,
+			)
+		) {
+			alert("이미 좋아요를 눌렀습니다.");
+			return;
+		}
+		try {
+			const { data, error } = await supabase
+				.from("post_likes")
+				.insert([{ user_id: currentUserId, comment_id: comment?.id }])
+				.select();
+			if (error) throw error;
+			if (data) {
+				console.log(data);
+				alert("좋아요 완료");
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	};
 	// const commentData = props.comments?.map((comment) => ({
 	// 	...comment,
 	// 	reply_count: replyCounts[comment.id] ? replyCounts[comment.id] : 0,
@@ -75,7 +99,10 @@ export default function PostComments(props: PostCommentsProps) {
 
 	function Comment({ comment }: { comment: Comment }) {
 		return (
-			<div className="w-full px-4 py-3 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+			<div className="group relative overflow-visible w-full px-4 py-3 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+				<button className="absolute -top-4 right-4 z-2 hidden group-hover:block hover:bg-[#8B5CF6] hover:text-white px-3 py-1 text-xs border-1 border-[#8B5CF6] rounded-2xl bg-white">
+					채택
+				</button>
 				{/* 글 제목과 좋아요, 댓글 수 */}
 				<div className="flex justify-between items-start mb-1">
 					<div className="flex gap-1 items-center">
@@ -109,6 +136,7 @@ export default function PostComments(props: PostCommentsProps) {
 						{/* 좋아요 개수 표시*/}
 						<button
 							type="button"
+							onClick={() => pressLike(comment)}
 							className="flex gap-1 items-top cursor-pointer"
 						>
 							<Heart color="red" size={15} className="mt-0.5" />

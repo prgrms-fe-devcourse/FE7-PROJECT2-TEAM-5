@@ -17,7 +17,7 @@ type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
 			};
 		};
 	};
-	comment_likes?: string[] | null;
+	comment_likes?: { user_id: string }[];
 };
 
 type DetailPost = Database["public"]["Tables"]["posts"]["Row"] & {
@@ -31,7 +31,7 @@ type DetailPost = Database["public"]["Tables"]["posts"]["Row"] & {
 		  }[]
 		| undefined;
 
-	likes?: number | null;
+	post_likes?: { user_id: string }[];
 };
 
 // 게시글 세부 페이지
@@ -39,7 +39,7 @@ export default function PostDetailPage() {
 	const navigate = useNavigate();
 	const { id } = useParams();
 	const [isLoading, setIsLoading] = useState(true);
-	const [postData, setPost] = useState<DetailPost | null>(null);
+	const [postData, setPostData] = useState<DetailPost | null>(null);
 	const [comments, setComments] = useState<Comment[]>([]);
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 
@@ -50,29 +50,22 @@ export default function PostDetailPage() {
 				const { data: post, error: postError } = await supabase
 					.from("posts")
 					.select(
-						"*, user:users(nickname, representative_badge_id(badges(name,icon_url))), files(file_path, file_name)",
+						"*, user:users(nickname, representative_badge_id(badges(name,icon_url))), files(file_path, file_name), post_likes(user_id)",
 					)
 					.eq("id", id)
 					.single();
 				if (postError) throw postError;
 
-				//게시물 좋아요 개수
-				const { data: likes, error: likesError } = await supabase
-					.from("post_likes")
-					.select("*", { count: "exact", head: true })
-					.eq("post_id", id);
-				if (likesError) throw likesError;
-
 				//댓글과 댓글 작성자 정보 및 댓글 좋아요 (뱃지 현재 착용 뱃지 컬럼이 없는 것 같아서 아직 안가져옴)
 				const { data: comments, error: commentsError } = await supabase
 					.from("comments")
 					.select(
-						"*, user:users(nickname, birth_date, representative_badge_id(badges(name,icon_url))), comment_likes(id)",
+						"*, user:users(nickname, birth_date, representative_badge_id(badges(name,icon_url))), comment_likes(user_id)",
 					)
 					.eq("post_id", id);
 				if (commentsError) throw commentsError;
 
-				setPost({ ...post, ...likes });
+				setPostData({ ...post });
 				setComments(comments);
 				setIsLoading(false);
 			} catch (e) {
@@ -80,7 +73,30 @@ export default function PostDetailPage() {
 			}
 		};
 		fetchPost();
-	}, [id, comments]);
+	}, [id, postData, comments]);
+
+	const pressLike = async () => {
+		if (
+			currentUserId &&
+			postData?.post_likes?.some((like) => like.user_id === currentUserId)
+		) {
+			alert("이미 좋아요를 눌렀습니다.");
+			return;
+		}
+		try {
+			const { data, error } = await supabase
+				.from("post_likes")
+				.insert([{ user_id: currentUserId, post_id: postData?.id }])
+				.select();
+			if (error) throw error;
+			if (data) {
+				console.log(data);
+				alert("좋아요 완료");
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	};
 
 	if (!isLoading) {
 		return (
@@ -122,6 +138,15 @@ export default function PostDetailPage() {
 							))}
 						</div>
 					</div>
+					<button
+						type="button"
+						onClick={() => {
+							pressLike();
+						}}
+						className=" cursor-pointer"
+					>
+						좋아요
+					</button>
 					<div className="flex gap-2 mb-4">
 						{postData?.hash_tag?.map((tag, idx) => (
 							<div
