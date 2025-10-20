@@ -1,4 +1,3 @@
-import { Heart, MessageSquare } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router";
 import type { Database } from "../../types/database";
 import { useEffect, useState } from "react";
@@ -73,7 +72,7 @@ export default function PostDetailPage() {
 			}
 		};
 		fetchPost();
-	}, [id, postData, comments]);
+	}, [id, comments]);
 
 	const pressLike = async () => {
 		if (
@@ -98,6 +97,21 @@ export default function PostDetailPage() {
 		}
 	};
 
+	const deletePost = async () => {
+		console.log(postData?.id);
+		try {
+			const { error } = await supabase
+				.from("posts")
+				.delete()
+				.eq("id", postData?.id);
+			if (error) throw error;
+			alert("게시물이 삭제되었습니다");
+			navigate("/posts");
+		} catch (e) {
+			console.error(e);
+		}
+	};
+
 	if (!isLoading) {
 		return (
 			<>
@@ -108,10 +122,19 @@ export default function PostDetailPage() {
 							{postData?.title}
 						</h1>
 						{/* 작성자만 보이는 수정, 삭제 버튼 */}
-						{id === currentUserId && (
+						{postData?.user_id === currentUserId && (
 							<div className="flex gap-2">
 								<button
 									type="button"
+									className="px-4 py-2.5 text-sm text-white rounded-xl bg-[#8B5CF6] cursor-pointer"
+								>
+									수정
+								</button>
+								<button
+									type="button"
+									onClick={() => {
+										deletePost();
+									}}
 									className="px-4 py-2.5 text-sm text-[#8B5CF6] rounded-xl bg-white border-1 border-[#8B5CF6] cursor-pointer"
 								>
 									삭제

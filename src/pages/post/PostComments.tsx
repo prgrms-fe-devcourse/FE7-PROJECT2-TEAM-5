@@ -69,6 +69,7 @@ export default function PostComments(props: PostCommentsProps) {
 	});
 
 	const pressLike = async (comment: Comment) => {
+		console.log("pressLike 호출됨");
 		if (
 			currentUserId &&
 			comment?.comment_likes?.some(
@@ -80,7 +81,7 @@ export default function PostComments(props: PostCommentsProps) {
 		}
 		try {
 			const { data, error } = await supabase
-				.from("post_likes")
+				.from("comment_likes")
 				.insert([{ user_id: currentUserId, comment_id: comment?.id }])
 				.select();
 			if (error) throw error;
@@ -99,10 +100,10 @@ export default function PostComments(props: PostCommentsProps) {
 
 	function Comment({ comment }: { comment: Comment }) {
 		return (
-			<div className="group relative overflow-visible w-full px-4 py-3 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
-				<button className="absolute -top-4 right-4 z-2 hidden group-hover:block hover:bg-[#8B5CF6] hover:text-white px-3 py-1 text-xs border-1 border-[#8B5CF6] rounded-2xl bg-white">
+			<div className="relative z-10 group w-full px-4 py-3 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
+				{/* <button className="absolute -top-4 right-4 z-10 hidden group-hover:block hover:bg-[#8B5CF6] hover:text-white px-3 py-1 text-xs border-1 border-[#8B5CF6] rounded-2xl bg-white">
 					채택
-				</button>
+				</button> */}
 				{/* 글 제목과 좋아요, 댓글 수 */}
 				<div className="flex justify-between items-start mb-1">
 					<div className="flex gap-1 items-center">
@@ -136,10 +137,14 @@ export default function PostComments(props: PostCommentsProps) {
 						{/* 좋아요 개수 표시*/}
 						<button
 							type="button"
-							onClick={() => pressLike(comment)}
-							className="flex gap-1 items-top cursor-pointer"
+							onClick={() => console.log("클릭됨")}
+							className="relative z-20 flex gap-1 items-start cursor-pointer bg-amber-200"
 						>
-							<Heart color="red" size={15} className="mt-0.5" />
+							<Heart
+								color="red"
+								size={15}
+								className="mt-0.5 pointer-events-none"
+							/>
 							<p className="text-[14px]">
 								{comment.comment_likes?.length}
 							</p>
@@ -148,7 +153,8 @@ export default function PostComments(props: PostCommentsProps) {
 						{!comment.parent_comment_id && (
 							<button
 								type="button"
-								className="flex gap-1 items-top cursor-pointer"
+								onClick={() => console.log("클릭됨")}
+								className="relative z-20 flex gap-1 items-start cursor-pointer"
 							>
 								<MessageSquare
 									color="#8B5CF6"
@@ -163,7 +169,7 @@ export default function PostComments(props: PostCommentsProps) {
 						{comment.parent_comment_id && (
 							<button
 								type="button"
-								className="flex gap-1 items-top"
+								className="relative z-20 flex gap-1 items-top"
 							>
 								<MessageSquare
 									color="#8B5CF6"
@@ -186,7 +192,8 @@ export default function PostComments(props: PostCommentsProps) {
 					<div className="flex justify-between">
 						<button
 							type="button"
-							className="text-xs text-[#6B7280] cursor-pointer"
+							onClick={() => console.log("클릭됨")}
+							className="relative z-10 text-xs text-[#6B7280] cursor-pointer"
 						>
 							답글달기
 						</button>
@@ -241,13 +248,23 @@ export default function PostComments(props: PostCommentsProps) {
 			)}
 			{props.comments && props.comments.length > 0 && (
 				<div className="flex flex-col gap-y-3 max-h-100 pr-2 overflow-y-auto ">
+					<button
+						onClick={() => console.log("클릭됨")}
+						style={{
+							zIndex: 50,
+							position: "relative",
+							background: "red",
+							padding: "10px",
+						}}
+					>
+						테스트
+					</button>
 					{/* 댓글 1 */}
 					<CommentItem comments={props.comments} />
 				</div>
 			)}
 			<form className="flex gap-2 mt-4 w-full " onSubmit={writeComment}>
 				<input
-					type="textarea"
 					placeholder="댓글을 작성해주세요."
 					value={inputComment}
 					onChange={(e) => setInputComment(e.target.value)}
