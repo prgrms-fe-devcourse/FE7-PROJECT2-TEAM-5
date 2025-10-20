@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { useProfileStore } from "../../stores/profileStore";
 import { useEffect } from "react";
 import { useSetOnlineStatus } from "../../hooks/useSetOnlineStatus";
+import HomePageSkeleton from "../../components/loading/home/HomePageSkeleton";
 
 export default function HomePage() {
 	const currentUserId = useProfileStore((state) => state.currentUserId);
@@ -21,8 +22,7 @@ export default function HomePage() {
 	}, [currentUserId, fetchProfile]);
 
 	if (loading) {
-		/* 스켈레톤 UI 추가 예정 */
-		return <p>로딩중...</p>;
+		return <HomePageSkeleton />;
 	}
 
 	return (

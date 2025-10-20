@@ -81,32 +81,21 @@ export default function ProfileCard({ profile }: Props) {
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		setIsUpdating(true);
-
-		if (!imgFile) {
-			console.error("이미지 URL이 비어 있습니다.");
+		if (!imgFile?.trim()) {
+			alert("수정한 이미지를 선택하세요.");
 			return;
 		}
 
+		setIsUpdating(true);
 		try {
-			const { error } = await supabase
-				.from("users")
-				.update({ profile_image_url: imgFile })
-				.eq("auth_id", profile.auth_id);
-
-			if (error) throw error;
-
-			console.log("프로필 이미지 URL 업데이트 완료:", imgFile);
+			await updateProfile({ profile_image_url: imgFile });
 			alert("프로필 이미지가 업데이트되었습니다!");
 			setIsImgModalOpen(false);
 		} catch (err) {
-			console.error("이미지 URL 등록 실패:", err);
-			alert("이미지 URL 저장 중 오류가 발생했습니다.");
+			console.error("이미지 수정 실패:", err);
+			alert("이미지 수정 중 오류가 발생했습니다.");
 		} finally {
 			setIsUpdating(false);
-
-			// 페이지 새로고침
-			window.location.reload();
 		}
 	};
 
