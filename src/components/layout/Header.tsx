@@ -1,12 +1,12 @@
 import { Link } from "react-router";
 import { useProfileStore } from "../../stores/profileStore";
-import { useNotificationStore } from "../../stores/notificationStore";
 import { useState } from "react";
 import NotificationSidebar from "../NotificationSidebar";
+import { useNotifications } from "../../hooks/useNotifications";
 
 export default function Header() {
 	const isLoggedIn = useProfileStore((state) => state.isLoggedIn);
-	const notifications = useNotificationStore((state) => state.notifications);
+	const { notifications } = useNotifications();
 	const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
 	const handleNotificationToggle = () => {
