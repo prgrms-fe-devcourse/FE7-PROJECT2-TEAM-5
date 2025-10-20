@@ -11,7 +11,7 @@ type MemberCardProps = {
 };
 
 export default function MemberCard({ friend, onUnfollow }: MemberCardProps) {
-	const { followStatus, followedUser, unFollowUser } = useMemberStore();
+	const { followStatus, followedUserFnc, unFollowUserFnc } = useMemberStore();
 	const { currentUserId } = useProfileStore();
 
 	const isFollowing = followStatus[friend.users?.auth_id ?? ""] || false;
@@ -39,7 +39,7 @@ export default function MemberCard({ friend, onUnfollow }: MemberCardProps) {
 
 		if (!isFollowing) {
 			// 팔로우 추가
-			followedUser(currentUserId!, friend.users.auth_id);
+			followedUserFnc(currentUserId!, friend.users.auth_id);
 		}
 		setOpenId(null);
 	};
@@ -48,7 +48,7 @@ export default function MemberCard({ friend, onUnfollow }: MemberCardProps) {
 		if (!friend.users?.auth_id || !currentUserId) return;
 
 		// DB + Zustand 상태 업데이트
-		await unFollowUser(currentUserId, friend.users.auth_id); // 언팔로우
+		await unFollowUserFnc(currentUserId, friend.users.auth_id); // 언팔로우
 		onUnfollow(friend.users.auth_id); // 부모에게 알림 → 카드 제거
 	};
 

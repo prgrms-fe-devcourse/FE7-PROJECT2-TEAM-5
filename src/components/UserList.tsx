@@ -47,7 +47,11 @@ export default function UserList({
 			>
 				<div className="flex flex-col">
 					{userList.map((user) => (
-						<UserListCard key={user.auth_id} user={user} />
+						<UserListCard
+							key={user.auth_id}
+							user={user}
+							profileBeingViewedId={currentUserId || ""}
+						/>
 					))}
 				</div>
 			</div>
