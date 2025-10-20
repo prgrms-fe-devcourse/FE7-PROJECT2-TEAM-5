@@ -124,12 +124,12 @@ export default function PostDetailPage() {
 						{/* 작성자만 보이는 수정, 삭제 버튼 */}
 						{postData?.user_id === currentUserId && (
 							<div className="flex gap-2">
-								<button
-									type="button"
+								<Link
+									to={"/posts/create/" + id}
 									className="px-4 py-2.5 text-sm text-white rounded-xl bg-[#8B5CF6] cursor-pointer"
 								>
 									수정
-								</button>
+								</Link>
 								<button
 									type="button"
 									onClick={() => {
