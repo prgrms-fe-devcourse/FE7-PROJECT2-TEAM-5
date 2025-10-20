@@ -7,7 +7,7 @@ const mockNotifications: Notification[] = [
 	{
 		id: "1",
 		type: "NEW_COMMENT",
-		message: "누군가 댓글을 달았습니다.",
+		message: "@@님이 회원님의 게시글에 새로운 댓글을 남겼습니다.",
 		content: "저도 이 방법으로 풀었어요!",
 		date: "2025.09.25",
 		isRead: false,
@@ -18,7 +18,7 @@ const mockNotifications: Notification[] = [
 	{
 		id: "2",
 		type: "NEW_MESSAGE",
-		message: "메시지가 도착했습니다.",
+		message: "@@님이 새 메시지를 보냈습니다.",
 		content:
 			"안녕하세요~ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
 		date: "2025.09.27",
@@ -30,7 +30,7 @@ const mockNotifications: Notification[] = [
 	{
 		id: "3",
 		type: "POST_LIKE",
-		message: "누군가 게시글에 좋아요를 눌렀습니다.",
+		message: "@@님이 게시글에 좋아요를 눌렀습니다.",
 		date: "2025.09.28",
 		isRead: true,
 		actorId: "user3",
@@ -50,7 +50,7 @@ const mockNotifications: Notification[] = [
 	{
 		id: "5",
 		type: "COMMENT_LIKE",
-		message: "누군가 댓글에 좋아요를 눌렀습니다.",
+		message: "@@님이 댓글에 좋아요를 눌렀습니다.",
 		content:
 			"정말 도움이 되는 댓글이에요! @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
 		date: "2025.09.30",
@@ -62,7 +62,7 @@ const mockNotifications: Notification[] = [
 	{
 		id: "6",
 		type: "NEW_REPLY",
-		message: "댓글에 답글이 달렸습니다.",
+		message: "@@님이 회원님의 댓글에 답글을 남겼습니다.",
 		content: "감사합니다!",
 		date: "2025.10.01",
 		isRead: false,
@@ -153,7 +153,7 @@ export default function NotificationSidebar({
 			/>
 
 			{/* 사이드바 */}
-			<div className="fixed right-0 top-0 h-full w-80 bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
+			<div className="fixed right-0 top-0 w-[440px] h-[990px] bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
 				{/* 헤더 */}
 				<div className="flex justify-between items-center p-6 border-b border-[#E6E9EE]">
 					<h2 className="text-xl font-bold text-[#1F2937]">알림</h2>
