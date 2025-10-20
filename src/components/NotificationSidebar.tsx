@@ -3,6 +3,7 @@ import { MessageCircle, Bell, Heart, UserPlus, ThumbsUp } from "lucide-react";
 import type { Notification } from "../types/notification";
 import { useNotificationStore } from "../stores/notificationStore";
 import { useProfileStore } from "../stores/profileStore";
+import NotificationSkeleton from "./loading/NotificationSkeleton";
 
 interface NotificationSidebarProps {
 	isOpen: boolean;
@@ -131,10 +132,7 @@ export default function NotificationSidebar({
 					)}
 
 					{isLoading ? (
-						<div className="flex flex-col items-center justify-center h-64 text-[#6B7280]">
-							<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8B5CF6] mb-4"></div>
-							<p>알림을 불러오는 중...</p>
-						</div>
+						<NotificationSkeleton />
 					) : notifications.length === 0 ? (
 						<div className="flex flex-col items-center justify-center h-64 text-[#6B7280]">
 							<Bell className="w-12 h-12 mb-4 opacity-50" />
