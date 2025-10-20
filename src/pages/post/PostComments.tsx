@@ -206,13 +206,13 @@ export default function PostComments(props: PostCommentsProps) {
 
 	return (
 		<>
-			{!props.comments && (
+			{(!props.comments || props.comments.length === 0) && (
 				<div className="text-center text-gray-500 py-12">
 					현재 게시물에 등록된 댓글이 없습니다.
 				</div>
 			)}
-			{props.comments && (
-				<div className="flex flex-col gap-y-3 h-80 pr-2 overflow-y-auto ">
+			{props.comments && props.comments.length > 0 && (
+				<div className="flex flex-col gap-y-3 max-h-100 pr-2 overflow-y-auto ">
 					{/* 댓글 1 */}
 					<CommentItem comments={props.comments} />
 				</div>

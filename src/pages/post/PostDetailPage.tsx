@@ -4,6 +4,7 @@ import type { Database } from "../../types/database";
 import { useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
 import PostComments from "./PostComments";
+import { useProfileStore } from "../../stores/profileStore";
 
 type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
 	user: {
@@ -40,6 +41,7 @@ export default function PostDetailPage() {
 	const [isLoading, setIsLoading] = useState(true);
 	const [postData, setPost] = useState<DetailPost | null>(null);
 	const [comments, setComments] = useState<Comment[]>([]);
+	const currentUserId = useProfileStore((state) => state.currentUserId);
 
 	useEffect(() => {
 		const fetchPost = async () => {
@@ -90,20 +92,16 @@ export default function PostDetailPage() {
 							{postData?.title}
 						</h1>
 						{/* 작성자만 보이는 수정, 삭제 버튼 */}
-						<div className="flex gap-2">
-							<button
-								type="button"
-								className="px-4 py-2.5 text-sm text-white rounded-xl bg-[#8B5CF6] cursor-pointer"
-							>
-								수정
-							</button>
-							<button
-								type="button"
-								className="px-4 py-2.5 text-sm text-[#8B5CF6] rounded-xl bg-white border-1 border-[#8B5CF6] cursor-pointer"
-							>
-								삭제
-							</button>
-						</div>
+						{id === currentUserId && (
+							<div className="flex gap-2">
+								<button
+									type="button"
+									className="px-4 py-2.5 text-sm text-[#8B5CF6] rounded-xl bg-white border-1 border-[#8B5CF6] cursor-pointer"
+								>
+									삭제
+								</button>
+							</div>
+						)}
 					</div>
 					{/* 작성자, 작성일 */}
 					<p className="text-sm text-[#6B7280]">
