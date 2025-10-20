@@ -19,7 +19,7 @@ type PostsStore = {
 export const usePostsStore = create<PostsStore>()(
 	immer((set) => ({
 		posts: [],
-		isLoading: false,
+		isLoading: true,
 		fetchPosts: async (activeTab: string) => {
 			set((state) => {
 				state.isLoading = true;
