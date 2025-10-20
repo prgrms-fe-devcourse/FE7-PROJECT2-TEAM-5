@@ -7,6 +7,7 @@ import basicImage from "../../assets/basic_image.png";
 import { SquarePen, Trash2 } from "lucide-react";
 import Modal from "../../components/Modal";
 import Button from "../../components/Button";
+import type { UserProfile } from "../../types/profile";
 
 type Props = {
 	profile: UserProfile | null;

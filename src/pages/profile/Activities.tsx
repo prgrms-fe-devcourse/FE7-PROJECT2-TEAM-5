@@ -1,10 +1,18 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ActivitiesTab from "./ActivitiesTab";
 import ActivitiesPosts from "./ActivitiesPosts";
 import ActivitiesComments from "./ActivitiesComments";
+import { usePostStore } from "../../stores/profileActivityStore";
 
-export default function Activities() {
+export default function Activities({ userId }: { userId: string }) {
 	const [activeTab, setActiveTab] = useState<"posts" | "comments">("posts");
+	const { userPosts, userComments, fetchUserPosts, fetchUserComments } =
+		usePostStore();
+
+	useEffect(() => {
+		fetchUserPosts(userId);
+		fetchUserComments(userId);
+	}, []);
 
 	return (
 		<div>
@@ -18,9 +26,9 @@ export default function Activities() {
 			{/* 탭 내용 */}
 			<div className="mt-4">
 				{activeTab === "posts" ? (
-					<ActivitiesPosts />
+					<ActivitiesPosts posts={userPosts} />
 				) : (
-					<ActivitiesComments />
+					<ActivitiesComments comments={userComments} />
 				)}
 			</div>
 		</div>

@@ -3,6 +3,6 @@ type User = {
 	nickname: string;
 	online?: string;
 	role: string;
-	birth_date?: Date;
+	birth_date?: string;
 	major?: string;
 };

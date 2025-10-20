@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import supabase from "../utils/supabase";
+import type { ChildInfo, UserProfile } from "../types/profile";
 
 type ProfileState = {
 	profile: UserProfile | null;

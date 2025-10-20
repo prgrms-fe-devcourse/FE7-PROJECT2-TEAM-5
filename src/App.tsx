@@ -25,11 +25,12 @@ import SocialSignupInfo from "./pages/auth/SocialSignupInfo";
 import { useCheckProfileCompleted } from "./hooks/useCheckProfileCompleted";
 
 export default function App() {
-	const fetchProfile = useProfileStore((state) => state.fetchProfile);
-	const location = useLocation();
-
 	// 프로필 완성 여부 확인 훅
 	useCheckProfileCompleted();
+
+	// 유저
+	const fetchProfile = useProfileStore((state) => state.fetchProfile);
+	const location = useLocation();
 
 	useEffect(() => {
 		const initAuth = async () => {

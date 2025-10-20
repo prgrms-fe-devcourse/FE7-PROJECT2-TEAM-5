@@ -5,6 +5,7 @@ import { getAge } from "../../utils/getAge";
 import { ageToBirthDate } from "../../utils/ageToBirthDate";
 import EditProfileSkeleton from "../../components/loading/profile/EditProfileSkeleton";
 import { ChevronDown, X } from "lucide-react";
+import type { ChildInfo, UserProfile } from "../../types/profile";
 
 const ALL_INTERESTS: string[] = [
 	"국어",

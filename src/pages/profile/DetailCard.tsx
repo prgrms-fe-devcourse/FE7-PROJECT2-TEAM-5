@@ -14,7 +14,6 @@ export default function DetailCard() {
 
 	if (!profile) return null;
 	if (!childInfos) return null;
-
 	return (
 		<>
 			{/* 탭 버튼 컨테이너 */}
@@ -24,7 +23,9 @@ export default function DetailCard() {
 				{activeTab === "info" && (
 					<Info profile={profile} childInfos={childInfos} />
 				)}
-				{activeTab === "activities" && <Activities />}
+				{activeTab === "activities" && (
+					<Activities userId={profile.auth_id} />
+				)}
 				{activeTab === "friends" && <Friends />}
 			</div>
 		</>

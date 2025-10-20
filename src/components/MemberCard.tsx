@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 export default function MemberCard({ friend }: { friend: Friend }) {
 	const [openId, setOpenId] = useState<number | null>(null);
+	const [following, setFollowing] = useState<boolean>(false);
 
 	// 외부 클릭 시 드롭다운 닫기
 	useEffect(() => {
@@ -19,6 +20,15 @@ export default function MemberCard({ friend }: { friend: Friend }) {
 		return () =>
 			document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
+
+	const handleFollow = () => {
+		if (!following) {
+			setFollowing(true);
+		} else {
+			setOpenId(null);
+			setFollowing(false);
+		}
+	};
 
 	return (
 		<>
@@ -69,40 +79,46 @@ export default function MemberCard({ friend }: { friend: Friend }) {
 					>
 						<span>프로필로 이동</span>
 					</button> */}
-
-					<button className="cursor-pointer friend-button text-xs flex items-center gap-2 px-6 py-2 border border-[#EA489A] bg-white rounded-lg hover:bg-[#EA489A] hover:text-white transition-colors">
-						<span>팔로우하기</span>
-					</button>
-
-					{/* 팔로잉 */}
-					{/* <button
-						onClick={() =>
-							setOpenId((prev) =>
-								prev === friend.id ? null : friend.id,
-							)
-						}
-						className="cursor-pointer friend-button text-xs flex items-center gap-2 px-6 py-2 bg-[#EA489A] text-white rounded-lg hover:bg-[#d63f8b] transition-colors"
-					>
-						<span>팔로잉</span>
-						<ChevronDown
-							size={16}
-							className={`transition-transform duration-200 ${
-								openId === friend.id ? "rotate-180" : ""
-							}`}
-						/>
-					</button> */}
+					{!following ? (
+						<button
+							onClick={handleFollow}
+							className="cursor-pointer friend-button text-xs flex items-center gap-2 px-6 py-2 border border-[#EA489A] bg-white rounded-lg hover:bg-[#EA489A] hover:text-white transition-colors"
+						>
+							<span>팔로우하기</span>
+						</button>
+					) : (
+						<button
+							onClick={() =>
+								setOpenId((prev) =>
+									prev === friend.id ? null : friend.id,
+								)
+							}
+							className="cursor-pointer friend-button text-xs flex items-center gap-2 w-27 px-6 py-2 bg-[#EA489A] text-white rounded-lg hover:bg-[#d63f8b] transition-colors"
+						>
+							<span>팔로잉</span>
+							<ChevronDown
+								size={16}
+								className={`transition-transform duration-200 ${
+									openId === friend.id ? "rotate-180" : ""
+								}`}
+							/>
+						</button>
+					)}
 
 					<div
-						className={`friend-dropdown z-50 absolute right-0 mt-1 p-1 bg-white rounded-md shadow-lg overflow-hidden transform transition-all duration-200 origin-top ${
+						className={`friend-dropdown z-50 absolute right-0 mt-1 p-1 w-27 bg-white rounded-md shadow-lg overflow-hidden transform transition-all duration-200 origin-top ${
 							openId === friend.id
 								? "opacity-100 scale-100 translate-y-0"
 								: "opacity-0 scale-95 -translate-y-2 pointer-events-none"
 						}`}
 					>
-						<button className="block w-full text-left px-3 py-2 hover:bg-gray-100 text-gray-800 text-xs">
+						<button className="cursor-pointer block w-full text-left p-2 hover:bg-gray-100 text-gray-800 text-xs">
 							메시지 보내기
 						</button>
-						<button className="block w-full text-left px-3 py-2 hover:bg-gray-100 text-red-700 text-xs">
+						<button
+							onClick={handleFollow}
+							className="cursor-pointer block w-full text-left p-2 hover:bg-gray-100 text-red-700 text-xs"
+						>
 							팔로우 취소
 						</button>
 					</div>
