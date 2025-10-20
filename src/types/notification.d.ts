@@ -17,9 +17,3 @@ export interface Notification {
 	targetId?: string;
 	createdAt: string;
 }
-
-export interface NotificationState {
-	notifications: Notification[];
-	unreadCount: number;
-	isLoading: boolean;
-}
