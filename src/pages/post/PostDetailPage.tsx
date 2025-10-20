@@ -78,7 +78,7 @@ export default function PostDetailPage() {
 			}
 		};
 		fetchPost();
-	}, [id]);
+	}, [id, comments]);
 
 	if (!isLoading) {
 		return (

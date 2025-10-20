@@ -32,6 +32,7 @@ export const usePostsStore = create<PostsStore>()(
 						.select(
 							"*, users(nickname), likes:post_likes(id), comments:comments!comments_post_id_fkey(id)",
 						)
+						.is("group_id", null)
 						.order("created_at", { ascending: false });
 
 					if (error) throw error;
