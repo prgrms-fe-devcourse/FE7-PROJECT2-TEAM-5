@@ -1,109 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { MessageCircle, Bell, Heart, UserPlus, ThumbsUp } from "lucide-react";
 import type { Notification } from "../types/notification";
-
-// 임시 알림 데이터 (id 순으로 정렬)
-const mockNotifications: Notification[] = [
-	{
-		id: "1",
-		type: "NEW_REPLY",
-		message: "@@님이 회원님의 댓글에 답글을 남겼습니다.",
-		content: "감사합니다!",
-		date: "2025.10.01",
-		isRead: false,
-		actorId: "user6",
-		targetId: "reply1",
-		createdAt: "2025-10-01T13:20:00Z",
-	},
-	{
-		id: "2",
-		type: "COMMENT_LIKE",
-		message: "@@님이 댓글에 좋아요를 눌렀습니다.",
-		content:
-			"정말 도움이 되는 댓글이에요! @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
-		date: "2025.09.30",
-		isRead: false,
-		actorId: "user5",
-		targetId: "comment1",
-		createdAt: "2025-09-30T11:30:00Z",
-	},
-	{
-		id: "3",
-		type: "CHILD_LINKED",
-		message: "@@님이 회원님을 자식으로 등록했습니다",
-		date: "2025.09.29",
-		isRead: true,
-		actorId: "user4",
-		targetId: "child1",
-		createdAt: "2025-09-29T16:45:00Z",
-	},
-	{
-		id: "4",
-		type: "POST_LIKE",
-		message: "@@님이 게시글에 좋아요를 눌렀습니다.",
-		date: "2025.09.28",
-		isRead: true,
-		actorId: "user3",
-		targetId: "post2",
-		createdAt: "2025-09-28T09:15:00Z",
-	},
-	{
-		id: "5",
-		type: "NEW_MESSAGE",
-		message: "@@님이 새 메시지를 보냈습니다.",
-		content:
-			"안녕하세요~ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
-		date: "2025.09.27",
-		isRead: false,
-		actorId: "user2",
-		targetId: "message1",
-		createdAt: "2025-09-27T14:20:00Z",
-	},
-	{
-		id: "6",
-		type: "NEW_COMMENT",
-		message: "@@님이 회원님의 게시글에 새로운 댓글을 남겼습니다.",
-		content: "저도 이 방법으로 풀었어요!",
-		date: "2025.09.25",
-		isRead: false,
-		actorId: "user1",
-		targetId: "post1",
-		createdAt: "2025-09-25T10:30:00Z",
-	},
-	{
-		id: "7",
-		type: "NEW_COMMENT",
-		message: "@@님이 회원님의 게시글에 새로운 댓글을 남겼습니다.",
-		content: "저도 이 방법으로 풀었어요2!",
-		date: "2025.09.25",
-		isRead: false,
-		actorId: "user1",
-		targetId: "post1",
-		createdAt: "2025-09-25T10:30:00Z",
-	},
-	{
-		id: "8",
-		type: "NEW_COMMENT",
-		message: "@@님이 회원님의 게시글에 새로운 댓글을 남겼습니다.",
-		content: "저도 이 방법으로 풀었어요3!",
-		date: "2025.09.25",
-		isRead: false,
-		actorId: "user1",
-		targetId: "post1",
-		createdAt: "2025-09-25T10:30:00Z",
-	},
-	{
-		id: "9",
-		type: "NEW_COMMENT",
-		message: "@@님이 회원님의 게시글에 새로운 댓글을 남겼습니다.",
-		content: "저도 이 방법으로 풀었어요4!",
-		date: "2025.09.25",
-		isRead: false,
-		actorId: "user1",
-		targetId: "post1",
-		createdAt: "2025-09-25T10:30:00Z",
-	},
-];
+import { useNotificationStore } from "../stores/notificationStore";
+import { useProfileStore } from "../stores/profileStore";
 
 interface NotificationSidebarProps {
 	isOpen: boolean;
@@ -114,8 +13,15 @@ export default function NotificationSidebar({
 	isOpen,
 	onClose,
 }: NotificationSidebarProps) {
-	const [notifications, setNotifications] =
-		useState<Notification[]>(mockNotifications);
+	const currentUserId = useProfileStore((state) => state.currentUserId);
+	const {
+		notifications,
+		isLoading,
+		error,
+		fetchNotifications,
+		deleteNotification,
+		clearError,
+	} = useNotificationStore();
 
 	// ESC 키로 사이드바 닫기
 	useEffect(() => {
@@ -134,20 +40,26 @@ export default function NotificationSidebar({
 		};
 	}, [isOpen, onClose]);
 
-	// 모두 삭제
+	// 알림 데이터 로드
+	useEffect(() => {
+		if (isOpen && currentUserId) {
+			fetchNotifications(currentUserId);
+		}
+	}, [isOpen, currentUserId, fetchNotifications]);
+
+	// 모두 삭제 (임시로 비활성화)
 	const handleDeleteAll = () => {
-		setNotifications([]);
+		// TODO: 모두 삭제 기능
+		console.log("모두 삭제 진행");
 	};
 
 	// 알림 클릭
-	const handleNotificationClick = (notification: Notification) => {
-		// 기능 구현 시 해당 페이지로 이동하고 DB에서 알림 삭제
+	const handleNotificationClick = async (notification: Notification) => {
+		// TODO: 해당 페이지로 이동하는 로직 구현
 		console.log("알림 이동:", notification);
 
-		// 임시로 클릭한 알림을 목록에서 제거
-		setNotifications((prev) =>
-			prev.filter((n) => n.id !== notification.id),
-		);
+		// 알림 삭제
+		await deleteNotification(notification.id);
 	};
 
 	// 알림 타입별로 아이콘 다르게 표시
@@ -200,10 +112,28 @@ export default function NotificationSidebar({
 
 				{/* 알림 목록 */}
 				<div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
-					{notifications.length === 0 ? (
+					{error && (
+						<div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+							<p className="font-medium">에러</p>
+							<p>{error}</p>
+							<button
+								onClick={clearError}
+								className="mt-2 text-xs underline hover:no-underline"
+							>
+								닫기
+							</button>
+						</div>
+					)}
+
+					{isLoading ? (
+						<div className="flex flex-col items-center justify-center h-64 text-[#6B7280]">
+							<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8B5CF6] mb-4"></div>
+							<p>알림을 불러오는 중...</p>
+						</div>
+					) : notifications.length === 0 ? (
 						<div className="flex flex-col items-center justify-center h-64 text-[#6B7280]">
 							<Bell className="w-12 h-12 mb-4 opacity-50" />
-							<p>알림이 없습니다</p>
+							<p>알림이 없습니다!</p>
 						</div>
 					) : (
 						notifications.map((notification) => (
@@ -222,11 +152,6 @@ export default function NotificationSidebar({
 										<p className="text-sm font-medium text-[#1F2937] mb-1">
 											{notification.message}
 										</p>
-										{notification.content && (
-											<p className="text-sm text-[#6B7280] mb-2 italic truncate">
-												"{notification.content}"
-											</p>
-										)}
 										<p className="text-xs text-[#9CA3AF]">
 											{notification.date}
 										</p>
