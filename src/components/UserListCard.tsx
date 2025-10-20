@@ -34,7 +34,6 @@ export default function UserListCard({
 		parent: "학부모",
 	};
 
-	// 팔로우/언팔 시 내 프로필이면 friendsByProfileId를 업데이트하도록 변경
 	const handleFollowClick = async (e: React.MouseEvent) => {
 		e.stopPropagation();
 		e.preventDefault();

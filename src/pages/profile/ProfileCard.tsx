@@ -9,6 +9,8 @@ import Modal from "../../components/Modal";
 import Button from "../../components/Button";
 import type { UserProfile } from "../../types/profile";
 import supabase from "../../utils/supabase";
+import { useMemberStore } from "../../stores/profileMemberStore";
+import type { Friend } from "../../types/friend";
 
 type Props = {
 	profile: UserProfile | null;
@@ -17,16 +19,26 @@ type Props = {
 export default function ProfileCard({ profile }: Props) {
 	const navigate = useNavigate();
 	const { deleteProfile, currentUserId } = useProfileStore();
+	const {
+		followStatus,
+		followedUserFnc,
+		unFollowUserFnc,
+		setFollowStatus,
+		setUserFollowed,
+		setFriends,
+	} = useMemberStore();
+
+	const isFollowing = followStatus[profile?.auth_id ?? ""] || false;
+
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 	const [isImgModalOpen, setIsImgModalOpen] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [isUpdating, setIsUpdating] = useState(false);
-
 	const [imgFile, setImgFile] = useState<string | null>(null);
 
 	if (!profile) return null;
 
-	// 현재 보고 있는 프로필이 내 프로필인지 판별
+	// 내 프로필 여부
 	const isMyProfile = useMemo(
 		() => profile.auth_id === currentUserId,
 		[profile, currentUserId],
@@ -100,6 +112,61 @@ export default function ProfileCard({ profile }: Props) {
 
 	const removeImgFile = () => {
 		setImgFile(null);
+	};
+
+	const handleFollowToggle = async () => {
+		if (!currentUserId || !profile) return;
+
+		const isFollowing = followStatus[profile.auth_id] || false;
+
+		if (isFollowing) {
+			// 언팔로우
+			await unFollowUserFnc(currentUserId, profile.auth_id);
+			setFollowStatus(profile.auth_id, false);
+			setUserFollowed((prev) =>
+				prev.filter((f) => f.users?.auth_id !== profile.auth_id),
+			);
+
+			// 내 프로필 친구 상태 업데이트
+			if (isMyProfile) {
+				const currentFriends =
+					useMemberStore.getState().friendsByProfileId[
+						profile.auth_id
+					] || [];
+				setFriends(
+					profile.auth_id,
+					currentFriends.filter(
+						(f) => f.users?.auth_id !== profile.auth_id,
+					),
+				);
+			}
+		} else {
+			// 팔로우
+			await followedUserFnc(currentUserId, profile.auth_id);
+			setFollowStatus(profile.auth_id, true);
+
+			const newFriend: Friend = {
+				users: {
+					auth_id: profile.auth_id,
+					nickname: profile.nickname,
+					profile_image_url: profile.profile_image_url ?? null,
+					is_online: profile.is_online ?? false,
+				},
+				created_at: new Date().toISOString(),
+				follower_id: currentUserId,
+				following_id: profile.auth_id,
+				id: crypto.randomUUID(),
+			};
+			setUserFollowed((prev) => [...prev, newFriend]);
+
+			if (isMyProfile) {
+				const currentFriends =
+					useMemberStore.getState().friendsByProfileId[
+						profile.auth_id
+					] || [];
+				setFriends(profile.auth_id, [...currentFriends, newFriend]);
+			}
+		}
 	};
 
 	return (
@@ -236,10 +303,13 @@ export default function ProfileCard({ profile }: Props) {
 						</Link>
 					) : (
 						<div className="flex flex-row gap-2">
-							<Button className="w-1/2 bg-violet-500 rounded-xl text-center px-4 py-2 cursor-pointer text-base font-normal text-white">
-								팔로우
+							<Button
+								onClick={handleFollowToggle}
+								className={`w-20 rounded-xl text-center px-4 py-2 text-base font-normal ${!isFollowing ? "border border-violet-500 text-violet-500 hover:bg-violet-100" : " text-white bg-violet-500"}`}
+							>
+								{!isFollowing ? "팔로우" : "팔로잉"}
 							</Button>
-							<Button className="w-1/2 bg-violet-500 rounded-xl text-center px-4 py-2 cursor-pointer text-base font-normal text-white">
+							<Button className="w-20 bg-violet-500 rounded-xl text-center px-4 py-2 text-base font-normal text-white">
 								메시지
 							</Button>
 						</div>
