@@ -40,7 +40,7 @@ export const useMemberStore = create<MemberState>()(
 			const { data, error } = await supabase
 				.from("follows")
 				.select(
-					"*, users!fk_Follows_following_id_users_id(auth_id, nickname, profile_image_url)",
+					"*, users!fk_Follows_following_id_users_id(auth_id, nickname, profile_image_url, is_online)",
 				)
 				.eq("follower_id", userId);
 
@@ -54,9 +54,15 @@ export const useMemberStore = create<MemberState>()(
 				if (item.following_id) statusMap[item.following_id] = true;
 			});
 
+			const sortedData = (data || []).sort((a, b) => {
+				const aOnline = a.users?.is_online ? 1 : 0;
+				const bOnline = b.users?.is_online ? 1 : 0;
+				return bOnline - aOnline;
+			});
+
 			set((state) => {
-				state.userFollowed = data || [];
-				state.friends = data || [];
+				state.userFollowed = sortedData;
+				state.friends = sortedData;
 				state.followStatus = statusMap;
 			});
 		},
@@ -66,7 +72,7 @@ export const useMemberStore = create<MemberState>()(
 			const { data, error } = await supabase
 				.from("follows")
 				.select(
-					"*, users!fk_Follows_following_id_users_id(auth_id, nickname, profile_image_url)",
+					"*, users!fk_Follows_following_id_users_id(auth_id, nickname, profile_image_url, is_online)",
 				)
 				.eq("following_id", userId);
 

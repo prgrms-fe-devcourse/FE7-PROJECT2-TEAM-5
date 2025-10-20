@@ -17,7 +17,6 @@ export default function MemberCard({ friend, onUnfollow }: MemberCardProps) {
 	const isFollowing = followStatus[friend.users?.auth_id ?? ""] || false;
 
 	const [openId, setOpenId] = useState<string | null>(null);
-	const [status, setStatus] = useState<boolean>(false);
 
 	// 외부 클릭 시 드롭다운 닫기
 	useEffect(() => {
@@ -67,7 +66,7 @@ export default function MemberCard({ friend, onUnfollow }: MemberCardProps) {
 						alt={`${friend.users?.nickname} 프로필`}
 					/>
 					<div
-						className={`absolute right-0 bottom-0 w-4 h-4 bg-${status ? "green" : "red"}-500 rounded-full border-2 border-white`}
+						className={`absolute right-0 bottom-0 w-4 h-4 bg-${friend.users?.is_online ? "green" : "red"}-500 rounded-full border-2 border-white`}
 					></div>
 				</div>
 
@@ -75,7 +74,9 @@ export default function MemberCard({ friend, onUnfollow }: MemberCardProps) {
 				<div className="flex-1 space-y-2">
 					<p className="line-clamp-1">{friend.users?.nickname}</p>
 					<p className="text-xs text-gray-500">
-						{status === true ? "현재 활동 중" : `(수정 예정)`}
+						{friend.users?.is_online
+							? "현재 활동 중"
+							: `(수정 예정)`}
 						{/* 최근 1시간 전 활동 */}
 					</p>
 				</div>
