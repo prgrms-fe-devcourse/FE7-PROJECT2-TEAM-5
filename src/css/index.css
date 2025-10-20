@@ -1,18 +1,18 @@
 @import "./tailwind.css";
 
 body {
-	font-family: "Noto Sans KR", sans-serif;
-	color: #1f2937;
+    font-family: "Noto Sans KR", sans-serif;
+    color: #1f2937;
 }
 
 .skeleton-30 {
-	@apply bg-gradient-to-r from-[#E5E7EB]/50 to-[#D1D5DB]/30 animate-pulse;
+    @apply bg-gradient-to-r from-[#E5E7EB]/50 to-[#D1D5DB]/30 animate-pulse;
 }
 
 .skeleton-40 {
-	@apply bg-gradient-to-r from-[#E5E7EB]/60 to-[#D1D5DB]/40 animate-pulse;
+    @apply bg-gradient-to-r from-[#E5E7EB]/60 to-[#D1D5DB]/40 animate-pulse;
 }
 
 .skeleton-50 {
-	@apply bg-gradient-to-r from-[#E5E7EB]/70 to-[#D1D5DB]/50 animate-pulse;
+    @apply bg-gradient-to-r from-[#E5E7EB]/70 to-[#D1D5DB]/50 animate-pulse;
 }
