@@ -44,7 +44,7 @@ export const useNotificationStore = create<NotificationState>()(
 					)
 					.eq("user_id", userId)
 					.order("created_at", { ascending: false })
-					.limit(50);
+					.limit(100);
 
 				if (error) throw error;
 

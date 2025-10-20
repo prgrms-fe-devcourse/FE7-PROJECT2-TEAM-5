@@ -109,7 +109,7 @@ export default function NotificationSidebar({
 					<h2 className="text-xl font-bold text-[#1F2937]">알림</h2>
 					<button
 						onClick={handleDeleteAll}
-						className="text-sm text-[#6B7280] hover:text-[#8B5CF6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						className="text-sm text-[#6B7280] hover:text-[#8B5CF6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
 						disabled={notifications.length === 0}
 					>
 						모두 삭제
