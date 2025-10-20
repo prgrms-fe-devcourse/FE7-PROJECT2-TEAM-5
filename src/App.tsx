@@ -63,6 +63,7 @@ export default function App() {
 
 		initAuth();
 	}, [fetchProfile, location.pathname]);
+
 	return (
 		<>
 			<Routes>

@@ -1,114 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PageNation from "../../components/PageNation";
 import MemberCard from "../../components/MemberCard";
+import { useMemberStore } from "../../stores/profileMemberStore";
 
-export default function Friends() {
-	const dummyFriends: Friend[] = [
-		{
-			id: 1,
-			name: "홍길동",
-			status: "온라인",
-			lastActive: "5분 전",
-			avatarUrl: "/images/profile1.png",
-		},
-		{
-			id: 2,
-			name: "이몽룡",
-			status: "오프라인",
-			lastActive: "2시간 전",
-			avatarUrl: "/images/profile2.png",
-		},
-		{
-			id: 3,
-			name: "성춘향",
-			status: "온라인",
-			lastActive: "10분 전",
-			avatarUrl: "/images/profile3.png",
-		},
-		{
-			id: 4,
-			name: "임꺽정",
-			status: "오프라인",
-			lastActive: "1일 전",
-			avatarUrl: "/images/profile4.png",
-		},
-		{
-			id: 5,
-			name: "이몽룡",
-			status: "오프라인",
-			lastActive: "2시간 전",
-			avatarUrl: "/images/profile2.png",
-		},
-		{
-			id: 6,
-			name: "성춘향",
-			status: "온라인",
-			lastActive: "10분 전",
-			avatarUrl: "/images/profile3.png",
-		},
-		{
-			id: 7,
-			name: "임꺽정",
-			status: "오프라인",
-			lastActive: "1일 전",
-			avatarUrl: "/images/profile4.png",
-		},
-		{
-			id: 8,
-			name: "이몽룡",
-			status: "오프라인",
-			lastActive: "2시간 전",
-			avatarUrl: "/images/profile2.png",
-		},
-		{
-			id: 9,
-			name: "성춘향",
-			status: "온라인",
-			lastActive: "10분 전",
-			avatarUrl: "/images/profile3.png",
-		},
-		{
-			id: 10,
-			name: "임꺽정",
-			status: "오프라인",
-			lastActive: "1일 전",
-			avatarUrl: "/images/profile4.png",
-		},
-		{
-			id: 11,
-			name: "성춘향",
-			status: "온라인",
-			lastActive: "10분 전",
-			avatarUrl: "/images/profile3.png",
-		},
-		{
-			id: 12,
-			name: "임꺽정",
-			status: "오프라인",
-			lastActive: "1일 전",
-			avatarUrl: "/images/profile4.png",
-		},
-		{
-			id: 13,
-			name: "성춘향",
-			status: "온라인",
-			lastActive: "10분 전",
-			avatarUrl: "/images/profile3.png",
-		},
-		{
-			id: 14,
-			name: "임꺽정",
-			status: "오프라인",
-			lastActive: "1일 전",
-			avatarUrl: "/images/profile4.png",
-		},
-	];
+export default function Friends({ userId }: { userId: string }) {
+	const friends = useMemberStore((state) => state.friends);
+	const {
+		fetchUserFollowings,
+		unFollowUser,
+		removeFriend,
+		setFriends,
+		userFollowed,
+	} = useMemberStore();
+
+	useEffect(() => {
+		async function loadFriends() {
+			await fetchUserFollowings(userId);
+			setFriends(userFollowed); // friends 즉시 동기화
+		}
+		loadFriends();
+	}, [fetchUserFollowings, setFriends, userId]);
+
+	const handleUnfollow = async (friendId: string) => {
+		await unFollowUser(userId, friendId); // DB + 상태 업데이트
+		removeFriend(friendId); // friends 배열에서 즉시 제거 → UI 즉시 반영
+	};
 
 	const friendsPerPage = 10;
 	const [currentPage, setCurrentPage] = useState(1);
-	const totalPages = Math.ceil(dummyFriends.length / friendsPerPage);
+	const totalPages = Math.ceil(friends.length / friendsPerPage);
 
-	const displayedFriends = dummyFriends.slice(
+	const pagedFriends = friends.slice(
 		(currentPage - 1) * friendsPerPage,
 		currentPage * friendsPerPage,
 	);
@@ -116,12 +38,19 @@ export default function Friends() {
 	return (
 		<>
 			<h3 className="text-xl font-bold text-violet-500">
-				친구 목록 <span>({dummyFriends.length}명)</span>
+				친구 목록 <span>({friends.length}명)</span>
 			</h3>
 
 			<div className="w-full grid grid-cols-2 gap-2">
-				{displayedFriends.map((friend) => (
-					<MemberCard friend={friend} />
+				{pagedFriends.length === 0 && (
+					<p>현재 팔로우 중인 친구가 없습니다.</p>
+				)}
+				{pagedFriends.map((friend) => (
+					<MemberCard
+						key={friend.users?.auth_id}
+						friend={friend}
+						onUnfollow={handleUnfollow} // prop 전달
+					/>
 				))}
 			</div>
 

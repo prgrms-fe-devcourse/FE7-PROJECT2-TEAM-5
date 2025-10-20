@@ -4,7 +4,7 @@ import supabase from "../utils/supabase";
 import type { Comment } from "../types/comment";
 import type { Post } from "../types/post";
 
-type PostState = {
+type ActPostState = {
 	userPosts: Post[]; // 유저 게시글 List
 	userComments: Comment[]; // 유저 댓글 List
 	// fetchUserPosts: 유저 게시글 불러오기
@@ -13,7 +13,7 @@ type PostState = {
 	fetchUserComments: (userId: string) => Promise<void>;
 };
 
-export const usePostStore = create<PostState>()(
+export const useActPostStore = create<ActPostState>()(
 	immer((set) => ({
 		userPosts: [],
 		userComments: [],
@@ -28,7 +28,10 @@ export const usePostStore = create<PostState>()(
 				.eq("user_id", userId);
 
 			if (error) {
-				console.error("Failed to fetch posts:", error.message);
+				console.error(
+					"user의 posts 테이블 불러오기 실패:",
+					error.message,
+				);
 				return;
 			}
 
@@ -45,7 +48,10 @@ export const usePostStore = create<PostState>()(
 				.eq("user_id", userId);
 
 			if (error) {
-				console.error("Failed to fetch comments:", error.message);
+				console.error(
+					"user의 comments 테이블 불러오기 실패:",
+					error.message,
+				);
 				return;
 			}
 

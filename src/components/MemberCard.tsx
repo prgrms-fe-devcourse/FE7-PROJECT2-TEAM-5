@@ -1,9 +1,23 @@
 import { ChevronDown } from "lucide-react";
+import type { Friend } from "../types/friend";
+import basicImage from "../assets/basic_image.png";
+import { useMemberStore } from "../stores/profileMemberStore";
+import { useProfileStore } from "../stores/profileStore";
 import { useEffect, useState } from "react";
 
-export default function MemberCard({ friend }: { friend: Friend }) {
-	const [openId, setOpenId] = useState<number | null>(null);
-	const [following, setFollowing] = useState<boolean>(false);
+type MemberCardProps = {
+	friend: Friend;
+	onUnfollow: (friendId: string) => void; // 부모에서 카드 제거
+};
+
+export default function MemberCard({ friend, onUnfollow }: MemberCardProps) {
+	const { followStatus, followedUser, unFollowUser } = useMemberStore();
+	const { currentUserId } = useProfileStore();
+
+	const isFollowing = followStatus[friend.users?.auth_id ?? ""] || false;
+
+	const [openId, setOpenId] = useState<string | null>(null);
+	const [status, setStatus] = useState<boolean>(false);
 
 	// 외부 클릭 시 드롭다운 닫기
 	useEffect(() => {
@@ -22,47 +36,47 @@ export default function MemberCard({ friend }: { friend: Friend }) {
 	}, []);
 
 	const handleFollow = () => {
-		if (!following) {
-			setFollowing(true);
-		} else {
-			setOpenId(null);
-			setFollowing(false);
+		if (!friend.users?.auth_id) return;
+
+		if (!isFollowing) {
+			// 팔로우 추가
+			followedUser(currentUserId!, friend.users.auth_id);
 		}
+		setOpenId(null);
+	};
+
+	const handleUnfollowClick = async () => {
+		if (!friend.users?.auth_id || !currentUserId) return;
+
+		// DB + Zustand 상태 업데이트
+		await unFollowUser(currentUserId, friend.users.auth_id); // 언팔로우
+		onUnfollow(friend.users.auth_id); // 부모에게 알림 → 카드 제거
 	};
 
 	return (
 		<>
 			<div
-				key={friend.id}
+				key={friend.users?.auth_id}
 				className="w-auto flex items-center gap-3 p-4 rounded-xl transition-colors duration-200 hover:bg-violet-100"
 			>
 				{/* 이미지 */}
-				<div className="w-15 h-15">
+				<div className="relative w-15 h-15">
 					<img
-						className="w-full h-full rounded-full bg-amber-400 object-cover"
-						src={friend.avatarUrl || "/default-profile.png"}
-						alt={`${friend.name} 프로필`}
+						className="w-full h-full rounded-full object-cover"
+						src={friend.users?.profile_image_url || basicImage}
+						alt={`${friend.users?.nickname} 프로필`}
 					/>
+					<div
+						className={`absolute right-0 bottom-0 w-4 h-4 bg-${status ? "green" : "red"}-500 rounded-full border-2 border-white`}
+					></div>
 				</div>
 
 				{/* 텍스트 */}
-				<div className="space-y-2">
-					<p>
-						{friend.name}
-						<span
-							className={`ml-1 font-medium text-xs ${
-								friend.status === "온라인"
-									? "text-[#10B981]"
-									: "text-gray-400"
-							}`}
-						>
-							{friend.status}
-						</span>
-					</p>
+				<div className="flex-1 space-y-2">
+					<p className="line-clamp-1">{friend.users?.nickname}</p>
 					<p className="text-xs text-gray-500">
-						{friend.status === "온라인"
-							? "현재 활동 중"
-							: `마지막 활동: ${friend.lastActive}`}
+						{status === true ? "현재 활동 중" : `(수정 예정)`}
+						{/* 최근 1시간 전 활동 */}
 					</p>
 				</div>
 
@@ -79,7 +93,7 @@ export default function MemberCard({ friend }: { friend: Friend }) {
 					>
 						<span>프로필로 이동</span>
 					</button> */}
-					{!following ? (
+					{!isFollowing ? (
 						<button
 							onClick={handleFollow}
 							className="cursor-pointer friend-button text-xs flex items-center gap-2 px-6 py-2 border border-[#EA489A] bg-white rounded-lg hover:bg-[#EA489A] hover:text-white transition-colors"
@@ -90,7 +104,9 @@ export default function MemberCard({ friend }: { friend: Friend }) {
 						<button
 							onClick={() =>
 								setOpenId((prev) =>
-									prev === friend.id ? null : friend.id,
+									prev === friend.users!.auth_id
+										? null
+										: friend.users!.auth_id,
 								)
 							}
 							className="cursor-pointer friend-button text-xs flex items-center gap-2 w-27 px-6 py-2 bg-[#EA489A] text-white rounded-lg hover:bg-[#d63f8b] transition-colors"
@@ -99,7 +115,9 @@ export default function MemberCard({ friend }: { friend: Friend }) {
 							<ChevronDown
 								size={16}
 								className={`transition-transform duration-200 ${
-									openId === friend.id ? "rotate-180" : ""
+									openId === friend.users?.auth_id
+										? "rotate-180"
+										: ""
 								}`}
 							/>
 						</button>
@@ -107,7 +125,7 @@ export default function MemberCard({ friend }: { friend: Friend }) {
 
 					<div
 						className={`friend-dropdown z-50 absolute right-0 mt-1 p-1 w-27 bg-white rounded-md shadow-lg overflow-hidden transform transition-all duration-200 origin-top ${
-							openId === friend.id
+							openId === friend.users?.auth_id
 								? "opacity-100 scale-100 translate-y-0"
 								: "opacity-0 scale-95 -translate-y-2 pointer-events-none"
 						}`}
@@ -116,7 +134,7 @@ export default function MemberCard({ friend }: { friend: Friend }) {
 							메시지 보내기
 						</button>
 						<button
-							onClick={handleFollow}
+							onClick={handleUnfollowClick}
 							className="cursor-pointer block w-full text-left p-2 hover:bg-gray-100 text-red-700 text-xs"
 						>
 							팔로우 취소
