@@ -91,25 +91,6 @@ export default function RegisterPage() {
 					<span className="">카카오로 시작하기</span>
 				</button>
 
-				<button
-					type="button"
-					className="cursor-pointer flex flex-row items-center justify-center gap-2 w-full h-11 rounded-xl bg-[#03C75A] hover:bg-green-600 text-white"
-				>
-					<svg
-						width="15"
-						height="15"
-						viewBox="0 0 15 15"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
-					>
-						<path
-							d="M10.1299 7.99347L4.57793 0H0V15H4.87014V7.00653L10.4221 15H15V0H10.1299V7.99347Z"
-							fill="white"
-						/>
-					</svg>
-					<span>네이버로 시작하기</span>
-				</button>
-
 				<Link
 					to="/login"
 					className="text-[#8B5CF6] text-sm hover:underline"
