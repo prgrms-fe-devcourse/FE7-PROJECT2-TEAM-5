@@ -20,8 +20,6 @@ export default function UserList({
 		setIsOpen(false);
 	}, [location.pathname]);
 
-	console.log(userList);
-
 	return (
 		<div className="fixed left-10 bottom-0 w-90 bg-white rounded-t-xl flex flex-col">
 			{/* 헤더 */}

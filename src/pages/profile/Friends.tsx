@@ -10,8 +10,8 @@ export default function Friends({ userId }: { userId: string }) {
 	const { unFollowUserFnc, removeFriend } = useMemberStore();
 
 	const handleUnfollow = async (friendId: string) => {
-		await unFollowUserFnc(userId, friendId); // DB + 상태 업데이트
-		removeFriend(userId, friendId); // friendsByProfileId[userId]에서 제거
+		await unFollowUserFnc(userId, friendId);
+		removeFriend(userId, friendId);
 	};
 
 	const friendsPerPage = 10;
@@ -37,7 +37,8 @@ export default function Friends({ userId }: { userId: string }) {
 					<MemberCard
 						key={friend.users?.auth_id}
 						friend={friend}
-						onUnfollow={() => handleUnfollow(friend.users!.auth_id)} // prop 전달
+						userId={userId}
+						onUnfollow={() => handleUnfollow(friend.users!.auth_id)}
 					/>
 				))}
 			</div>
