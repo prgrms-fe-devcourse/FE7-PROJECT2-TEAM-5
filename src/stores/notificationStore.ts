@@ -11,6 +11,7 @@ type NotificationState = {
 	// Actions
 	fetchNotifications: (userId: string) => Promise<void>;
 	deleteNotification: (notificationId: string) => Promise<void>;
+	deleteAllNotifications: (userId: string) => Promise<void>;
 	clearError: () => void;
 };
 
@@ -100,6 +101,29 @@ export const useNotificationStore = create<NotificationState>()(
 						err instanceof Error
 							? err.message
 							: "알림 삭제에 실패했습니다.";
+				});
+			}
+		},
+
+		deleteAllNotifications: async (userId: string) => {
+			try {
+				const { error } = await supabase
+					.from("notifications")
+					.delete()
+					.eq("user_id", userId);
+
+				if (error) throw error;
+
+				set((state) => {
+					state.notifications = [];
+				});
+			} catch (err) {
+				console.error("모든 알림 삭제 오류:", err);
+				set((state) => {
+					state.error =
+						err instanceof Error
+							? err.message
+							: "모든 알림 삭제에 실패했습니다.";
 				});
 			}
 		},

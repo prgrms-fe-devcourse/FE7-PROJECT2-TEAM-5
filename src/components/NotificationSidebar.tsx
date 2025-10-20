@@ -20,6 +20,7 @@ export default function NotificationSidebar({
 		error,
 		fetchNotifications,
 		deleteNotification,
+		deleteAllNotifications,
 		clearError,
 	} = useNotificationStore();
 
@@ -47,10 +48,13 @@ export default function NotificationSidebar({
 		}
 	}, [isOpen, currentUserId, fetchNotifications]);
 
-	// 모두 삭제 (임시로 비활성화)
-	const handleDeleteAll = () => {
-		// TODO: 모두 삭제 기능
-		console.log("모두 삭제 진행");
+	// 모두 삭제
+	const handleDeleteAll = async () => {
+		if (!currentUserId) return;
+
+		if (confirm("모든 알림을 삭제하시겠습니까?")) {
+			await deleteAllNotifications(currentUserId);
+		}
 	};
 
 	// 알림 클릭
@@ -104,7 +108,8 @@ export default function NotificationSidebar({
 					<h2 className="text-xl font-bold text-[#1F2937]">알림</h2>
 					<button
 						onClick={handleDeleteAll}
-						className="text-sm text-[#6B7280] hover:text-[#8B5CF6] transition-colors"
+						className="text-sm text-[#6B7280] hover:text-[#8B5CF6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+						disabled={notifications.length === 0}
 					>
 						모두 삭제
 					</button>
