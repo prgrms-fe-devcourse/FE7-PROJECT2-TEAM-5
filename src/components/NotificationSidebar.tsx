@@ -1,6 +1,13 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import { MessageCircle, Bell, Heart, UserPlus, ThumbsUp } from "lucide-react";
+import {
+	MessageCircle,
+	Bell,
+	Heart,
+	UserPlus,
+	ThumbsUp,
+	Trash2,
+} from "lucide-react";
 import type { Notification } from "../types/notification";
 import { useNotificationStore } from "../stores/notificationStore";
 import { useProfileStore } from "../stores/profileStore";
@@ -58,6 +65,15 @@ export default function NotificationSidebar({
 		if (confirm("모든 알림을 삭제하시겠습니까?")) {
 			await deleteAllNotifications(currentUserId);
 		}
+	};
+
+	// 개별 알림 삭제
+	const handleDeleteNotification = async (
+		e: React.MouseEvent,
+		notification: Notification,
+	) => {
+		e.stopPropagation(); // 알림 클릭 이벤트 방지
+		await deleteNotification(notification.id);
 	};
 
 	// 알림 클릭
@@ -196,7 +212,7 @@ export default function NotificationSidebar({
 						notifications.map((notification) => (
 							<div
 								key={notification.id}
-								className="p-4 rounded-lg border bg-white border-[#E6E9EE] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
+								className="group relative p-4 rounded-lg border bg-white border-[#E6E9EE] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
 								onClick={() =>
 									handleNotificationClick(notification)
 								}
@@ -218,6 +234,21 @@ export default function NotificationSidebar({
 											{notification.date}
 										</p>
 									</div>
+								</div>
+
+								{/* 호버 시 나타나는 삭제 버튼 */}
+								<div className="absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+									<button
+										onClick={(e) =>
+											handleDeleteNotification(
+												e,
+												notification,
+											)
+										}
+										className="w-8 h-8 flex items-center justify-center rounded-full bg-transparent hover:bg-red-500/20 transition-colors duration-200 group/delete cursor-pointer"
+									>
+										<Trash2 className="w-4 h-4 text-[#6B7280] group-hover/delete:text-red-500 transition-colors duration-200" />
+									</button>
 								</div>
 							</div>
 						))
