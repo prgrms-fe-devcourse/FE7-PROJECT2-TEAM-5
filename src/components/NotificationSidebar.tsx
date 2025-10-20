@@ -2,11 +2,6 @@ import { useState, useEffect } from "react";
 import { MessageCircle, Bell, Heart, UserPlus, ThumbsUp } from "lucide-react";
 import type { Notification } from "../types/notification";
 
-interface NotificationSidebarProps {
-	isOpen: boolean;
-	onClose: () => void;
-}
-
 // 임시 알림 데이터
 const mockNotifications: Notification[] = [
 	{
@@ -77,6 +72,11 @@ const mockNotifications: Notification[] = [
 	},
 ];
 
+interface NotificationSidebarProps {
+	isOpen: boolean;
+	onClose: () => void;
+}
+
 export default function NotificationSidebar({
 	isOpen,
 	onClose,
@@ -117,6 +117,7 @@ export default function NotificationSidebar({
 		);
 	};
 
+	// 알림 타입별로 아이콘 다르게 표시
 	const getNotificationIcon = (type: string) => {
 		switch (type) {
 			case "NEW_COMMENT":
@@ -140,6 +141,7 @@ export default function NotificationSidebar({
 		}
 	};
 
+	// 사이드바가 닫힌 상태면 렌더링 안함
 	if (!isOpen) return null;
 
 	return (
