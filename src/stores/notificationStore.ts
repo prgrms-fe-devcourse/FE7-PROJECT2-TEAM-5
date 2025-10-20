@@ -34,6 +34,7 @@ export const useNotificationStore = create<NotificationState>()(
 						id,
 						type,
 						message,
+						content,
 						created_at,
 						actor_id,
 						target_id,
@@ -52,6 +53,7 @@ export const useNotificationStore = create<NotificationState>()(
 						id: item.id,
 						type: item.type as Notification["type"],
 						message: item.message,
+						content: item.content || undefined,
 						date: new Date(item.created_at).toLocaleDateString(
 							"ko-KR",
 						),

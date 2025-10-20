@@ -152,6 +152,11 @@ export default function NotificationSidebar({
 										<p className="text-sm font-medium text-[#1F2937] mb-1">
 											{notification.message}
 										</p>
+										{notification.content && (
+											<p className="text-sm text-[#6B7280] mb-2 italic truncate">
+												"{notification.content}"
+											</p>
+										)}
 										<p className="text-xs text-[#9CA3AF]">
 											{notification.date}
 										</p>

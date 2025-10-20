@@ -10,6 +10,7 @@ export interface Notification {
 		| "POST_LIKE"
 		| "NEW_REPLY";
 	message: string;
+	content?: string;
 	date: string;
 	actorId?: string;
 	targetId?: string;
