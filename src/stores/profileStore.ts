@@ -75,10 +75,7 @@ export const useProfileStore = create<ProfileState>()(
 				} = await supabase.auth.getUser();
 
 				if (userError) {
-					console.warn(
-						"사용자 정보 가져오기 실패:",
-						userError.message,
-					);
+					console.warn("로그인하지 않음:", userError.message);
 				}
 
 				// 로그인 상태만 갱신
@@ -143,7 +140,6 @@ export const useProfileStore = create<ProfileState>()(
 					state.childInfos = childInfos;
 					state.loading = false;
 					state.error = null;
-					state.isLoggedIn = true;
 				});
 			} catch (err: any) {
 				set((state) => {

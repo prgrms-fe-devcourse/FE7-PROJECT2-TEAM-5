@@ -1,3 +1,5 @@
+import type { UserProfile } from "../../../types/profile";
+
 export default function ProfileCadeSkeleton({
 	profile,
 }: {
