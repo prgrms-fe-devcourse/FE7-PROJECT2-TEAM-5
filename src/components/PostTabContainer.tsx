@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import Button from "./Button";
+import { useProfileStore } from "../stores/profileStore";
 
 type TabItem = {
 	key: string;
@@ -19,6 +20,7 @@ export default function PostTabContainer({
 	title,
 	tabs,
 }: PostTabContainerProps) {
+	const currentUserId = useProfileStore((state) => state.currentUserId);
 	const isNormalBoard = title === "게시판";
 	const isGroupBoard =
 		title === "그룹 게시판" &&
@@ -60,12 +62,14 @@ export default function PostTabContainer({
 								>
 									검색
 								</Button>
-								<Link
-									to="create"
-									className="px-4 py-2 rounded-xl bg-[#8B5CF6] text-white text-xs hover:bg-[#B08DFF] transition-colors"
-								>
-									글 작성
-								</Link>
+								{currentUserId && (
+									<Link
+										to="create"
+										className="px-4 py-2 rounded-xl bg-[#8B5CF6] text-white text-xs hover:bg-[#B08DFF] transition-colors"
+									>
+										글 작성
+									</Link>
+								)}
 							</>
 						)}
 
