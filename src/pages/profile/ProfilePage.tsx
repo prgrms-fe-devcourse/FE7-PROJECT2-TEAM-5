@@ -5,6 +5,7 @@ import { useProfileStore } from "../../stores/profileStore";
 import { useEffect } from "react";
 import ProfileCadeSkeleton from "../../components/loading/profile/ProfileCadeSkeleton";
 import DetailCardSkeleton from "../../components/loading/profile/DetailCardSkeleton";
+import { useActPostStore } from "../../stores/profileActivityStore";
 
 export default function ProfilePage() {
 	const {
@@ -15,6 +16,7 @@ export default function ProfilePage() {
 		loading,
 		error,
 	} = useProfileStore();
+	const { fetchUserPosts, fetchUserComments } = useActPostStore();
 	const { id } = useParams();
 
 	useEffect(() => {
@@ -28,6 +30,8 @@ export default function ProfilePage() {
 
 		const targetAuthId = id === "me" ? currentUserId : id;
 		fetchProfile(targetAuthId);
+		fetchUserPosts(targetAuthId);
+		fetchUserComments(targetAuthId);
 	}, [id, currentUserId, fetchProfile]);
 
 	// 로딩 중
