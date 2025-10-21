@@ -41,11 +41,12 @@ export default function PostComments(props: PostCommentsProps) {
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 
 	const writeComment = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
 		if (!currentUserId) {
 			alert("로그인이 필요합니다.");
 			navigate("/login");
+			return;
 		}
-		e.preventDefault();
 		if (inputComment.trim() === "") return;
 		try {
 			if (!mention.userId) {
@@ -104,6 +105,11 @@ export default function PostComments(props: PostCommentsProps) {
 
 	//댓글 좋아요 기능
 	const pressLike = async (comment: Comment) => {
+		if (!currentUserId) {
+			alert("로그인이 필요합니다.");
+			navigate("/login");
+			return;
+		}
 		if (
 			currentUserId &&
 			comment?.comment_likes?.some(
@@ -157,7 +163,7 @@ export default function PostComments(props: PostCommentsProps) {
 			if (error) throw error;
 			if (data) {
 				alert("채택되었습니다.");
-				console.log(data);
+
 				location.reload();
 			}
 		} catch (e) {
@@ -286,7 +292,6 @@ export default function PostComments(props: PostCommentsProps) {
 	}
 
 	function CommentItem({ comments }: { comments: Comment[] }) {
-		console.log(comments);
 		return (
 			<>
 				{comments.map((comment) => (
