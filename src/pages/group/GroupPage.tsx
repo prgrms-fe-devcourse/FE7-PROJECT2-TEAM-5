@@ -245,6 +245,7 @@ export default function GroupPage() {
 				</div>
 
 				{loading ? (
+					/* 스켈레톤 UI 들어갈 부분 */
 					<p className="mt-5 text-sm text-gray-500">불러오는 중…</p>
 				) : mySection.length === 0 ? (
 					<div className="mt-5">
