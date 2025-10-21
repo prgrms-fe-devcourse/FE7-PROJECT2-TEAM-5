@@ -95,12 +95,19 @@ export const useChatRooms = () => {
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 
 	const fetchChatRooms = useCallback(async () => {
-		if (!currentUserId) return;
+		if (!currentUserId) {
+			console.log("useChatRooms: currentUserId가 없습니다");
+			return;
+		}
 
+		console.log("useChatRooms: 채팅방 목록 조회 시작", { currentUserId });
 		setIsLoading(true);
 		try {
 			const fetchedChatRooms = await getChatRooms(currentUserId);
+			console.log("useChatRooms: 조회된 채팅방", fetchedChatRooms);
 			setChatRooms(fetchedChatRooms);
+		} catch (error) {
+			console.error("useChatRooms: 에러", error);
 		} finally {
 			setIsLoading(false);
 		}
