@@ -1,25 +1,22 @@
 import { ChevronDown } from "lucide-react";
 import UserListCard from "./UserListCard";
 import { useEffect, useState } from "react";
-import { useUserStore } from "../stores/userListStore";
 import { useLocation } from "react-router";
+import { useOnlineUsers } from "../hooks/useOnlineUsers";
 
-export default function UserList() {
+export default function UserList({
+	currentUserId,
+}: {
+	currentUserId: string | null;
+}) {
 	const [isOpen, setIsOpen] = useState(false);
 	const location = useLocation();
-	const { userList, fetchUsers } = useUserStore();
+	const { userList } = useOnlineUsers();
 
-	// 페이지 이동 시 자동으로 닫기
 	useEffect(() => {
 		setIsOpen(false);
 	}, [location.pathname]);
 
-	useEffect(() => {
-		fetchUsers();
-	}, [fetchUsers]);
-
-	/* 필요한 정보 */
-	/* 프로필 이미지, 이름, 소속, 학년(전공 과목), auth_id */
 	return (
 		<div className="fixed left-10 bottom-0 w-90 bg-white rounded-t-xl flex flex-col">
 			{/* 헤더 */}
@@ -27,7 +24,7 @@ export default function UserList() {
 				className="cursor-pointer flex flex-row justify-between items-center px-5 py-3 w-full bg-violet-500 rounded-t-xl"
 				onClick={() => setIsOpen(!isOpen)}
 			>
-				<h3 className="text-lg text-white font-bold">온라인 사용자</h3>
+				<h3 className="text-lg text-white font-bold">가입자 목록</h3>
 				<ChevronDown
 					className={`text-white transition-transform duration-300 ${
 						isOpen ? "rotate-0" : "rotate-180"
@@ -45,7 +42,11 @@ export default function UserList() {
 			>
 				<div className="flex flex-col">
 					{userList.map((user) => (
-						<UserListCard key={user.auth_id} user={user} />
+						<UserListCard
+							key={user.auth_id}
+							user={user}
+							profileBeingViewedId={currentUserId || ""}
+						/>
 					))}
 				</div>
 			</div>

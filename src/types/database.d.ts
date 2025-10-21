@@ -472,7 +472,7 @@ export type Database = {
 					user_id: string;
 				};
 				Insert: {
-					created_at: string;
+					created_at?: string;
 					id?: string;
 					post_id: string;
 					user_id: string;
@@ -573,7 +573,9 @@ export type Database = {
 					gender: string | null;
 					habits: string[] | null;
 					interests: string[] | null;
+					is_online: boolean | null;
 					is_profile_completed: boolean;
+					last_seen: string | null;
 					major: string | null;
 					nickname: string;
 					profile_image_url: string | null;
@@ -592,7 +594,9 @@ export type Database = {
 					gender?: string | null;
 					habits?: string[] | null;
 					interests?: string[] | null;
+					is_online?: boolean | null;
 					is_profile_completed?: boolean;
+					last_seen?: string | null;
 					major?: string | null;
 					nickname: string;
 					profile_image_url?: string | null;
@@ -611,7 +615,9 @@ export type Database = {
 					gender?: string | null;
 					habits?: string[] | null;
 					interests?: string[] | null;
+					is_online?: boolean | null;
 					is_profile_completed?: boolean;
+					last_seen?: string | null;
 					major?: string | null;
 					nickname?: string;
 					profile_image_url?: string | null;

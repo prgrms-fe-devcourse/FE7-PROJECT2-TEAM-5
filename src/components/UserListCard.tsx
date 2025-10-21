@@ -4,16 +4,23 @@ import { getGrade } from "../utils/getGrade";
 import { useProfileStore } from "../stores/profileStore";
 import { useMemberStore } from "../stores/profileMemberStore";
 import basicImage from "../assets/basic_image.png";
+import type { Friend } from "../types/friend";
 
-export default function UserListCard({ user }: { user: User }) {
+export default function UserListCard({
+	user,
+	profileBeingViewedId, // 현재 보고 있는 프로필의 auth_id
+}: {
+	user: User;
+	profileBeingViewedId: string;
+}) {
 	const { currentUserId } = useProfileStore();
 	const {
 		followStatus,
-		followedUser,
-		unFollowUser,
+		followedUserFnc,
+		unFollowUserFnc,
+		setFollowStatus,
+		setUserFollowed,
 		setFriends,
-		fetchUserFollowings,
-		removeFriend,
 	} = useMemberStore();
 
 	const isFollowing = followStatus[user.auth_id] || false;
@@ -30,16 +37,58 @@ export default function UserListCard({ user }: { user: User }) {
 	const handleFollowClick = async (e: React.MouseEvent) => {
 		e.stopPropagation();
 		e.preventDefault();
-
 		if (!currentUserId) return;
 
+		const isMyProfile = currentUserId === profileBeingViewedId;
+
 		if (isFollowing) {
-			await unFollowUser(currentUserId, user.auth_id);
-			removeFriend(user.auth_id); // friends 배열에서도 제거
+			await unFollowUserFnc(currentUserId, user.auth_id);
+			setFollowStatus(user.auth_id, false);
+			setUserFollowed((prev) =>
+				prev.filter((f) => f.users?.auth_id !== user.auth_id),
+			);
+
+			if (isMyProfile) {
+				const currentFriends =
+					useMemberStore.getState().friendsByProfileId[
+						profileBeingViewedId
+					] || [];
+				setFriends(
+					profileBeingViewedId,
+					currentFriends.filter(
+						(f) => f.users?.auth_id !== user.auth_id,
+					),
+				);
+			}
 		} else {
-			await followedUser(currentUserId, user.auth_id);
-			await fetchUserFollowings(currentUserId);
-			setFriends(useMemberStore.getState().userFollowed);
+			await followedUserFnc(currentUserId, user.auth_id);
+			setFollowStatus(user.auth_id, true);
+
+			const newFriend: Friend = {
+				users: {
+					auth_id: user.auth_id,
+					nickname: user.nickname,
+					profile_image_url: user.profile_image_url ?? null,
+					is_online: user.is_online ?? false,
+				},
+				created_at: new Date().toISOString(),
+				follower_id: currentUserId,
+				following_id: user.auth_id,
+				id: crypto.randomUUID(),
+			};
+
+			setUserFollowed((prev) => [...prev, newFriend]);
+
+			if (isMyProfile) {
+				const currentFriends =
+					useMemberStore.getState().friendsByProfileId[
+						profileBeingViewedId
+					] || [];
+				setFriends(profileBeingViewedId, [
+					...currentFriends,
+					newFriend,
+				]);
+			}
 		}
 	};
 
@@ -62,10 +111,13 @@ export default function UserListCard({ user }: { user: User }) {
 								src={user.profile_image_url || basicImage}
 								alt={`${user.nickname} 프로필`}
 							/>
-							{/* 온라인 */}
-							<div className="absolute right-0 bottom-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
-							{/* 오프라인 */}
-							{/* <div className="absolute right-0 bottom-0 w-4 h-4 bg-gray-400 rounded-full border-2 border-white"></div> */}
+							<div
+								className={`absolute right-0 bottom-0 w-4 h-4 rounded-full border-2 border-white ${
+									user.is_online
+										? "bg-green-500"
+										: "bg-gray-400"
+								}`}
+							></div>
 						</div>
 						{/* 정보 */}
 						<div className="flex flex-col gap-1 text-sm">

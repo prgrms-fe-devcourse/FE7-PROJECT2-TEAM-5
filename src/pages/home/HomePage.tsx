@@ -2,6 +2,7 @@ import { MessageCircle, Milestone, UsersRound } from "lucide-react";
 import { Link } from "react-router";
 import { useProfileStore } from "../../stores/profileStore";
 import { useEffect } from "react";
+import { useSetOnlineStatus } from "../../hooks/useSetOnlineStatus";
 import HomePageSkeleton from "../../components/loading/home/HomePageSkeleton";
 
 export default function HomePage() {
@@ -10,6 +11,9 @@ export default function HomePage() {
 	const fetchProfile = useProfileStore((state) => state.fetchProfile);
 
 	const { logout } = useProfileStore();
+	const { logoutOffline } = useSetOnlineStatus(
+		currentUserId ? currentUserId : "",
+	);
 
 	useEffect(() => {
 		if (!currentUserId) {
@@ -18,7 +22,6 @@ export default function HomePage() {
 	}, [currentUserId, fetchProfile]);
 
 	if (loading) {
-		/* 스켈레톤 UI 추가 예정 */
 		return <HomePageSkeleton />;
 	}
 
@@ -38,7 +41,10 @@ export default function HomePage() {
 					<div className="space-x-4">
 						{currentUserId ? (
 							<button
-								onClick={logout}
+								onClick={async () => {
+									await logoutOffline();
+									logout();
+								}}
 								className="cursor-pointer inline-block px-6 py-4 bg-white rounded-xl font-bold text-[#8B5CF6] shadow-[inset_0_0_0_2px_#8B5CF6]"
 							>
 								로그아웃

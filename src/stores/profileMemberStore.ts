@@ -4,61 +4,74 @@ import supabase from "../utils/supabase";
 import type { Friend } from "../types/friend";
 
 type MemberState = {
-	friends: Friend[]; // UI에 바로 반영될 친구 목록
-	userFollowed: Friend[]; // 유저가 팔로우한 친구 List
+	friendsByProfileId: Record<string, Friend[]>; // 현재 보고 있는 프로필 기준 친구 목록 (UI 반영)
+	userFollowed: Friend[]; // 로그인한 내 팔로우 리스트 (UserList용)
+	followStatus: Record<string, boolean>; // 로그인한 내가 팔로우 중인지
 	userFollowing: Friend[]; // 유저를 팔로우한 친구 List
-	followStatus: Record<string, boolean>; // 팔로잉 여부 관리 (UI용)
 	onlineStatus: Record<string, boolean>; // 접속 여부 상태
 
 	// fetchUserPosts: 해당 User와 팔로잉 중인 users 불러오기
-	fetchUserFollowings: (userId: string) => Promise<void>;
-	// followedUser: 팔로우 기능
-	followedUser: (userId: string, following_id: string) => void;
-	// unFollowUser
-	unFollowUser: (userId: string, unFollowed_id: string) => void;
+	fetchUserFollowings: (userId: string) => Promise<Friend[]>;
+
+	// 팔로우/언팔로우 기능
+	followedUserFnc: (userId: string, following_id: string) => void;
+	unFollowUserFnc: (userId: string, unFollowed_id: string) => void;
 
 	// friends 상태 조작용
-	setFriends: (friends: Friend[]) => void;
-	removeFriend: (friendId: string) => void;
+	setFriends: (profileId: string, friends: Friend[]) => void;
+	removeFriend: (profileId: string, friendId: string) => void;
 
-	// 개별 유저 상태 설정
+	// UserList UI용 상태 업데이트
+	setFollowStatus: (userId: string, status: boolean) => void;
+	setUserFollowed: (
+		friends: Friend[] | ((prev: Friend[]) => Friend[]),
+	) => void;
+
+	// 온라인 상태
 	setOnlineStatus: (userId: string, status: boolean) => void;
-	// 여러 유저 상태 한번에 업데이트
 	updateOnlineStatus: (statuses: Record<string, boolean>) => void;
 };
 
 export const useMemberStore = create<MemberState>()(
 	immer((set) => ({
-		friends: [],
+		friendsByProfileId: {},
 		userFollowed: [],
 		userFollowing: [],
 		followStatus: {},
 		onlineStatus: {},
 
 		// 해당 User와 팔로잉 중인 users 불러오기
-		fetchUserFollowings: async (userId: string) => {
+		fetchUserFollowings: async (userId: string): Promise<Friend[]> => {
 			const { data, error } = await supabase
 				.from("follows")
 				.select(
-					"*, users!fk_Follows_following_id_users_id(auth_id, nickname, profile_image_url)",
+					"*, users!fk_Follows_following_id_users_id(auth_id, nickname, profile_image_url, is_online)",
 				)
 				.eq("follower_id", userId);
 
 			if (error) {
 				console.error("follows 테이블 불러오기 실패:", error.message);
-				return;
+				return [];
 			}
 
 			const statusMap: Record<string, boolean> = {};
-			data?.forEach((item) => {
+			(data || []).forEach((item) => {
 				if (item.following_id) statusMap[item.following_id] = true;
 			});
 
+			const sortedData = (data || []).sort((a, b) => {
+				const aOnline = a.users?.is_online ? 1 : 0;
+				const bOnline = b.users?.is_online ? 1 : 0;
+				return bOnline - aOnline;
+			});
+
 			set((state) => {
-				state.userFollowed = data || [];
-				state.friends = data || [];
+				state.userFollowed = sortedData;
+				state.friendsByProfileId[userId] = sortedData;
 				state.followStatus = statusMap;
 			});
+
+			return sortedData;
 		},
 
 		// 해당 User를 팔로우한 users 불러오기
@@ -66,7 +79,7 @@ export const useMemberStore = create<MemberState>()(
 			const { data, error } = await supabase
 				.from("follows")
 				.select(
-					"*, users!fk_Follows_following_id_users_id(auth_id, nickname, profile_image_url)",
+					"*, users!fk_Follows_following_id_users_id(auth_id, nickname, profile_image_url, is_online)",
 				)
 				.eq("following_id", userId);
 
@@ -81,7 +94,7 @@ export const useMemberStore = create<MemberState>()(
 		},
 
 		// 팔로우 기능
-		followedUser: async (userId: string, following_id: string) => {
+		followedUserFnc: async (userId: string, following_id: string) => {
 			try {
 				// 1. 이미 팔로우했는지 체크
 				const { data: existing, error: checkError } = await supabase
@@ -115,7 +128,7 @@ export const useMemberStore = create<MemberState>()(
 		},
 
 		// 언팔로우 기능
-		unFollowUser: async (userId: string, unFollowing_id: string) => {
+		unFollowUserFnc: async (userId: string, unFollowing_id: string) => {
 			const { error } = await supabase
 				.from("follows")
 				.delete()
@@ -134,24 +147,39 @@ export const useMemberStore = create<MemberState>()(
 		},
 
 		// friends 상태 조작용
-		setFriends: (friends) =>
+		setFriends: (profileId, friends) =>
 			set((state) => {
-				state.friends = friends;
+				state.friendsByProfileId[profileId] = friends;
 			}),
-		removeFriend: (friendId) =>
+		removeFriend: (profileId, friendId) =>
 			set((state) => {
-				state.friends = state.friends.filter(
-					(f) => f.users?.auth_id !== friendId,
-				);
+				state.friendsByProfileId[profileId] =
+					state.friendsByProfileId[profileId]?.filter(
+						(f) => f.users?.auth_id !== friendId,
+					) || [];
 			}),
 
-		// 개별 유저 온라인 상태 변경
+		// UserList UI용 상태
+		setFollowStatus: (userId, status) =>
+			set((state) => {
+				state.followStatus[userId] = status;
+			}),
+		setUserFollowed: (friends) =>
+			set((state) => {
+				if (typeof friends === "function") {
+					state.userFollowed = friends(
+						state.userFollowed as Friend[],
+					);
+				} else {
+					state.userFollowed = friends;
+				}
+			}),
+
+		// 온라인 상태
 		setOnlineStatus: (userId, status) =>
 			set((state) => {
 				state.onlineStatus[userId] = status;
 			}),
-
-		// 여러 명 상태 한 번에 업데이트
 		updateOnlineStatus: (statuses) =>
 			set((state) => {
 				state.onlineStatus = { ...state.onlineStatus, ...statuses };

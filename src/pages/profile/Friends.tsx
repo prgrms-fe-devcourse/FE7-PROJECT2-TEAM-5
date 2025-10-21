@@ -1,29 +1,17 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import PageNation from "../../components/PageNation";
 import MemberCard from "../../components/MemberCard";
 import { useMemberStore } from "../../stores/profileMemberStore";
 
 export default function Friends({ userId }: { userId: string }) {
-	const friends = useMemberStore((state) => state.friends);
-	const {
-		fetchUserFollowings,
-		unFollowUser,
-		removeFriend,
-		setFriends,
-		userFollowed,
-	} = useMemberStore();
-
-	useEffect(() => {
-		async function loadFriends() {
-			await fetchUserFollowings(userId);
-			setFriends(userFollowed); // friends 즉시 동기화
-		}
-		loadFriends();
-	}, [fetchUserFollowings, setFriends, userId]);
+	const friends = useMemberStore(
+		(state) => state.friendsByProfileId[userId] ?? [],
+	);
+	const { unFollowUserFnc, removeFriend } = useMemberStore();
 
 	const handleUnfollow = async (friendId: string) => {
-		await unFollowUser(userId, friendId); // DB + 상태 업데이트
-		removeFriend(friendId); // friends 배열에서 즉시 제거 → UI 즉시 반영
+		await unFollowUserFnc(userId, friendId);
+		removeFriend(userId, friendId);
 	};
 
 	const friendsPerPage = 10;
@@ -49,7 +37,8 @@ export default function Friends({ userId }: { userId: string }) {
 					<MemberCard
 						key={friend.users?.auth_id}
 						friend={friend}
-						onUnfollow={handleUnfollow} // prop 전달
+						userId={userId}
+						onUnfollow={() => handleUnfollow(friend.users!.auth_id)}
 					/>
 				))}
 			</div>

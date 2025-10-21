@@ -4,20 +4,25 @@ import basicImage from "../assets/basic_image.png";
 import { useMemberStore } from "../stores/profileMemberStore";
 import { useProfileStore } from "../stores/profileStore";
 import { useEffect, useState } from "react";
+import Button from "./Button";
+import { Link } from "react-router";
 
 type MemberCardProps = {
 	friend: Friend;
-	onUnfollow: (friendId: string) => void; // 부모에서 카드 제거
+	userId: string;
+	onUnfollow: (friendId: string) => void;
 };
 
-export default function MemberCard({ friend, onUnfollow }: MemberCardProps) {
-	const { followStatus, followedUser, unFollowUser } = useMemberStore();
+export default function MemberCard({
+	friend,
+	userId,
+	onUnfollow,
+}: MemberCardProps) {
+	const { followStatus, followedUserFnc, unFollowUserFnc } = useMemberStore();
 	const { currentUserId } = useProfileStore();
-
 	const isFollowing = followStatus[friend.users?.auth_id ?? ""] || false;
 
 	const [openId, setOpenId] = useState<string | null>(null);
-	const [status, setStatus] = useState<boolean>(false);
 
 	// 외부 클릭 시 드롭다운 닫기
 	useEffect(() => {
@@ -39,8 +44,7 @@ export default function MemberCard({ friend, onUnfollow }: MemberCardProps) {
 		if (!friend.users?.auth_id) return;
 
 		if (!isFollowing) {
-			// 팔로우 추가
-			followedUser(currentUserId!, friend.users.auth_id);
+			followedUserFnc(currentUserId!, friend.users.auth_id);
 		}
 		setOpenId(null);
 	};
@@ -48,9 +52,8 @@ export default function MemberCard({ friend, onUnfollow }: MemberCardProps) {
 	const handleUnfollowClick = async () => {
 		if (!friend.users?.auth_id || !currentUserId) return;
 
-		// DB + Zustand 상태 업데이트
-		await unFollowUser(currentUserId, friend.users.auth_id); // 언팔로우
-		onUnfollow(friend.users.auth_id); // 부모에게 알림 → 카드 제거
+		await unFollowUserFnc(currentUserId, friend.users.auth_id);
+		onUnfollow(friend.users.auth_id);
 	};
 
 	return (
@@ -67,7 +70,7 @@ export default function MemberCard({ friend, onUnfollow }: MemberCardProps) {
 						alt={`${friend.users?.nickname} 프로필`}
 					/>
 					<div
-						className={`absolute right-0 bottom-0 w-4 h-4 bg-${status ? "green" : "red"}-500 rounded-full border-2 border-white`}
+						className={`absolute right-0 bottom-0 w-4 h-4 bg-${friend.users?.is_online ? "green" : "red"}-500 rounded-full border-2 border-white`}
 					></div>
 				</div>
 
@@ -75,33 +78,24 @@ export default function MemberCard({ friend, onUnfollow }: MemberCardProps) {
 				<div className="flex-1 space-y-2">
 					<p className="line-clamp-1">{friend.users?.nickname}</p>
 					<p className="text-xs text-gray-500">
-						{status === true ? "현재 활동 중" : `(수정 예정)`}
+						{friend.users?.is_online
+							? "현재 활동 중"
+							: `(수정 예정)`}
 						{/* 최근 1시간 전 활동 */}
 					</p>
 				</div>
 
 				{/* 버튼 + 드롭다운 */}
 				<div className="relative ml-auto">
-					{/* 본인 */}
-					{/* <button
-						onClick={() =>
-							setOpenId((prev) =>
-								prev === friend.id ? null : friend.id,
-							)
-						}
-						className="friend-button text-xs flex items-center gap-2 px-6 py-2 bg-[#EA489A] text-white rounded-lg hover:bg-[#d63f8b] transition-colors"
-					>
-						<span>프로필로 이동</span>
-					</button> */}
 					{!isFollowing ? (
-						<button
+						<Button
 							onClick={handleFollow}
-							className="cursor-pointer friend-button text-xs flex items-center gap-2 px-6 py-2 border border-[#EA489A] bg-white rounded-lg hover:bg-[#EA489A] hover:text-white transition-colors"
+							className="friend-button text-xs flex items-center gap-2 px-6 py-2 border border-[#EA489A] bg-white rounded-lg hover:bg-[#EA489A] hover:text-white transition-colors"
 						>
 							<span>팔로우하기</span>
-						</button>
+						</Button>
 					) : (
-						<button
+						<Button
 							onClick={() =>
 								setOpenId((prev) =>
 									prev === friend.users!.auth_id
@@ -109,7 +103,7 @@ export default function MemberCard({ friend, onUnfollow }: MemberCardProps) {
 										: friend.users!.auth_id,
 								)
 							}
-							className="cursor-pointer friend-button text-xs flex items-center gap-2 w-27 px-6 py-2 bg-[#EA489A] text-white rounded-lg hover:bg-[#d63f8b] transition-colors"
+							className="friend-button text-xs flex items-center gap-2 w-27 px-6 py-2 bg-[#EA489A] text-white rounded-lg hover:bg-[#d63f8b] transition-colors"
 						>
 							<span>팔로잉</span>
 							<ChevronDown
@@ -120,7 +114,7 @@ export default function MemberCard({ friend, onUnfollow }: MemberCardProps) {
 										: ""
 								}`}
 							/>
-						</button>
+						</Button>
 					)}
 
 					<div
@@ -130,15 +124,25 @@ export default function MemberCard({ friend, onUnfollow }: MemberCardProps) {
 								: "opacity-0 scale-95 -translate-y-2 pointer-events-none"
 						}`}
 					>
-						<button className="cursor-pointer block w-full text-left p-2 hover:bg-gray-100 text-gray-800 text-xs">
-							메시지 보내기
-						</button>
-						<button
-							onClick={handleUnfollowClick}
-							className="cursor-pointer block w-full text-left p-2 hover:bg-gray-100 text-red-700 text-xs"
+						<Link
+							to={`/profile/${friend.users?.auth_id}`}
+							className="block w-full text-left p-2 hover:bg-gray-100 text-gray-800 text-xs"
 						>
-							팔로우 취소
-						</button>
+							프로필 보기
+						</Link>
+						<Button className="block w-full text-left p-2 hover:bg-gray-100 text-gray-800 text-xs">
+							메시지 보내기
+						</Button>
+						{userId === currentUserId ? (
+							<Button
+								onClick={handleUnfollowClick}
+								className="block w-full text-left p-2 hover:bg-gray-100 text-red-700 text-xs"
+							>
+								팔로우 취소
+							</Button>
+						) : (
+							""
+						)}
 					</div>
 				</div>
 			</div>
