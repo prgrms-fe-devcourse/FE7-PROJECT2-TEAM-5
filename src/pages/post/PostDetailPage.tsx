@@ -199,7 +199,14 @@ export default function PostDetailPage() {
 						))}
 					</div>
 					{/* 댓글 영역 */}
-					<PostComments comments={comments} postId={id} />
+					<PostComments
+						comments={comments}
+						postId={id}
+						adopted_comment_id={
+							postData?.adopted_comment_id ?? null
+						}
+						writerId={postData?.user_id}
+					/>
 
 					<Link
 						to={"/posts"}

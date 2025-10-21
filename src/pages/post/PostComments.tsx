@@ -2,7 +2,6 @@ import { Heart, MessageSquare } from "lucide-react";
 import type { Database } from "../../types/database";
 import { useState } from "react";
 import supabase from "../../utils/supabase";
-import { useNavigate } from "react-router";
 import { useProfileStore } from "../../stores/profileStore";
 import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
@@ -26,10 +25,11 @@ type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
 type PostCommentsProps = {
 	comments: Comment[] | null | undefined;
 	postId: string | undefined;
+	adopted_comment_id: string | null;
+	writerId: string | undefined;
 };
 
 export default function PostComments(props: PostCommentsProps) {
-	const navigate = useNavigate();
 	const [inputComment, setInputComment] = useState("");
 	const [mention, setMention] = useState({
 		nickname: "",
@@ -85,6 +85,7 @@ export default function PostComments(props: PostCommentsProps) {
 		}
 	};
 
+	//답글 개수 데이터
 	const replyCounts: Record<string, string[]> = {};
 	props.comments?.forEach((c) => {
 		if (c.parent_comment_id) {
@@ -95,6 +96,7 @@ export default function PostComments(props: PostCommentsProps) {
 		}
 	});
 
+	//댓글 좋아요 기능
 	const pressLike = async (comment: Comment) => {
 		if (
 			currentUserId &&
@@ -113,14 +115,15 @@ export default function PostComments(props: PostCommentsProps) {
 			if (error) throw error;
 			if (data) {
 				alert("좋아요 완료");
-				//새로고침 필요
+				location.reload();
 			}
 		} catch (error) {
 			console.error(error);
 		}
 	};
 
-	const createMention = async (comment: Comment) => {
+	//답글 쓰기 기능
+	const createMention = (comment: Comment) => {
 		if (comment.user.nickname) {
 			setMention({
 				nickname: comment.user.nickname,
@@ -130,23 +133,68 @@ export default function PostComments(props: PostCommentsProps) {
 		}
 	};
 
+	//답글 대상자 지우기 (input에 값이 아무것도 없고 백스페이스를 누를 경우 작동)
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (e.key === "Backspace" && !inputComment) {
 			setMention({ nickname: "", userId: "", commentId: "" });
 		}
 	};
 
-	// const commentData = props.comments?.map((comment) => ({
-	// 	...comment,
-	// 	reply_count: replyCounts[comment.id] ? replyCounts[comment.id] : 0,
-	// }));
+	//채택 기능
+	const adoptComment = async (comment: Comment) => {
+		try {
+			const { data, error } = await supabase
+				.from("posts")
+				.update({ adopted_comment_id: comment.id })
+				.eq("id", props.postId)
+				.select();
+			if (error) throw error;
+			if (data) {
+				alert("채택되었습니다.");
+				console.log(data);
+				location.reload();
+			}
+		} catch (e) {
+			console.error(e);
+		}
+	};
 
 	function Comment({ comment }: { comment: Comment }) {
+		const adoptedStyle =
+			props.adopted_comment_id === comment.id &&
+			"border-1 border-[#EA489A]";
+		// if (props.adopted_comment_id === comment.id) {
+		// 	adoptedStyle = "border-[#EA489A]";
+		// }
 		return (
-			<div className="relative z-10 group w-full px-4 py-3 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
-				{/* <button className="absolute -top-4 right-4 z-10 hidden group-hover:block hover:bg-[#8B5CF6] hover:text-white px-3 py-1 text-xs border-1 border-[#8B5CF6] rounded-2xl bg-white">
-					채택
-				</button> */}
+			<div
+				className={
+					"relative z-10 group w-full px-4 py-3 mt-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] " +
+					adoptedStyle
+				}
+			>
+				{/* 작성자가 아니거나, 작성자가 작성한 댓글이거나, 이미 채택된 댓글이 있으면 hover되지 않음. */}
+				{!(currentUserId === comment.user_id) &&
+					currentUserId === props.writerId &&
+					!props.adopted_comment_id && (
+						<button
+							type="button"
+							onClick={() => adoptComment(comment)}
+							className="absolute -top-4 right-4 z-10 hidden group-hover:block hover:bg-[#8B5CF6] hover:text-white px-3 py-1 text-xs border-1 border-[#8B5CF6] rounded-2xl bg-white"
+						>
+							채택
+						</button>
+					)}
+
+				{props.adopted_comment_id === comment.id && (
+					<span className="flex items-center absolute -top-4 left-4 z-10 px-3 py-1 text-xs rounded-2xl bg-linear-to-r text-white from-[#EA489A] to-[#FF84C2]">
+						채택된 댓글
+						<img
+							src="/src/assets/fire.png"
+							className="ml-0.5 mb-0.5"
+						/>
+					</span>
+				)}
 				{/* 글 제목과 좋아요, 댓글 수 */}
 				<div className="flex justify-between items-start mb-1">
 					<div className="flex gap-1 items-center">
@@ -236,7 +284,7 @@ export default function PostComments(props: PostCommentsProps) {
 		return (
 			<>
 				{comments.map((comment) => (
-					<div key={comment.id} className="flex flex-col gap-y-3">
+					<div key={comment.id} className="flex flex-col">
 						{/* 원 댓글 */}
 						{!comment.parent_comment_id && (
 							<Comment comment={comment} />
@@ -260,6 +308,10 @@ export default function PostComments(props: PostCommentsProps) {
 		);
 	}
 
+	const adoptedComment = props.comments?.filter(
+		(c) => c.id === props.adopted_comment_id,
+	);
+
 	return (
 		<>
 			{(!props.comments || props.comments.length === 0) && (
@@ -268,7 +320,10 @@ export default function PostComments(props: PostCommentsProps) {
 				</div>
 			)}
 			{props.comments && props.comments.length > 0 && (
-				<div className="flex flex-col gap-y-3 max-h-100 pr-2 overflow-y-auto ">
+				<div className="flex flex-col max-h-100 pr-2 overflow-y-auto ">
+					{/* 채택된 댓글 */}
+					{adoptedComment && <Comment comment={adoptedComment[0]} />}
+
 					{/* 댓글 1 */}
 					<CommentItem comments={props.comments} />
 				</div>
