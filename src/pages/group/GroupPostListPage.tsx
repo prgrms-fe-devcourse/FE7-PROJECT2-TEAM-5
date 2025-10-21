@@ -161,6 +161,7 @@ export default function GroupPostListPage() {
 
 	const renderBody = () => {
 		if (loading)
+			/* 스켈레톤 UI */
 			return <p className="mt-5 text-sm text-gray-500">불러오는 중…</p>;
 
 		return (
