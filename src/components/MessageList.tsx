@@ -1,4 +1,3 @@
-import React from "react";
 import type { Message } from "../types/message";
 import MessageBubble from "./MessageBubble";
 
@@ -7,7 +6,7 @@ interface MessageListProps {
 	currentUserId: string;
 }
 
-// 메시지를 날짜별로 그룹핑하는 함수
+// 메시지를 날짜별로 표시하기 위해서 그룹핑하는 함수
 const groupMessagesByDate = (messages: Message[]) => {
 	const groups: { [key: string]: Message[] } = {};
 
@@ -22,6 +21,7 @@ const groupMessagesByDate = (messages: Message[]) => {
 		if (!groups[date]) {
 			groups[date] = [];
 		}
+		// gruops 객체에 key가 date인 배열에 message 추가
 		groups[date].push(message);
 	});
 
@@ -36,6 +36,7 @@ export default function MessageList({
 
 	return (
 		<div className="flex-1 overflow-y-auto p-6">
+			{/*date와 dateMessages 순회하면서 메시지 표시 */}
 			{Object.entries(groupedMessages).map(([date, dateMessages]) => (
 				<div key={date}>
 					{/* 날짜 구분선 */}
