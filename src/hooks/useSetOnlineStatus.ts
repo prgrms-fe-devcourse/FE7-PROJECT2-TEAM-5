@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import supabase from "../utils/supabase";
 
 export function useSetOnlineStatus(userId: string) {
+	const timeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
+
 	useEffect(() => {
 		if (!userId) return;
 
@@ -21,36 +23,30 @@ export function useSetOnlineStatus(userId: string) {
 
 		setOnline();
 
-		// 브라우저 종료 / offline 이벤트
-		window.addEventListener("beforeunload", setOffline);
-		window.addEventListener("offline", setOffline);
-
 		// 유휴 시간 5분 감지
-		let timeoutId: ReturnType<typeof setTimeout>;
 		const resetTimer = () => {
-			clearTimeout(timeoutId);
-			timeoutId = setTimeout(
-				() => {
-					setOffline();
-				},
-				5 * 60 * 1000,
-			);
+			if (timeoutId.current) clearTimeout(timeoutId.current);
+			timeoutId.current = setTimeout(() => setOffline(), 5 * 60 * 1000);
 		};
+
 		window.addEventListener("mousemove", resetTimer);
 		window.addEventListener("keydown", resetTimer);
 		resetTimer();
 
+		// 브라우저 종료 / offline 이벤트
+		window.addEventListener("beforeunload", setOffline);
+		window.addEventListener("offline", setOffline);
+
 		return () => {
-			clearTimeout(timeoutId);
-			setOffline();
-			window.removeEventListener("beforeunload", setOffline);
-			window.removeEventListener("offline", setOffline);
+			// SPA 이동 시 cleanup에서 offline 호출 제거
+			if (timeoutId.current) clearTimeout(timeoutId.current);
 			window.removeEventListener("mousemove", resetTimer);
 			window.removeEventListener("keydown", resetTimer);
+			window.removeEventListener("beforeunload", setOffline);
+			window.removeEventListener("offline", setOffline);
 		};
 	}, [userId]);
 
-	// 로그아웃용으로 setOffline 함수도 리턴
 	const logoutOffline = async () => {
 		if (!userId) return;
 		await supabase

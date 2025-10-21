@@ -8,7 +8,6 @@ import { SquarePen, Trash2, X } from "lucide-react";
 import Modal from "../../components/Modal";
 import Button from "../../components/Button";
 import type { UserProfile } from "../../types/profile";
-import supabase from "../../utils/supabase";
 import { useMemberStore } from "../../stores/profileMemberStore";
 import type { Friend } from "../../types/friend";
 
@@ -18,7 +17,7 @@ type Props = {
 
 export default function ProfileCard({ profile }: Props) {
 	const navigate = useNavigate();
-	const { deleteProfile, currentUserId } = useProfileStore();
+	const { updateProfile, deleteProfile, currentUserId } = useProfileStore();
 	const {
 		followStatus,
 		followedUserFnc,

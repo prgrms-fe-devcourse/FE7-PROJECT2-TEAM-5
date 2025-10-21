@@ -17,22 +17,17 @@ export default function ProfilePage() {
 	} = useProfileStore();
 	const { id } = useParams();
 
-	// 로그인 유저 ID 먼저 가져오기
 	useEffect(() => {
-		fetchCurrentUserId();
-	}, [fetchCurrentUserId]);
-
-	useEffect(() => {
-		if (!id) return;
-
-		// "me"일 경우 로그인한 사용자만 가능
-		if (id === "me") {
-			if (!currentUserId) return; // 로그인 안했는데 /me면 접근 불가
-			fetchProfile(currentUserId);
-		} else {
-			// 로그인 여부와 상관없이 특정 사용자 ID로 프로필 가져오기
-			fetchProfile(id);
+		if (!currentUserId) {
+			fetchCurrentUserId();
 		}
+	}, [currentUserId, fetchCurrentUserId]);
+
+	useEffect(() => {
+		if (!id || !currentUserId) return;
+
+		const targetAuthId = id === "me" ? currentUserId : id;
+		fetchProfile(targetAuthId);
 	}, [id, currentUserId, fetchProfile]);
 
 	// 로딩 중

@@ -23,14 +23,17 @@ import GroupAttendancePage from "./pages/group/GroupAttendance";
 import GroupPostCreatePage from "./pages/group/GroupPostCreatePage";
 import SocialSignupInfo from "./pages/auth/SocialSignupInfo";
 import { useCheckProfileCompleted } from "./hooks/useCheckProfileCompleted";
+import { useSetOnlineStatus } from "./hooks/useSetOnlineStatus";
 
 export default function App() {
 	// 프로필 완성 여부 확인 훅
 	useCheckProfileCompleted();
 
 	// 유저
-	const fetchProfile = useProfileStore((state) => state.fetchProfile);
+	const { currentUserId, fetchProfile } = useProfileStore();
 	const location = useLocation();
+
+	useSetOnlineStatus(currentUserId || "");
 
 	useEffect(() => {
 		const initAuth = async () => {

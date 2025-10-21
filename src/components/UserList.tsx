@@ -2,7 +2,6 @@ import { ChevronDown } from "lucide-react";
 import UserListCard from "./UserListCard";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
-import { useSetOnlineStatus } from "../hooks/useSetOnlineStatus";
 import { useOnlineUsers } from "../hooks/useOnlineUsers";
 
 export default function UserList({
@@ -13,8 +12,6 @@ export default function UserList({
 	const [isOpen, setIsOpen] = useState(false);
 	const location = useLocation();
 	const { userList } = useOnlineUsers();
-
-	useSetOnlineStatus(currentUserId ? currentUserId : "");
 
 	useEffect(() => {
 		setIsOpen(false);

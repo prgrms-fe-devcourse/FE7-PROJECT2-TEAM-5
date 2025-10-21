@@ -1,8 +1,6 @@
-// src/hooks/useOnlineUsers.ts
 import { useEffect, useState } from "react";
 import supabase from "../utils/supabase";
 
-// 사용자 Row 타입 정의
 export interface User {
 	auth_id: string;
 	nickname: string;
@@ -33,7 +31,6 @@ export function useOnlineUsers() {
 
 		fetchUsers();
 
-		// 실시간 구독
 		const channel = supabase
 			.channel("public:users")
 			.on(
@@ -41,18 +38,22 @@ export function useOnlineUsers() {
 				{ event: "UPDATE", schema: "public", table: "users" },
 				(payload) => {
 					const updatedUser = payload.new as User;
-					setUserList((prev) =>
-						prev.map((u) =>
+					setUserList((prev) => {
+						const updatedList = prev.map((u) =>
 							u.auth_id === updatedUser.auth_id
 								? { ...u, is_online: updatedUser.is_online }
 								: u,
-						),
-					);
+						);
+						return updatedList.sort((a, b) => {
+							if (a.is_online !== b.is_online)
+								return a.is_online ? -1 : 1;
+							return a.nickname.localeCompare(b.nickname, "ko");
+						});
+					});
 				},
 			)
 			.subscribe();
 
-		// cleanup: 채널 해제
 		return () => {
 			supabase.removeChannel(channel);
 		};
