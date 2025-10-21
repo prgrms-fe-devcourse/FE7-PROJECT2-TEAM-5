@@ -322,7 +322,9 @@ export default function PostComments(props: PostCommentsProps) {
 			{props.comments && props.comments.length > 0 && (
 				<div className="flex flex-col max-h-100 pr-2 overflow-y-auto ">
 					{/* 채택된 댓글 */}
-					{adoptedComment && <Comment comment={adoptedComment[0]} />}
+					{adoptedComment && adoptedComment[0] && (
+						<Comment comment={adoptedComment[0]} />
+					)}
 
 					{/* 댓글 1 */}
 					<CommentItem comments={props.comments} />
