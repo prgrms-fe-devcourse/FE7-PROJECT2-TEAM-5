@@ -1,4 +1,73 @@
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router";
+import MessageList from "../../components/MessageList";
+import ChatRoomList from "../../components/ChatRoomList";
+import { useMessagesInRoom, useChatRooms } from "../../hooks/useMessages";
+import { useProfileStore } from "../../stores/profileStore";
+
 export default function DmPage() {
+	const { id: roomId } = useParams<{ id: string }>();
+	const navigate = useNavigate();
+	const [selectedRoomId, setSelectedRoomId] = useState<string | null>(
+		roomId || null,
+	);
+	const currentUserId = useProfileStore((state) => state.currentUserId);
+	const { messages, isLoading } = useMessagesInRoom(selectedRoomId);
+	const { chatRooms, isLoading: chatRoomsLoading } = useChatRooms();
+
+	// 디버깅용 로그
+	console.log("DMPage Debug:", {
+		roomId,
+		selectedRoomId,
+		currentUserId,
+		chatRooms: chatRooms.length,
+		chatRoomsData: chatRooms,
+		messages: messages.length,
+		isLoading,
+		chatRoomsLoading,
+	});
+
+	// URL 파라미터가 변경될 때 채팅방 업데이트
+	useEffect(() => {
+		if (roomId) {
+			console.log("URL 파라미터 변경:", roomId);
+			setSelectedRoomId(roomId);
+		}
+	}, [roomId]);
+
+	// 채팅방 목록이 로드된 후 URL 파라미터 처리
+	useEffect(() => {
+		if (roomId && chatRooms.length > 0 && !chatRoomsLoading) {
+			console.log("채팅방 목록 로드 완료, URL 파라미터 처리:", {
+				roomId,
+				chatRooms,
+			});
+			const roomExists = chatRooms.some((room) => room.id === roomId);
+			if (roomExists) {
+				setSelectedRoomId(roomId);
+			} else {
+				console.log(
+					"URL의 채팅방이 존재하지 않음, 메인으로 리다이렉트",
+				);
+				navigate("/msg");
+			}
+		}
+	}, [roomId, chatRooms, chatRoomsLoading, navigate]);
+
+	// 채팅방 선택 핸들러
+	const handleRoomSelect = (roomId: string) => {
+		setSelectedRoomId(roomId);
+		navigate(`/msg/${roomId}`);
+	};
+
+	// 선택된 채팅방의 상대방 정보 가져오기
+	const selectedRoom = chatRooms.find((room) => room.id === selectedRoomId);
+	const otherUser = selectedRoom
+		? selectedRoom.user1_id === currentUserId
+			? selectedRoom.user2
+			: selectedRoom.user1
+		: null;
+
 	return (
 		<>
 			<div className="w-[1000px] h-[790px] bg-white rounded-xl flex flex-row overflow-hidden">
@@ -10,16 +79,13 @@ export default function DmPage() {
 						</h2>
 					</div>
 					{/* 채팅방 목록 */}
-					<div className="flex-1 overflow-y-auto">
-						<div className="cursor-pointer flex flex-row p-4 items-center gap-3 hover:bg-[rgba(139,92,246,0.1)]">
-							<div className="w-10 h-10 bg-[#D9D9D9] rounded-full"></div>
-							<span>홍길동</span>
-						</div>
-						<div className="cursor-pointer flex flex-row p-4 items-center gap-3 hover:bg-[rgba(139,92,246,0.1)]">
-							<div className="w-10 h-10 bg-[#D9D9D9] rounded-full"></div>
-							<span>김길동</span>
-						</div>
-					</div>
+					<ChatRoomList
+						chatRooms={chatRooms}
+						currentUserId={currentUserId || ""}
+						selectedRoomId={selectedRoomId}
+						onRoomSelect={handleRoomSelect}
+						isLoading={chatRoomsLoading}
+					/>
 				</div>
 				{/* 나중에 데이터 받아와서 사용할 로직 */}
 				{/* <div className="w-[250px] border-r border-[#E5E7EB] bg-[#F9FAFB] rounded-l-xl">
@@ -42,174 +108,35 @@ export default function DmPage() {
 				<div className="flex-1 flex flex-col">
 					{/* 상단 헤더 */}
 					<div className="h-[60px] border-b border-[#E5E7EB] bg-[#F9FAFB] flex justify-between items-center px-6">
-						<h3 className="text-xl font-medium">홍길동</h3>
+						<h3 className="text-xl font-medium">
+							{otherUser?.nickname || "채팅방을 선택해주세요"}
+						</h3>
 						<button className="w-[30px] h-[30px] bg-[#d9d9d9] cursor-pointer"></button>
 					</div>
 
 					{/* 채팅 내용 영역 */}
 					<div className="flex-1 flex flex-col overflow-hidden">
 						{/* 스크롤 되는 본문 */}
-						<div className="flex-1 overflow-y-auto p-6">
-							{/* 날짜 */}
-							<div className="flex justify-center">
-								<span className="inline-block px-4 py-2 bg-[#E5E7EB] rounded-full mb-6 text-sm font-light">
-									2025년 10월 3일 금요일
-								</span>
-							</div>
-
-							{/* 채팅 내용 */}
-							<div className="w-full space-y-4">
-								{/* 받은 메시지 */}
-								<div className="flex flex-row items-end gap-1">
-									<div className="flex flex-col gap-1 w-[500px]">
-										<p className="bg-[#E5E7EB] rounded-xl px-4 py-2">
-											안녕하세요! 이번 과제 관련 질문이
-											있어요.
-										</p>
-										<p className="bg-[#E5E7EB] rounded-xl px-4 py-2">
-											1번 문제를 풀었는데 답이 자꾸
-											틀려요...
-										</p>
+						{selectedRoomId && currentUserId ? (
+							isLoading ? (
+								<div className="flex-1 flex items-center justify-center">
+									<div className="text-gray-500">
+										메시지를 불러오는 중...
 									</div>
-									<span className="text-xs">22:10</span>
 								</div>
-
-								{/* 보낸 메시지 */}
-								<div className="flex flex-row-reverse items-end gap-1">
-									<div className="flex flex-col gap-1 w-[500px]">
-										<p className="bg-[#8B5CF6] text-white rounded-xl px-4 py-2">
-											안녕하세요! 풀이를 볼 수 있을까요?
-										</p>
-									</div>
-									<span className="text-xs">22:11</span>
-								</div>
-
-								{/* 받은 메시지 */}
-								<div className="flex flex-row items-end gap-1">
-									<div className="flex flex-col gap-1 w-[500px]">
-										<p className="bg-[#E5E7EB] rounded-xl px-4 py-2">
-											안녕하세요! 이번 과제 관련 질문이
-											있어요.
-										</p>
-										<p className="bg-[#E5E7EB] rounded-xl px-4 py-2">
-											1번 문제를 풀었는데 답이 자꾸
-											틀려요...
-										</p>
-									</div>
-									<span className="text-xs">22:10</span>
-								</div>
-
-								{/* 보낸 메시지 */}
-								<div className="flex flex-row-reverse items-end gap-1">
-									<div className="flex flex-col gap-1 w-[500px]">
-										<p className="bg-[#8B5CF6] text-white rounded-xl px-4 py-2">
-											안녕하세요! 풀이를 볼 수 있을까요?
-										</p>
-									</div>
-									<span className="text-xs">22:11</span>
-								</div>
-
-								{/* 받은 메시지 */}
-								<div className="flex flex-row items-end gap-1">
-									<div className="flex flex-col gap-1 w-[500px]">
-										<p className="bg-[#E5E7EB] rounded-xl px-4 py-2">
-											안녕하세요! 이번 과제 관련 질문이
-											있어요.
-										</p>
-										<p className="bg-[#E5E7EB] rounded-xl px-4 py-2">
-											1번 문제를 풀었는데 답이 자꾸
-											틀려요...
-										</p>
-									</div>
-									<span className="text-xs">22:10</span>
-								</div>
-
-								{/* 보낸 메시지 */}
-								<div className="flex flex-row-reverse items-end gap-1">
-									<div className="flex flex-col gap-1 w-[500px]">
-										<p className="bg-[#8B5CF6] text-white rounded-xl px-4 py-2">
-											안녕하세요! 풀이를 볼 수 있을까요?
-										</p>
-									</div>
-									<span className="text-xs">22:11</span>
-								</div>
-
-								{/* 받은 메시지 */}
-								<div className="flex flex-row items-end gap-1">
-									<div className="flex flex-col gap-1 w-[500px]">
-										<p className="bg-[#E5E7EB] rounded-xl px-4 py-2">
-											안녕하세요! 이번 과제 관련 질문이
-											있어요.
-										</p>
-										<p className="bg-[#E5E7EB] rounded-xl px-4 py-2">
-											1번 문제를 풀었는데 답이 자꾸
-											틀려요...
-										</p>
-									</div>
-									<span className="text-xs">22:10</span>
-								</div>
-
-								{/* 보낸 메시지 */}
-								<div className="flex flex-row-reverse items-end gap-1">
-									<div className="flex flex-col gap-1 w-[500px]">
-										<p className="bg-[#8B5CF6] text-white rounded-xl px-4 py-2">
-											안녕하세요! 풀이를 볼 수 있을까요?
-										</p>
-									</div>
-									<span className="text-xs">22:11</span>
-								</div>
-
-								{/* 받은 메시지 */}
-								<div className="flex flex-row items-end gap-1">
-									<div className="flex flex-col gap-1 w-[500px]">
-										<p className="bg-[#E5E7EB] rounded-xl px-4 py-2">
-											안녕하세요! 이번 과제 관련 질문이
-											있어요.
-										</p>
-										<p className="bg-[#E5E7EB] rounded-xl px-4 py-2">
-											1번 문제를 풀었는데 답이 자꾸
-											틀려요...
-										</p>
-									</div>
-									<span className="text-xs">22:10</span>
-								</div>
-
-								{/* 보낸 메시지 */}
-								<div className="flex flex-row-reverse items-end gap-1">
-									<div className="flex flex-col gap-1 w-[500px]">
-										<p className="bg-[#8B5CF6] text-white rounded-xl px-4 py-2">
-											안녕하세요! 풀이를 볼 수 있을까요?
-										</p>
-									</div>
-									<span className="text-xs">22:11</span>
-								</div>
-
-								{/* 받은 메시지 */}
-								<div className="flex flex-row items-end gap-1">
-									<div className="flex flex-col gap-1 w-[500px]">
-										<p className="bg-[#E5E7EB] rounded-xl px-4 py-2">
-											안녕하세요! 이번 과제 관련 질문이
-											있어요.
-										</p>
-										<p className="bg-[#E5E7EB] rounded-xl px-4 py-2">
-											1번 문제를 풀었는데 답이 자꾸
-											틀려요...
-										</p>
-									</div>
-									<span className="text-xs">22:10</span>
-								</div>
-
-								{/* 보낸 메시지 */}
-								<div className="flex flex-row-reverse items-end gap-1">
-									<div className="flex flex-col gap-1 w-[500px]">
-										<p className="bg-[#8B5CF6] text-white rounded-xl px-4 py-2">
-											안녕하세요! 풀이를 볼 수 있을까요?
-										</p>
-									</div>
-									<span className="text-xs">22:11</span>
+							) : (
+								<MessageList
+									messages={messages}
+									currentUserId={currentUserId}
+								/>
+							)
+						) : (
+							<div className="flex-1 flex items-center justify-center">
+								<div className="text-gray-500">
+									채팅방을 선택해주세요
 								</div>
 							</div>
-						</div>
+						)}
 
 						{/* 입력창 */}
 						<form className="w-full p-4 border-t border-[#E5E7EB] flex items-center gap-2 bg-white">
