@@ -5,6 +5,7 @@ import supabase from "../../utils/supabase";
 import { useProfileStore } from "../../stores/profileStore";
 import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
+import { useNavigate } from "react-router";
 
 type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
 	user: {
@@ -30,6 +31,7 @@ type PostCommentsProps = {
 };
 
 export default function PostComments(props: PostCommentsProps) {
+	const navigate = useNavigate();
 	const [inputComment, setInputComment] = useState("");
 	const [mention, setMention] = useState({
 		nickname: "",
@@ -39,6 +41,10 @@ export default function PostComments(props: PostCommentsProps) {
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 
 	const writeComment = async (e: React.FormEvent<HTMLFormElement>) => {
+		if (!currentUserId) {
+			alert("로그인이 필요합니다.");
+			navigate("/login");
+		}
 		e.preventDefault();
 		if (inputComment.trim() === "") return;
 		try {
