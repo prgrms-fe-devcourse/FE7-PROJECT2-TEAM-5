@@ -243,11 +243,7 @@ export default function PostComments(props: PostCommentsProps) {
 							onClick={() => pressLike(comment)}
 							className="flex gap-1 items-start cursor-pointer"
 						>
-							<Heart
-								color="red"
-								size={15}
-								className="mt-0.5 pointer-events-none"
-							/>
+							<Heart color="red" size={15} className="mt-0.5 " />
 							<p className="text-[14px]">
 								{comment.comment_likes?.length}
 							</p>

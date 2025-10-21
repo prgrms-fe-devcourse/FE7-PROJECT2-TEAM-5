@@ -1,3 +1,4 @@
+import { Heart } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router";
 import type { Database } from "../../types/database";
 import { useEffect, useState } from "react";
@@ -40,6 +41,7 @@ export default function PostDetailPage() {
 	const navigate = useNavigate();
 	const { id } = useParams();
 	const [isLoading, setIsLoading] = useState(true);
+	const [isLiked, setIsLiked] = useState(false);
 	const [postData, setPostData] = useState<DetailPost | null>(null);
 	const [comments, setComments] = useState<Comment[]>([]);
 	const currentUserId = useProfileStore((state) => state.currentUserId);
@@ -73,7 +75,6 @@ export default function PostDetailPage() {
 						parentMap[c.id] = c.user.nickname ?? "";
 					}
 				});
-
 				const commentsWithParent = comments.map((c) => ({
 					...c,
 					parentNickname: c.parent_comment_id
@@ -81,6 +82,15 @@ export default function PostDetailPage() {
 						: null,
 				}));
 
+				//좋아요 눌렀는지 확인
+				console.log(post.post_likes);
+				if (
+					post.post_likes.some((like: { user_id: string }) => {
+						return like.user_id === currentUserId;
+					})
+				) {
+					setIsLiked(true);
+				}
 				setPostData({ ...post });
 				setComments(commentsWithParent);
 				console.log(commentsWithParent);
@@ -113,7 +123,7 @@ export default function PostDetailPage() {
 			if (data) {
 				console.log(data);
 				alert("좋아요 완료");
-				location.reload();
+				setIsLiked(true);
 			}
 		} catch (error) {
 			console.error(error);
@@ -184,15 +194,29 @@ export default function PostDetailPage() {
 							))}
 						</div>
 					</div>
-					<button
-						type="button"
-						onClick={() => {
-							pressLike();
-						}}
-						className=" cursor-pointer"
-					>
-						좋아요
-					</button>
+					<div className="flex justify-center">
+						<button
+							type="button"
+							onClick={() => {
+								pressLike();
+							}}
+							className="cursor-pointer"
+						>
+							{isLiked ? (
+								<Heart
+									color="white"
+									size={40}
+									className="p-2 bg-[#EA489A] border-1 border-[#EA489A] rounded-4xl"
+								/>
+							) : (
+								<Heart
+									color="#EA489A"
+									size={40}
+									className="p-2 bg-white border-1 border-[#EA489A] rounded-4xl"
+								/>
+							)}
+						</button>
+					</div>
 					<div className="flex gap-2 mb-4">
 						{postData?.hash_tag?.map((tag, idx) => (
 							<div
