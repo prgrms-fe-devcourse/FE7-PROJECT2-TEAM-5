@@ -109,6 +109,7 @@ export default function App() {
 					</Route>
 
 					{/* DM */}
+					<Route path="msg" element={<DmPage />} />
 					<Route path="msg/:id" element={<DmPage />} />
 
 					{/* Search */}
