@@ -1,4 +1,3 @@
-// src/pages/group/GroupPostListPage.tsx
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import supabase from "../../utils/supabase";
@@ -7,6 +6,7 @@ import PostList from "../../components/PostList";
 import PageNation from "../../components/PageNation";
 import GroupAttendancePage from "./GroupAttendance";
 import GroupMembers from "./GroupMembers";
+import { useProfileStore } from "../../stores/profileStore";
 
 type GroupRow = {
   id: string;
@@ -32,6 +32,9 @@ export default function GroupPostListPage() {
  
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const currentUserId = useProfileStore((s) => s.currentUserId);
+  const isLoggedIn = useProfileStore((s) => s.isLoggedIn);
 
   // 페이지네이션
   const postsPerPage = 4;
@@ -105,36 +108,61 @@ export default function GroupPostListPage() {
 
   // 그룹 & 게시글 로딩
   useEffect(() => {
-    let alive = true;
+  let alive = true;
 
-    (async () => {
-      try {
-        setLoading(true);
-        setCurrentPage(1);
+  (async () => {
+    try {
+      setLoading(true);
+      setCurrentPage(1);
 
-        const g = await resolveGroup(groupParam);
-        if (!alive) return;
-        setGroup(g);
-
-        const list = await fetchGroupPosts(g.id, activeTab);
-        if (!alive) return;
-        setPosts(list);
-      } catch (e) {
-        console.error("[group list error]", e);
-        if (alive) {
-          setGroup(null);
-          setPosts([]);
-          alert("그룹 게시글을 불러오지 못했어요.");
-        }
-      } finally {
-        if (alive) setLoading(false);
+      
+      if (!isLoggedIn || !currentUserId) {
+        alert("로그인 후 이용할 수 있습니다.");
+        navigate("/groups", { replace: true });
+        return;
       }
-    })();
+
+      const g = await resolveGroup(groupParam);
+      if (!alive) return;
+      setGroup(g);
+
+      
+      const { data: membership, error: mErr } = await supabase
+        .from("group_members")
+        .select("id")
+        .eq("group_id", g.id)
+        .eq("user_id", currentUserId)
+        .maybeSingle();
+
+      if (mErr) throw mErr;
+      if (!membership) {
+        alert("이 그룹의 멤버만 접근할 수 있어요.");
+        navigate("/groups", { replace: true });
+        return;
+      }
+
+      
+      const list = await fetchGroupPosts(g.id, activeTab);
+      if (!alive) return;
+      setPosts(list);
+    } catch (e) {
+      console.error("[group list error]", e);
+      if (alive) {
+        setGroup(null);
+        setPosts([]);
+        alert("그룹 게시글을 불러오지 못했어요.");
+        navigate("/groups", { replace: true });
+      }
+    } finally {
+      if (alive) setLoading(false);
+    }
+   })();
 
     return () => {
-      alive = false;
-    };
-  }, [groupParam, activeTab]);
+    alive = false;
+   };
+  
+   }, [groupParam, activeTab, isLoggedIn, currentUserId, navigate]);
 
   const renderBody = () => {
     if (activeTab === "attendance") return <GroupAttendancePage />;
