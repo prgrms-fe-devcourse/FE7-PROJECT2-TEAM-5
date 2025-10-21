@@ -165,3 +165,59 @@ export const markRoomAsRead = async (
 		console.error("채팅방 읽음 처리 실패:", error);
 	}
 };
+
+// realtime) 메시지 구독 함수
+export const subscribeToMessages = (
+	roomId: string,
+	onNewMessage: (message: Message) => void,
+) => {
+	const channel = supabase
+		.channel(`messages:${roomId}`)
+		.on(
+			"postgres_changes",
+			{
+				event: "INSERT",
+				schema: "public",
+				table: "messages",
+				filter: `room_id=eq.${roomId}`,
+			},
+			(payload) => {
+				const newMessage = payload.new as Message;
+				onNewMessage(newMessage);
+			},
+		)
+		.subscribe();
+
+	return channel;
+};
+
+// realtime) 채팅방 목록 구독 함수
+export const subscribeToChatRooms = (
+	currentUserId: string,
+	onUpdate: () => void,
+) => {
+	const channel = supabase
+		.channel(`chat_rooms:${currentUserId}`)
+		.on(
+			"postgres_changes",
+			{
+				event: "UPDATE",
+				schema: "public",
+				table: "chat_rooms",
+			},
+			(payload) => {
+				const updatedRoom = payload.new as ChatRoom;
+
+				// 현재 사용자와 관련된 채팅방 업데이트만 처리
+				if (
+					updatedRoom.user1_id === currentUserId ||
+					updatedRoom.user2_id === currentUserId
+				) {
+					onUpdate();
+				}
+			},
+		)
+		.subscribe();
+
+	return channel;
+};
