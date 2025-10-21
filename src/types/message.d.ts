@@ -4,6 +4,7 @@ export interface Message {
 	sender_id: string;
 	receiver_id: string;
 	message: string;
+	room_id: string;
 	created_at: string;
 }
 
@@ -12,6 +13,7 @@ export interface MessageSend {
 	sender_id: string;
 	receiver_id: string;
 	message: string;
+	room_id: string;
 }
 
 // 채팅방 정보
