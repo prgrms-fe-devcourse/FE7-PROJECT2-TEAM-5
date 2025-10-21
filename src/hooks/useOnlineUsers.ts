@@ -17,18 +17,17 @@ export function useOnlineUsers() {
 	const [userList, setUserList] = useState<User[]>([]);
 
 	useEffect(() => {
-		// async 함수는 useEffect 안에서 선언 후 호출
 		const fetchUsers = async () => {
-			// Supabase from() 첫 번째 인수는 문자열
-			// Row 타입은 select<User>()로 지정
-			const { data, error } = await supabase
-				.from("users") // 테이블 이름 문자열
-				.select("*"); // Row 타입 지정
+			const { data, error } = await supabase.from("users").select("*");
 
 			if (error) {
 				console.error("유저 목록 불러오기 실패:", error);
 			} else {
-				setUserList(data || []);
+				const sorted = (data || []).sort((a, b) => {
+					if (a.is_online === b.is_online) return 0;
+					return a.is_online ? -1 : 1;
+				});
+				setUserList(sorted);
 			}
 		};
 

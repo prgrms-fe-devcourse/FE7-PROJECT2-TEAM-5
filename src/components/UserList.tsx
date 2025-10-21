@@ -27,7 +27,7 @@ export default function UserList({
 				className="cursor-pointer flex flex-row justify-between items-center px-5 py-3 w-full bg-violet-500 rounded-t-xl"
 				onClick={() => setIsOpen(!isOpen)}
 			>
-				<h3 className="text-lg text-white font-bold">온라인 사용자</h3>
+				<h3 className="text-lg text-white font-bold">가입자 목록</h3>
 				<ChevronDown
 					className={`text-white transition-transform duration-300 ${
 						isOpen ? "rotate-0" : "rotate-180"
