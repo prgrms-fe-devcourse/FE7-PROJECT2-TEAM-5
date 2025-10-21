@@ -353,7 +353,7 @@ export default function PostComments(props: PostCommentsProps) {
 						value={inputComment}
 						onChange={(e) => setInputComment(e.target.value)}
 						onKeyDown={handleKeyDown}
-						className="focus:outline-none"
+						className="w-full focus:outline-none"
 					/>
 				</div>
 
