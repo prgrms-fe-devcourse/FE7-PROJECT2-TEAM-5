@@ -93,8 +93,12 @@ export default function PostDetailPage() {
 	}, [id]);
 
 	const pressLike = async () => {
+		if (!currentUserId) {
+			alert("로그인이 필요합니다.");
+			navigate("/login");
+			return;
+		}
 		if (
-			currentUserId &&
 			postData?.post_likes?.some((like) => like.user_id === currentUserId)
 		) {
 			alert("이미 좋아요를 눌렀습니다.");
@@ -109,6 +113,7 @@ export default function PostDetailPage() {
 			if (data) {
 				console.log(data);
 				alert("좋아요 완료");
+				location.reload();
 			}
 		} catch (error) {
 			console.error(error);
