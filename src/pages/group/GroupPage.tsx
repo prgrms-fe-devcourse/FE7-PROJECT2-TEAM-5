@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { useEffect, useMemo, useState } from "react";
 import supabase from "../../utils/supabase";
 import GroupCard from "./GroupCard";
+import GroupPageCardSkeleton from "../../components/loading/group/GroupPageCardSkeleton";
 
 type GroupRow = {
 	id: string;
@@ -246,7 +247,7 @@ export default function GroupPage() {
 
 				{loading ? (
 					/* 스켈레톤 UI 들어갈 부분 */
-					<p className="mt-5 text-sm text-gray-500">불러오는 중…</p>
+					<GroupPageCardSkeleton num={1} />
 				) : mySection.length === 0 ? (
 					<div className="mt-5">
 						<p>참여한 그룹이 없습니다.</p>
@@ -281,7 +282,8 @@ export default function GroupPage() {
 				{error && <p className="mt-3 text-sm text-red-600">{error}</p>}
 
 				{loading ? (
-					<p className="mt-5 text-sm text-gray-500">불러오는 중…</p>
+					/* 위에랑 똑같이 */
+					<GroupPageCardSkeleton num={4} />
 				) : (
 					<div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
 						{allGroups.map((g) => {
