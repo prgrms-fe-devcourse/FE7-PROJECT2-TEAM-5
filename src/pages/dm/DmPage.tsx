@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-import MessageList from "../../components/MessageList";
-import ChatRoomList from "../../components/ChatRoomList";
+import MessageList from "../../components/message/MessageList";
+import ChatRoomList from "../../components/message/ChatRoomList";
 import { useMessagesInRoom, useChatRooms } from "../../hooks/useMessages";
 import { useProfileStore } from "../../stores/profileStore";
 
