@@ -5,6 +5,7 @@ body {
     color: #1f2937;
 }
 
+
 .skeleton-30 {
     @apply bg-gradient-to-r from-[#E5E7EB]/50 to-[#D1D5DB]/30 animate-pulse;
 }
