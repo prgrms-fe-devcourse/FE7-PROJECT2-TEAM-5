@@ -2,9 +2,11 @@ import { Link } from "react-router";
 import { useProfileStore } from "../../stores/profileStore";
 import { useState } from "react";
 import NotificationSidebar from "../NotificationSidebar";
+import { useNotifications } from "../../hooks/useNotifications";
 
 export default function Header() {
 	const isLoggedIn = useProfileStore((state) => state.isLoggedIn);
+	const { notifications } = useNotifications();
 	const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
 	const handleNotificationToggle = () => {
@@ -25,9 +27,12 @@ export default function Header() {
 						<>
 							<button
 								onClick={handleNotificationToggle}
-								className="cursor-pointer flex items-center gap-2 hover:text-[#8B5CF6] transition-colors"
+								className="cursor-pointer flex items-center gap-2 hover:text-[#8B5CF6] transition-colors relative"
 							>
 								알림
+								{notifications.length > 0 && (
+									<div className="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2 animate-pulse"></div>
+								)}
 							</button>
 							<Link to="/msg/1">메시지</Link>
 							<Link to="/profile/me">프로필</Link>

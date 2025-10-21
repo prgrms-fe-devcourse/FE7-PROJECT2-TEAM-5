@@ -1,109 +1,17 @@
-import { useState, useEffect } from "react";
-import { MessageCircle, Bell, Heart, UserPlus, ThumbsUp } from "lucide-react";
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
+import {
+	MessageCircle,
+	Bell,
+	Heart,
+	UserPlus,
+	ThumbsUp,
+	Trash2,
+} from "lucide-react";
 import type { Notification } from "../types/notification";
-
-// 임시 알림 데이터 (id 순으로 정렬)
-const mockNotifications: Notification[] = [
-	{
-		id: "1",
-		type: "NEW_REPLY",
-		message: "@@님이 회원님의 댓글에 답글을 남겼습니다.",
-		content: "감사합니다!",
-		date: "2025.10.01",
-		isRead: false,
-		actorId: "user6",
-		targetId: "reply1",
-		createdAt: "2025-10-01T13:20:00Z",
-	},
-	{
-		id: "2",
-		type: "COMMENT_LIKE",
-		message: "@@님이 댓글에 좋아요를 눌렀습니다.",
-		content:
-			"정말 도움이 되는 댓글이에요! @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
-		date: "2025.09.30",
-		isRead: false,
-		actorId: "user5",
-		targetId: "comment1",
-		createdAt: "2025-09-30T11:30:00Z",
-	},
-	{
-		id: "3",
-		type: "CHILD_LINKED",
-		message: "@@님이 회원님을 자식으로 등록했습니다",
-		date: "2025.09.29",
-		isRead: true,
-		actorId: "user4",
-		targetId: "child1",
-		createdAt: "2025-09-29T16:45:00Z",
-	},
-	{
-		id: "4",
-		type: "POST_LIKE",
-		message: "@@님이 게시글에 좋아요를 눌렀습니다.",
-		date: "2025.09.28",
-		isRead: true,
-		actorId: "user3",
-		targetId: "post2",
-		createdAt: "2025-09-28T09:15:00Z",
-	},
-	{
-		id: "5",
-		type: "NEW_MESSAGE",
-		message: "@@님이 새 메시지를 보냈습니다.",
-		content:
-			"안녕하세요~ @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
-		date: "2025.09.27",
-		isRead: false,
-		actorId: "user2",
-		targetId: "message1",
-		createdAt: "2025-09-27T14:20:00Z",
-	},
-	{
-		id: "6",
-		type: "NEW_COMMENT",
-		message: "@@님이 회원님의 게시글에 새로운 댓글을 남겼습니다.",
-		content: "저도 이 방법으로 풀었어요!",
-		date: "2025.09.25",
-		isRead: false,
-		actorId: "user1",
-		targetId: "post1",
-		createdAt: "2025-09-25T10:30:00Z",
-	},
-	{
-		id: "7",
-		type: "NEW_COMMENT",
-		message: "@@님이 회원님의 게시글에 새로운 댓글을 남겼습니다.",
-		content: "저도 이 방법으로 풀었어요2!",
-		date: "2025.09.25",
-		isRead: false,
-		actorId: "user1",
-		targetId: "post1",
-		createdAt: "2025-09-25T10:30:00Z",
-	},
-	{
-		id: "8",
-		type: "NEW_COMMENT",
-		message: "@@님이 회원님의 게시글에 새로운 댓글을 남겼습니다.",
-		content: "저도 이 방법으로 풀었어요3!",
-		date: "2025.09.25",
-		isRead: false,
-		actorId: "user1",
-		targetId: "post1",
-		createdAt: "2025-09-25T10:30:00Z",
-	},
-	{
-		id: "9",
-		type: "NEW_COMMENT",
-		message: "@@님이 회원님의 게시글에 새로운 댓글을 남겼습니다.",
-		content: "저도 이 방법으로 풀었어요4!",
-		date: "2025.09.25",
-		isRead: false,
-		actorId: "user1",
-		targetId: "post1",
-		createdAt: "2025-09-25T10:30:00Z",
-	},
-];
+import { useNotificationStore } from "../stores/notificationStore";
+import { useProfileStore } from "../stores/profileStore";
+import NotificationSkeleton from "./loading/NotificationSkeleton";
 
 interface NotificationSidebarProps {
 	isOpen: boolean;
@@ -114,8 +22,17 @@ export default function NotificationSidebar({
 	isOpen,
 	onClose,
 }: NotificationSidebarProps) {
-	const [notifications, setNotifications] =
-		useState<Notification[]>(mockNotifications);
+	const navigate = useNavigate();
+	const currentUserId = useProfileStore((state) => state.currentUserId);
+	const {
+		notifications,
+		isLoading,
+		error,
+		fetchNotifications,
+		deleteNotification,
+		deleteAllNotifications,
+		clearError,
+	} = useNotificationStore();
 
 	// ESC 키로 사이드바 닫기
 	useEffect(() => {
@@ -134,20 +51,90 @@ export default function NotificationSidebar({
 		};
 	}, [isOpen, onClose]);
 
+	// 알림 데이터 로드
+	useEffect(() => {
+		if (isOpen && currentUserId) {
+			fetchNotifications(currentUserId);
+		}
+	}, [isOpen, currentUserId, fetchNotifications]);
+
 	// 모두 삭제
-	const handleDeleteAll = () => {
-		setNotifications([]);
+	const handleDeleteAll = async () => {
+		if (!currentUserId) return;
+
+		if (confirm("모든 알림을 삭제하시겠습니까?")) {
+			await deleteAllNotifications(currentUserId);
+		}
+	};
+
+	// 개별 알림 삭제
+	const handleDeleteNotification = async (
+		e: React.MouseEvent,
+		notification: Notification,
+	) => {
+		e.stopPropagation(); // 알림 클릭 이벤트 방지
+		await deleteNotification(notification.id);
 	};
 
 	// 알림 클릭
-	const handleNotificationClick = (notification: Notification) => {
-		// 기능 구현 시 해당 페이지로 이동하고 DB에서 알림 삭제
-		console.log("알림 이동:", notification);
+	const handleNotificationClick = async (notification: Notification) => {
+		// 알림 타입별 페이지 이동 로직
+		switch (notification.type) {
+			case "CHILD_LINKED":
+				// 부모의 프로필 페이지로 이동
+				navigate(`/profile/${notification.targetId}`);
+				onClose();
 
-		// 임시로 클릭한 알림을 목록에서 제거
-		setNotifications((prev) =>
-			prev.filter((n) => n.id !== notification.id),
-		);
+				break;
+
+			case "NEW_POST_BY_CHILD":
+				// 자녀가 작성한 게시글 페이지로 이동
+				navigate(`/posts/${notification.targetId}`);
+				onClose();
+				break;
+
+			case "COMMENT_ADOPTED":
+				// 채택된 댓글이 있는 게시글 페이지로 이동
+				navigate(`/posts/${notification.targetId}`);
+				onClose();
+				break;
+
+			case "COMMENT_LIKE":
+				// 좋아요 받은 댓글이 있는 게시글 페이지로 이동
+				navigate(`/posts/${notification.targetId}`);
+				onClose();
+				break;
+
+			case "NEW_COMMENT":
+				// 새 댓글이 달린 게시글 페이지로 이동
+				navigate(`/posts/${notification.targetId}`);
+				onClose();
+				break;
+
+			case "NEW_MESSAGE":
+				// DM 페이지로 이동
+				navigate(`/msg/${notification.targetId}`);
+				onClose();
+				break;
+
+			case "POST_LIKE":
+				// 좋아요 받은 게시글 페이지로 이동
+				navigate(`/posts/${notification.targetId}`);
+				onClose();
+				break;
+
+			case "NEW_REPLY":
+				// 답글이 달린 댓글이 있는 게시글 페이지로 이동
+				navigate(`/posts/${notification.targetId}`);
+				onClose();
+				break;
+
+			default:
+				console.log("알 수 없는 알림 타입:", notification.type);
+		}
+
+		// 알림 삭제
+		await deleteNotification(notification.id);
 	};
 
 	// 알림 타입별로 아이콘 다르게 표시
@@ -192,7 +179,8 @@ export default function NotificationSidebar({
 					<h2 className="text-xl font-bold text-[#1F2937]">알림</h2>
 					<button
 						onClick={handleDeleteAll}
-						className="text-sm text-[#6B7280] hover:text-[#8B5CF6] transition-colors"
+						className="text-sm text-[#6B7280] hover:text-[#8B5CF6] transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+						disabled={notifications.length === 0}
 					>
 						모두 삭제
 					</button>
@@ -200,16 +188,31 @@ export default function NotificationSidebar({
 
 				{/* 알림 목록 */}
 				<div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
-					{notifications.length === 0 ? (
+					{error && (
+						<div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+							<p className="font-medium">에러</p>
+							<p>{error}</p>
+							<button
+								onClick={clearError}
+								className="mt-2 text-xs underline hover:no-underline"
+							>
+								닫기
+							</button>
+						</div>
+					)}
+
+					{isLoading ? (
+						<NotificationSkeleton />
+					) : notifications.length === 0 ? (
 						<div className="flex flex-col items-center justify-center h-64 text-[#6B7280]">
 							<Bell className="w-12 h-12 mb-4 opacity-50" />
-							<p>알림이 없습니다</p>
+							<p>알림이 없습니다!</p>
 						</div>
 					) : (
 						notifications.map((notification) => (
 							<div
 								key={notification.id}
-								className="p-4 rounded-lg border bg-white border-[#E6E9EE] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
+								className="group relative p-4 rounded-lg border bg-white border-[#E6E9EE] hover:bg-[#F8FAFC] transition-colors cursor-pointer"
 								onClick={() =>
 									handleNotificationClick(notification)
 								}
@@ -231,6 +234,21 @@ export default function NotificationSidebar({
 											{notification.date}
 										</p>
 									</div>
+								</div>
+
+								{/* 호버 시 나타나는 삭제 버튼 */}
+								<div className="absolute right-2 bottom-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+									<button
+										onClick={(e) =>
+											handleDeleteNotification(
+												e,
+												notification,
+											)
+										}
+										className="w-8 h-8 flex items-center justify-center rounded-full bg-transparent hover:bg-red-500/20 transition-colors duration-200 group/delete cursor-pointer"
+									>
+										<Trash2 className="w-4 h-4 text-[#6B7280] group-hover/delete:text-red-500 transition-colors duration-200" />
+									</button>
 								</div>
 							</div>
 						))

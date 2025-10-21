@@ -12,7 +12,6 @@ export interface Notification {
 	message: string;
 	content?: string;
 	date: string;
-	isRead: boolean;
 	actorId?: string;
 	targetId?: string;
 	createdAt: string;
