@@ -330,7 +330,7 @@ export default function PostCreatePage() {
 							className="px-4 py-2.5 text-sm rounded-xl bg-white text-[#8B5CF6]
 						font-Regular hover:bg-[#B08DFF] hover:text-white cursor-pointer border-1 border-[#8B5CF6]"
 						>
-							삭제
+							취소
 						</Link>
 						<button
 							type="submit"

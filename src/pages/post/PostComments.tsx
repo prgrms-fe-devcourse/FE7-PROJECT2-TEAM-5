@@ -9,6 +9,7 @@ import { getGrade } from "../../utils/getGrade";
 
 type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
 	user: {
+		auth_id: string;
 		nickname?: string;
 		birth_date: Date;
 		representative_badge_id: {
@@ -19,7 +20,9 @@ type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
 		};
 	};
 	comment_likes?: { user_id: string }[];
+	parentNickname: string | null;
 };
+
 type PostCommentsProps = {
 	comments: Comment[] | null | undefined;
 	postId: string | undefined;
@@ -28,30 +31,54 @@ type PostCommentsProps = {
 export default function PostComments(props: PostCommentsProps) {
 	const navigate = useNavigate();
 	const [inputComment, setInputComment] = useState("");
-	const [mention, setMention] = useState("");
+	const [mention, setMention] = useState({
+		nickname: "",
+		userId: "",
+		commentId: "",
+	});
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 
 	const writeComment = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		if (inputComment.trim() === "") return;
 		try {
-			console.log(props.postId, currentUserId);
-			const { data: commentData, error } = await supabase
-				.from("comments")
-				.insert([
-					{
-						post_id: props.postId,
-						user_id: currentUserId,
-						content: inputComment,
-					},
-				])
-				.select();
+			if (!mention.userId) {
+				const { data: commentData, error } = await supabase
+					.from("comments")
+					.insert([
+						{
+							post_id: props.postId,
+							user_id: currentUserId,
+							content: inputComment,
+						},
+					])
+					.select();
 
-			if (error) throw error;
-			if (commentData) {
-				alert("댓글이 등록되었습니다.");
-				setInputComment("");
-				navigate("/posts/" + props.postId);
+				if (error) throw error;
+				if (commentData) {
+					alert("댓글이 등록되었습니다.");
+					setInputComment("");
+					location.reload();
+				}
+			} else {
+				const { data: commentData, error } = await supabase
+					.from("comments")
+					.insert([
+						{
+							post_id: props.postId,
+							user_id: currentUserId,
+							content: inputComment,
+							parent_comment_id: mention.commentId,
+						},
+					])
+					.select();
+
+				if (error) throw error;
+				if (commentData) {
+					alert("댓글이 등록되었습니다.");
+					setInputComment("");
+					location.reload();
+				}
 			}
 		} catch (e) {
 			console.error(e);
@@ -69,7 +96,6 @@ export default function PostComments(props: PostCommentsProps) {
 	});
 
 	const pressLike = async (comment: Comment) => {
-		console.log("pressLike 호출됨");
 		if (
 			currentUserId &&
 			comment?.comment_likes?.some(
@@ -86,13 +112,30 @@ export default function PostComments(props: PostCommentsProps) {
 				.select();
 			if (error) throw error;
 			if (data) {
-				console.log(data);
 				alert("좋아요 완료");
+				//새로고침 필요
 			}
 		} catch (error) {
 			console.error(error);
 		}
 	};
+
+	const createMention = async (comment: Comment) => {
+		if (comment.user.nickname) {
+			setMention({
+				nickname: comment.user.nickname,
+				userId: comment.user.auth_id,
+				commentId: comment.id,
+			});
+		}
+	};
+
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+		if (e.key === "Backspace" && !inputComment) {
+			setMention({ nickname: "", userId: "", commentId: "" });
+		}
+	};
+
 	// const commentData = props.comments?.map((comment) => ({
 	// 	...comment,
 	// 	reply_count: replyCounts[comment.id] ? replyCounts[comment.id] : 0,
@@ -137,8 +180,8 @@ export default function PostComments(props: PostCommentsProps) {
 						{/* 좋아요 개수 표시*/}
 						<button
 							type="button"
-							onClick={() => console.log("클릭됨")}
-							className="relative z-20 flex gap-1 items-start cursor-pointer bg-amber-200"
+							onClick={() => pressLike(comment)}
+							className="flex gap-1 items-start cursor-pointer"
 						>
 							<Heart
 								color="red"
@@ -153,8 +196,8 @@ export default function PostComments(props: PostCommentsProps) {
 						{!comment.parent_comment_id && (
 							<button
 								type="button"
-								onClick={() => console.log("클릭됨")}
-								className="relative z-20 flex gap-1 items-start cursor-pointer"
+								onClick={() => createMention(comment)}
+								className="flex gap-1 items-start cursor-pointer"
 							>
 								<MessageSquare
 									color="#8B5CF6"
@@ -166,60 +209,38 @@ export default function PostComments(props: PostCommentsProps) {
 								</p>
 							</button>
 						)}
-						{comment.parent_comment_id && (
-							<button
-								type="button"
-								className="relative z-20 flex gap-1 items-top"
-							>
-								<MessageSquare
-									color="#8B5CF6"
-									size={15}
-									className="mt-0.5"
-								/>
-								<p className="text-[14px]">
-									{replyCounts[comment.id].length}
-								</p>
-							</button>
-						)}
 					</div>
 				</div>
 				{/* 댓글 내용 */}
 				<p className="mt-3 mb-2 text-sm font-Regular text-[#6B7280]">
+					{comment.parent_comment_id && (
+						<span className="text-[#8B5CF6] text-sm mr-1 font-medium">
+							@{comment.parentNickname}
+						</span>
+					)}
 					{comment.content}
 				</p>
-				{/* 답글 버튼, 작성일 */}
-				{!comment.parent_comment_id && (
-					<div className="flex justify-between">
-						<button
-							type="button"
-							onClick={() => console.log("클릭됨")}
-							className="relative z-10 text-xs text-[#6B7280] cursor-pointer"
-						>
-							답글달기
-						</button>
-						<p className="text-xs text-[#6B7280]">
-							{comment.created_at.slice(0, 10)}
-						</p>
-					</div>
-				)}
-				{comment.parent_comment_id && (
-					<div className="flex justify-end">
-						<p className="text-xs text-[#6B7280]">
-							{comment.created_at}
-						</p>
-					</div>
-				)}
+				{/*작성일 */}
+
+				<div className="flex justify-end">
+					<p className="text-xs text-[#6B7280]">
+						{comment.created_at.slice(0, 10)}
+					</p>
+				</div>
 			</div>
 		);
 	}
 
 	function CommentItem({ comments }: { comments: Comment[] }) {
+		console.log(comments);
 		return (
 			<>
 				{comments.map((comment) => (
 					<div key={comment.id} className="flex flex-col gap-y-3">
 						{/* 원 댓글 */}
-						<Comment comment={comment} />
+						{!comment.parent_comment_id && (
+							<Comment comment={comment} />
+						)}
 
 						{/* 대댓글 */}
 						{replyCounts[comment.id]?.map((replyId) => {
@@ -248,28 +269,26 @@ export default function PostComments(props: PostCommentsProps) {
 			)}
 			{props.comments && props.comments.length > 0 && (
 				<div className="flex flex-col gap-y-3 max-h-100 pr-2 overflow-y-auto ">
-					<button
-						onClick={() => console.log("클릭됨")}
-						style={{
-							zIndex: 50,
-							position: "relative",
-							background: "red",
-							padding: "10px",
-						}}
-					>
-						테스트
-					</button>
 					{/* 댓글 1 */}
 					<CommentItem comments={props.comments} />
 				</div>
 			)}
 			<form className="flex gap-2 mt-4 w-full " onSubmit={writeComment}>
-				<input
-					placeholder="댓글을 작성해주세요."
-					value={inputComment}
-					onChange={(e) => setInputComment(e.target.value)}
-					className="w-[696px] text-sm px-6 py-3 border-1 border-[#E5E7EB] rounded-xl focus:outline-none bg-white"
-				/>
+				<div className="w-[696px] text-sm px-6 py-3 border-1 border-[#E5E7EB] rounded-xl bg-white">
+					{mention.nickname && (
+						<span className="text-[#8B5CF6] text-sm mr-1 font-medium">
+							@{mention.nickname}
+						</span>
+					)}
+					<input
+						placeholder="댓글을 작성해주세요."
+						value={inputComment}
+						onChange={(e) => setInputComment(e.target.value)}
+						onKeyDown={handleKeyDown}
+						className="focus:outline-none"
+					/>
+				</div>
+
 				<button
 					type="submit"
 					className="px-4 py-2.5 text-sm text-white rounded-xl bg-[#8B5CF6] cursor-pointer"

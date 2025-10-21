@@ -7,6 +7,7 @@ import { useProfileStore } from "../../stores/profileStore";
 
 type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
 	user: {
+		auth_id: string;
 		nickname?: string;
 		birth_date: Date;
 		representative_badge_id: {
@@ -17,6 +18,7 @@ type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
 		};
 	};
 	comment_likes?: { user_id: string }[];
+	parentNickname: string | null;
 };
 
 type DetailPost = Database["public"]["Tables"]["posts"]["Row"] & {
@@ -59,20 +61,36 @@ export default function PostDetailPage() {
 				const { data: comments, error: commentsError } = await supabase
 					.from("comments")
 					.select(
-						"*, user:users(nickname, birth_date, representative_badge_id(badges(name,icon_url))), comment_likes(user_id)",
+						"*, user:users(auth_id,nickname, birth_date, representative_badge_id(badges(name,icon_url))), comment_likes(user_id)",
 					)
 					.eq("post_id", id);
 				if (commentsError) throw commentsError;
 
+				// 원댓글 닉네임 매핑
+				const parentMap: Record<string, string> = {};
+				comments.forEach((c) => {
+					if (!c.parent_comment_id) {
+						parentMap[c.id] = c.user.nickname ?? "";
+					}
+				});
+
+				const commentsWithParent = comments.map((c) => ({
+					...c,
+					parentNickname: c.parent_comment_id
+						? parentMap[c.parent_comment_id]
+						: null,
+				}));
+
 				setPostData({ ...post });
-				setComments(comments);
+				setComments(commentsWithParent);
+				console.log(commentsWithParent);
 				setIsLoading(false);
 			} catch (e) {
 				console.error(e);
 			}
 		};
 		fetchPost();
-	}, [id, comments]);
+	}, [id]);
 
 	const pressLike = async () => {
 		if (
