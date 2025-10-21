@@ -45,16 +45,22 @@ export default function MessageBubble({
 
 	return (
 		<div
-			className={`flex flex-row ${isCurrentUser ? "flex-row-reverse" : ""} items-end gap-1`}
+			className={`flex flex-row ${isCurrentUser ? "flex-row-reverse" : ""} items-end gap-1 mb-4`}
 		>
 			<div className="flex flex-col gap-1 w-[500px]">
 				{isImage ? (
 					// 이미지 확장자
-					<img
-						src={message.message}
-						alt="메시지 이미지"
-						className="max-w-xs rounded-xl"
-					/>
+					<div
+						className={`rounded-xl px-4 py-2 ${
+							isCurrentUser ? "bg-[#8B5CF6]" : "bg-[#E5E7EB]"
+						}`}
+					>
+						<img
+							src={message.message}
+							alt="메시지 이미지"
+							className="max-w-xs rounded-xl"
+						/>
+					</div>
 				) : (
 					// 일반 메시지
 					<p
