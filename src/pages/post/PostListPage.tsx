@@ -36,7 +36,12 @@ export default function PostListPage() {
 		currentPage * postsPerPage,
 	);
 
-	if (isLoading) return <PostListSkeleton />;
+	if (isLoading)
+		return (
+			<div className="w-250 px-10">
+				<PostListSkeleton />
+			</div>
+		);
 
 	return (
 		<>
