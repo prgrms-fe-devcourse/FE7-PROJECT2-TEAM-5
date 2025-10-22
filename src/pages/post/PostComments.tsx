@@ -375,6 +375,7 @@ export default function PostComments(props: PostCommentsProps) {
 						{adoptedComment && adoptedComment[0] && (
 							<Comment comment={adoptedComment[0]} />
 						)}
+						<div className="border-t border-gray-300 mt-3.5" />
 
 						{/* 일반 댓글 */}
 						<CommentItem comments={props.comments} />
