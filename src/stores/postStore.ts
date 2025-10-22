@@ -62,7 +62,8 @@ export const usePostStore = create<PostStore>()(
 					.select(
 						"*, user:users(auth_id,nickname, profile_image_url, birth_date, representative_badge_id(badges(name,icon_url))), comment_likes(user_id)",
 					)
-					.eq("post_id", postId);
+					.eq("post_id", postId)
+					.order("created_at");
 				if (commentsError) throw commentsError;
 
 				// 원댓글 닉네임 매핑
