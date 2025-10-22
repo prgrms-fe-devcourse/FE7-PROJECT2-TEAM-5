@@ -123,7 +123,6 @@ export default function SearchPage() {
 			currentPage * resultPerPage - users.length,
 		);
 	} else if (currentPage === userPageCount) {
-		console.log("걸친");
 		displayedUsers = users.slice((currentPage - 1) * resultPerPage);
 
 		displayedPosts = searchPostResult.slice(
@@ -139,7 +138,6 @@ export default function SearchPage() {
 			currentPage * resultPerPage,
 		);
 	}
-	console.log("포스트", displayedPosts, "유저", displayedUsers);
 
 	return (
 		<>
