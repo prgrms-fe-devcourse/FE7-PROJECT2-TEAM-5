@@ -6,6 +6,7 @@ import { useProfileStore } from "../../stores/profileStore";
 import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
 import { useNavigate } from "react-router";
+import basicImage from "../../assets/basic_image.png";
 import Button from "../../components/Button";
 
 type PostCommentsProps = {
@@ -205,6 +206,7 @@ export default function PostComments(props: PostCommentsProps) {
 	};
 
 	function Comment({ comment }: { comment: Comment }) {
+		console.log(comment);
 		const adoptedStyle =
 			props.adopted_comment_id === comment.id &&
 			"border-1 border-[#EA489A]";
@@ -243,8 +245,15 @@ export default function PostComments(props: PostCommentsProps) {
 				{/* 글 제목과 좋아요, 댓글 수 */}
 				<div className="flex justify-between items-start mb-1">
 					<div className="flex gap-1 items-center">
-						<div className="w-[35px] h-[35px]">
-							<img src="/src/assets/image.png" alt="userImg" />
+						<div className="w-[35px] h-[35px] object-cover">
+							<img
+								className="w-full h-full rounded-full"
+								src={
+									comment.user?.profile_image_url ??
+									basicImage
+								}
+								alt="userImg"
+							/>
 						</div>
 						<div>
 							{comment.user?.representative_badge_id && (

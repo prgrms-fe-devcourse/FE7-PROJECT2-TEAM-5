@@ -12,6 +12,7 @@ type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
 			};
 		};
 		parent_comment_id?: string;
+		profile_image_url?: string;
 	};
 	post?: {
 		id: string;
