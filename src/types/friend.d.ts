@@ -6,5 +6,6 @@ type Friend = Database["public"]["Tables"]["follows"]["Row"] & {
 		nickname: string;
 		profile_image_url: string | null;
 		is_online: boolean;
+		last_seen: Date;
 	} | null;
 };
