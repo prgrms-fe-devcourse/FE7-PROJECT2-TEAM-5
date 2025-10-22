@@ -8,9 +8,9 @@ type ActPostState = {
 	userPosts: Post[]; // 유저 게시글 List
 	userComments: Comment[]; // 유저 댓글 List
 	// fetchUserPosts: 유저 게시글 불러오기
-	fetchUserPosts: (userId: string) => Promise<void>;
+	fetchUserPosts: (userId?: string | null) => Promise<void>;
 	// fetchUserComments: 유저 댓글 불러오기
-	fetchUserComments: (userId: string) => Promise<void>;
+	fetchUserComments: (userId?: string | null) => Promise<void>;
 };
 
 export const useActPostStore = create<ActPostState>()(
@@ -19,7 +19,7 @@ export const useActPostStore = create<ActPostState>()(
 		userComments: [],
 
 		// 전체 게시글
-		fetchUserPosts: async (userId: string) => {
+		fetchUserPosts: async (userId?: string | null) => {
 			const { data, error } = await supabase
 				.from("posts")
 				.select(
@@ -41,7 +41,7 @@ export const useActPostStore = create<ActPostState>()(
 		},
 
 		// 전체 댓글
-		fetchUserComments: async (userId: string) => {
+		fetchUserComments: async (userId?: string | null) => {
 			const { data, error } = await supabase
 				.from("comments")
 				.select("*")

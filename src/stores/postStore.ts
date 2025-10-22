@@ -2,7 +2,7 @@ import type { Database } from "../types/database";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import supabase from "../utils/supabase";
-import type { Comment } from "../types/Comment";
+import type { Comment } from "../types/comment";
 
 type DetailPost = Database["public"]["Tables"]["posts"]["Row"] & {
 	user?: {
