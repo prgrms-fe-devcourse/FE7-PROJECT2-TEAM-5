@@ -24,7 +24,10 @@ export default function DetailCard() {
 					<Info profile={profile} childInfos={childInfos} />
 				)}
 				{activeTab === "activities" && (
-					<Activities userId={profile.auth_id} />
+					<Activities
+						key={profile.auth_id}
+						userId={profile.auth_id}
+					/>
 				)}
 				{activeTab === "friends" && <Friends />}
 			</div>

@@ -5,7 +5,7 @@ import type { Post } from "../../types/post";
 import { Heart, MessageSquare } from "lucide-react";
 
 export default function ActivitiesPosts({ posts }: { posts: Post[] }) {
-	if (!posts.length) return <p>작성한 게시글이 없습니다.</p>;
+	if (!posts) return <p>작성한 게시글이 없습니다.</p>;
 
 	const postsPerPage = 4;
 	const [currentPage, setCurrentPage] = useState(1);
@@ -50,7 +50,9 @@ export default function ActivitiesPosts({ posts }: { posts: Post[] }) {
 							<div className="flex flex-row gap-1 items-center">
 								<Heart color="red" size={15} />
 								<span>
-									{post.likes ? post.likes.length : "0"}
+									{post.post_likes
+										? post.post_likes.length
+										: "0"}
 								</span>
 							</div>
 							<span>·</span>
