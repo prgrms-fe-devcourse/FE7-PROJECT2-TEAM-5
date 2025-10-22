@@ -10,6 +10,8 @@ import { useProfileStore } from "../../stores/profileStore";
 import type { Friend } from "../../types/friend";
 import { useMemberStore } from "../../stores/memberStore";
 import PostListSkeleton from "../../components/loading/post/PostListSkeleton";
+import GroupMemberSkeleton from "../../components/loading/group/GroupMemberSkeleton";
+import GroupAttendanceSkeleton from "../../components/loading/group/GroupAttendanceSkeleton";
 
 type GroupRow = {
 	id: string;
@@ -178,8 +180,15 @@ export default function GroupPostListPage() {
 
 	return (
 		<div className="w-[920px]">
-			{loading && (activeTab === "notice" || activeTab === "activity") ? (
-				<PostListSkeleton />
+			{loading ? (
+				// 로딩 상태
+				activeTab === "notice" || activeTab === "activity" ? (
+					<PostListSkeleton />
+				) : activeTab === "attendance" ? (
+					<GroupAttendanceSkeleton />
+				) : (
+					<GroupMemberSkeleton />
+				)
 			) : (
 				<>
 					{/* 헤더 */}

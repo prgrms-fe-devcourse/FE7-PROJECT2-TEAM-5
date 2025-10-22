@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import supabase from "../../utils/supabase";
 import { useProfileStore } from "../../stores/profileStore";
-import GroupAttendanceSkeleton from "../../components/loading/group/GroupAttendanceSkeleton";
 
 type GroupRow = { id: string; name: string | null };
 type Badge = { id: string; name: string; icon_url: string | null };
@@ -41,7 +40,6 @@ export default function GroupAttendancePage() {
 	const [postId, setPostId] = useState<string>("");
 	const [comments, setComments] = useState<CommentVM[]>([]);
 	const [input, setInput] = useState("");
-	const [loading, setLoading] = useState(true);
 	const [submitting, setSubmitting] = useState(false);
 
 	const today = useMemo(() => new Date(), []);
@@ -300,7 +298,6 @@ export default function GroupAttendancePage() {
 		let alive = true;
 		(async () => {
 			try {
-				setLoading(true);
 				if (!isLoggedIn || !currentUserId) {
 					alert("로그인 후 이용할 수 있습니다.");
 					navigate("/groups", { replace: true });
@@ -329,16 +326,12 @@ export default function GroupAttendancePage() {
 				console.error("[attendance init error]", e);
 				alert("출석 데이터를 불러오지 못했습니다.");
 				navigate("/groups", { replace: true });
-			} finally {
-				if (alive) setLoading(false);
 			}
 		})();
 		return () => {
 			alive = false;
 		};
 	}, [rawGroupId, navigate, isLoggedIn, currentUserId, todayISO]);
-
-	if (loading) return <GroupAttendanceSkeleton />;
 
 	return (
 		<div className="w-[920px] mx-auto">
