@@ -51,12 +51,12 @@ export default function ActivitiesComments() {
 							}`}
 						>
 							{/* left: 게시판명 + 댓글 내용 */}
-							<div className="flex flex-col gap-1">
+							<div className="flex-1 flex flex-col gap-1">
 								<p className="font-bold text-lg">
 									{boardLabel}: "
 									{comment.post?.title ?? "제목 없음"}"
 								</p>
-								<p className="text-gray-500">
+								<p className="text-gray-500 line-clamp-2">
 									{!comment.parent_comment_id ? (
 										comment.content
 									) : (
