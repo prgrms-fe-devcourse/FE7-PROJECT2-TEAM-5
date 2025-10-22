@@ -1,0 +1,17 @@
+import type { Database } from "./database";
+
+type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
+	user: {
+		auth_id: string;
+		nickname?: string;
+		birth_date: Date;
+		representative_badge_id: {
+			badges: {
+				name: string;
+				icon_url: string;
+			};
+		};
+	};
+	comment_likes?: { user_id: string }[];
+	parentNickname: string | null;
+};

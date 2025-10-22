@@ -1,27 +1,11 @@
 import { Heart, MessageSquare } from "lucide-react";
-import type { Database } from "../../types/database";
+import type { Comment } from "../../types/Comment";
 import { useState } from "react";
 import supabase from "../../utils/supabase";
 import { useProfileStore } from "../../stores/profileStore";
 import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
 import { useNavigate } from "react-router";
-
-type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
-	user: {
-		auth_id: string;
-		nickname?: string;
-		birth_date: Date;
-		representative_badge_id: {
-			badges: {
-				name: string;
-				icon_url: string;
-			};
-		};
-	};
-	comment_likes?: { user_id: string }[];
-	parentNickname: string | null;
-};
 
 type PostCommentsProps = {
 	comments: Comment[] | null | undefined;

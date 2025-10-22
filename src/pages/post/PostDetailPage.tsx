@@ -1,26 +1,11 @@
 import { Heart } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router";
 import type { Database } from "../../types/database";
+import type { Comment } from "../../types/Comment";
 import { useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
 import PostComments from "./PostComments";
 import { useProfileStore } from "../../stores/profileStore";
-
-type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
-	user: {
-		auth_id: string;
-		nickname?: string;
-		birth_date: Date;
-		representative_badge_id: {
-			badges: {
-				name: string;
-				icon_url: string;
-			};
-		};
-	};
-	comment_likes?: { user_id: string }[];
-	parentNickname: string | null;
-};
 
 type DetailPost = Database["public"]["Tables"]["posts"]["Row"] & {
 	user?: {
