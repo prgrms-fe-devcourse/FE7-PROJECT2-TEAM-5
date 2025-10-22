@@ -2,7 +2,11 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import MessageList from "../../components/message/MessageList";
 import ChatRoomList from "../../components/message/ChatRoomList";
-import { useMessagesInRoom, useChatRooms } from "../../hooks/useMessages";
+import {
+	useMessagesInRoom,
+	useChatRooms,
+	useSendMessage,
+} from "../../hooks/useMessages";
 import { useProfileStore } from "../../stores/profileStore";
 
 export default function DmPage() {
@@ -11,9 +15,11 @@ export default function DmPage() {
 	const [selectedRoomId, setSelectedRoomId] = useState<string | null>(
 		roomId || null,
 	);
+	const [messageInput, setMessageInput] = useState("");
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 	const { messages, isLoading } = useMessagesInRoom(selectedRoomId);
 	const { chatRooms, isLoading: chatRoomsLoading } = useChatRooms();
+	const { sendMessage, isLoading: isSending } = useSendMessage();
 
 	// 디버깅용 로그
 	console.log("DMPage Debug:", {
@@ -58,6 +64,30 @@ export default function DmPage() {
 	const handleRoomSelect = (roomId: string) => {
 		setSelectedRoomId(roomId);
 		navigate(`/msg/${roomId}`);
+	};
+
+	// 메시지 전송 핸들러
+	const handleSendMessage = async (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (!messageInput.trim() || !selectedRoomId || isSending) {
+			return;
+		}
+
+		try {
+			const result = await sendMessage(
+				selectedRoomId,
+				messageInput.trim(),
+			);
+			if (result) {
+				setMessageInput(""); // 입력창 초기화
+				console.log("메시지 전송 성공:", result);
+			} else {
+				console.error("메시지 전송 실패");
+			}
+		} catch (error) {
+			console.error("메시지 전송 중 오류:", error);
+		}
 	};
 
 	// 선택된 채팅방의 상대방 정보 가져오기
@@ -139,11 +169,19 @@ export default function DmPage() {
 						)}
 
 						{/* 입력창 */}
-						<form className="w-full p-4 border-t border-[#E5E7EB] flex items-center gap-2 bg-white">
+						<form
+							onSubmit={handleSendMessage}
+							className="w-full p-4 border-t border-[#E5E7EB] flex items-center gap-2 bg-white"
+						>
 							<input
 								type="text"
 								placeholder="메시지를 입력하세요"
+								value={messageInput}
+								onChange={(e) =>
+									setMessageInput(e.target.value)
+								}
 								className="flex-1 h-11 border border-[#E5E7EB] rounded-xl p-2"
+								disabled={isSending}
 							/>
 							<input
 								type="file"
@@ -161,9 +199,20 @@ export default function DmPage() {
 							</label>
 							<button
 								type="submit"
-								className="cursor-pointer text-sm text-white font-medium rounded-lg px-4 py-3 bg-[#8B5CF6]"
+								disabled={
+									isSending ||
+									!messageInput.trim() ||
+									!selectedRoomId
+								}
+								className={`cursor-pointer text-sm text-white font-medium rounded-lg px-4 py-3 ${
+									isSending ||
+									!messageInput.trim() ||
+									!selectedRoomId
+										? "bg-gray-400 cursor-not-allowed"
+										: "bg-[#8B5CF6] hover:bg-[#7C3AED]"
+								}`}
 							>
-								전송
+								{isSending ? "전송 중" : "전송"}
 							</button>
 						</form>
 					</div>
