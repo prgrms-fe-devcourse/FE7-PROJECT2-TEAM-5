@@ -20,4 +20,5 @@ type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
 	};
 	comment_likes?: { user_id: string }[];
 	parentNickname?: string | null;
+	reply_count?: number;
 };

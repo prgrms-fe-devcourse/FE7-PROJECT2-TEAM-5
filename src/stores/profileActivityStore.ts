@@ -7,10 +7,8 @@ import type { Post } from "../types/post";
 type ActPostState = {
 	userPosts: Post[]; // 유저 게시글 List
 	userComments: Comment[]; // 유저 댓글 List
-	// fetchUserPosts: 유저 게시글 불러오기
-	fetchUserPosts: (userId?: string) => Promise<void>;
-	// fetchUserCommentsWithPosts: 유저의 댓글과 해당 댓글이 달린 게시글 정보 같이 불러오기
-	fetchUserCommentsWithPosts: (userId?: string) => Promise<void>;
+	fetchUserPosts: (userId?: string) => Promise<void>; // 유저 게시글 불러오기
+	fetchUserCommentsWithPosts: (userId?: string) => Promise<void>; // 유저 댓글 + 게시글 정보 불러오기
 };
 
 export const useActPostStore = create<ActPostState>()(
@@ -18,7 +16,7 @@ export const useActPostStore = create<ActPostState>()(
 		userPosts: [],
 		userComments: [],
 
-		// 전체 게시글
+		// 유저 게시글 불러오기
 		fetchUserPosts: async (userId?: string) => {
 			const { data, error } = await supabase
 				.from("posts")
@@ -38,10 +36,10 @@ export const useActPostStore = create<ActPostState>()(
 			});
 		},
 
-		// 댓글 + 해당 게시글 정보
+		// 유저 댓글 + 게시글 정보 + 대댓글 수 계산
 		fetchUserCommentsWithPosts: async (userId?: string) => {
 			try {
-				// 1. 댓글 불러오기
+				// 유저 댓글 불러오기
 				const { data: commentsData, error: commentsError } =
 					await supabase
 						.from("comments")
@@ -63,12 +61,12 @@ export const useActPostStore = create<ActPostState>()(
 					return;
 				}
 
-				// 2. 댓글이 달린 게시글 id 모으기
+				// 댓글이 달린 게시글 id 모으기
 				const postIds = Array.from(
 					new Set(commentsData.map((c) => c.post_id)),
 				);
 
-				// 3. 게시글 정보 가져오기
+				// 게시글 정보 가져오기
 				const { data: postsData, error: postsError } = await supabase
 					.from("posts")
 					.select("id, title, board_type")
@@ -82,10 +80,39 @@ export const useActPostStore = create<ActPostState>()(
 					return;
 				}
 
-				// 4. parent_comment_id가 있는 댓글의 user_id 모으기
+				// 대댓글 수 계산용 id 목록
+				const commentIds = commentsData.map((c) => c.id);
+
+				// 해당 댓글을 부모로 가진 댓글들(=대댓글) 조회
+				const { data: repliesData, error: repliesError } =
+					await supabase
+						.from("comments")
+						.select("parent_comment_id")
+						.in("parent_comment_id", commentIds);
+
+				if (repliesError) {
+					console.error(
+						"대댓글 불러오기 실패:",
+						repliesError.message,
+					);
+				}
+
+				// reply_count 계산
+				const replyCountMap = repliesData?.reduce(
+					(acc, cur) => {
+						if (cur.parent_comment_id) {
+							acc[cur.parent_comment_id] =
+								(acc[cur.parent_comment_id] || 0) + 1;
+						}
+						return acc;
+					},
+					{} as Record<string, number>,
+				);
+
+				// parent_comment_id가 있는 댓글의 user_id 모으기
 				const parentCommentIds = commentsData
 					.filter((c) => c.parent_comment_id)
-					.map((c) => c.parent_comment_id)
+					.map((c) => c.parent_comment_id!)
 					.filter(Boolean);
 
 				let parentUserMap: Record<
@@ -94,7 +121,7 @@ export const useActPostStore = create<ActPostState>()(
 				> = {};
 
 				if (parentCommentIds.length > 0) {
-					// 5. parent 댓글 정보 가져오기
+					// parent 댓글 정보 가져오기
 					const { data: parentComments, error: parentCommentsError } =
 						await supabase
 							.from("comments")
@@ -107,7 +134,7 @@ export const useActPostStore = create<ActPostState>()(
 							parentCommentsError.message,
 						);
 					} else if (parentComments && parentComments.length > 0) {
-						// 6. parent 댓글 작성자의 user 정보 가져오기
+						// parent 댓글 작성자의 유저 정보 가져오기
 						const userIds = Array.from(
 							new Set(parentComments.map((c) => c.user_id)),
 						);
@@ -115,7 +142,7 @@ export const useActPostStore = create<ActPostState>()(
 							const { data: usersData, error: usersError } =
 								await supabase
 									.from("users")
-									.select("*")
+									.select("auth_id, nickname")
 									.in("auth_id", userIds);
 
 							if (usersError) {
@@ -135,7 +162,7 @@ export const useActPostStore = create<ActPostState>()(
 					}
 				}
 
-				// 7. 댓글 + 게시글 + parent user 병합
+				// 댓글 + 게시글 + parent user + reply_count 병합
 				const mergedComments = commentsData.map((comment) => {
 					const matchedPost = postsData?.find(
 						(p) => p.id === comment.post_id,
@@ -150,6 +177,7 @@ export const useActPostStore = create<ActPostState>()(
 						...comment,
 						post: matchedPost || null,
 						user: parentUser || null,
+						reply_count: replyCountMap?.[comment.id] || 0, // 대댓글 수 추가
 					};
 				});
 
