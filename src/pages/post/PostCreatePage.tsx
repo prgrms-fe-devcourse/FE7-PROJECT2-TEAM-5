@@ -177,7 +177,7 @@ export default function PostCreatePage() {
 		if (tag && e.key === "Enter" && !e.nativeEvent.isComposing) {
 			e.preventDefault();
 			if (hashTag && !hashTag.includes(tag)) {
-				let hashTags = [...hashTag, tag];
+				let hashTags = [...hashTag, tag.replace(/ /g, "")];
 				setHashTag(hashTags);
 				setInputTag("");
 			} else {
