@@ -709,10 +709,7 @@ export type Database = {
 				Args: { len: number };
 				Returns: string;
 			};
-			generate_random_string: {
-				Args: { len: number };
-				Returns: string;
-			};
+			generate_random_string: { Args: { len: number }; Returns: string };
 		};
 		Enums: {
 			user_role: "temp" | "student" | "teacher" | "parent";

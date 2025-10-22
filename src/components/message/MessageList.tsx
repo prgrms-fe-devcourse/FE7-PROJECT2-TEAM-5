@@ -49,7 +49,10 @@ export default function MessageList({
 	}, [messages]);
 
 	return (
-		<div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-6">
+		<div
+			ref={scrollContainerRef}
+			className="flex-1 overflow-y-auto scrollbar-custom p-6"
+		>
 			{/*date와 dateMessages 순회하면서 메시지 표시 */}
 			{Object.entries(groupedMessages).map(([date, dateMessages]) => (
 				<div key={date}>

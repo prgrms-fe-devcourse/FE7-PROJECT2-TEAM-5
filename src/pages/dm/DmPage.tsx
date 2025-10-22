@@ -33,38 +33,18 @@ export default function DmPage() {
 	const { sendMessage, isLoading: isSending } = useSendMessage();
 	const { deleteRoom, isLoading: isDeleting } = useDeleteChatRoom();
 
-	// 디버깅용 로그
-	console.log("DMPage Debug:", {
-		roomId,
-		selectedRoomId,
-		currentUserId,
-		chatRooms: chatRooms.length,
-		chatRoomsData: chatRooms,
-		messages: messages.length,
-		isLoading,
-		chatRoomsLoading,
-	});
-
 	// URL 파라미터가 변경될 때 채팅방 업데이트
 	useEffect(() => {
-		console.log("URL 파라미터 변경:", roomId);
 		setSelectedRoomId(roomId || null);
 	}, [roomId]);
 
 	// 채팅방 목록이 로드된 후 URL 파라미터 처리
 	useEffect(() => {
 		if (roomId && chatRooms.length > 0 && !chatRoomsLoading) {
-			console.log("채팅방 목록 로드 완료, URL 파라미터 처리:", {
-				roomId,
-				chatRooms,
-			});
 			const roomExists = chatRooms.some((room) => room.id === roomId);
 			if (roomExists) {
 				setSelectedRoomId(roomId);
 			} else {
-				console.log(
-					"URL의 채팅방이 존재하지 않음, 메인으로 리다이렉트",
-				);
 				navigate("/msg");
 			}
 		}
@@ -95,7 +75,6 @@ export default function DmPage() {
 				setTimeout(() => {
 					messageInputRef.current?.focus();
 				}, 0);
-				console.log("메시지 전송 성공:", result);
 			} else {
 				console.error("메시지 전송 실패");
 			}
@@ -164,7 +143,6 @@ export default function DmPage() {
 				if (fileInputRef.current) {
 					fileInputRef.current.value = "";
 				}
-				console.log("이미지 전송 성공:", result);
 			} else {
 				console.error("이미지 전송 실패");
 			}
@@ -182,7 +160,6 @@ export default function DmPage() {
 		try {
 			const result = await deleteRoom(selectedRoomId);
 			if (result) {
-				console.log("채팅방 삭제 성공");
 				setSelectedRoomId(null);
 				setShowDeleteModal(false);
 				// 채팅방 리스트 리렌더링

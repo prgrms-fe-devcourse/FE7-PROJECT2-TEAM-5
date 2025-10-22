@@ -99,15 +99,12 @@ export const useChatRooms = () => {
 	// 초기 로딩용, 스켈레톤 UI 적용 됨
 	const fetchChatRooms = useCallback(async () => {
 		if (!currentUserId) {
-			console.log("useChatRooms: currentUserId가 없습니다");
 			return;
 		}
 
-		console.log("useChatRooms: 채팅방 목록 조회 시작", { currentUserId });
 		setIsLoading(true);
 		try {
 			const fetchedChatRooms = await getChatRooms(currentUserId);
-			console.log("useChatRooms: 조회된 채팅방", fetchedChatRooms);
 			setChatRooms(fetchedChatRooms);
 		} catch (error) {
 			console.error("useChatRooms: 에러", error);
