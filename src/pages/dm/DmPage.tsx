@@ -46,10 +46,8 @@ export default function DmPage() {
 
 	// URL 파라미터가 변경될 때 채팅방 업데이트
 	useEffect(() => {
-		if (roomId) {
-			console.log("URL 파라미터 변경:", roomId);
-			setSelectedRoomId(roomId);
-		}
+		console.log("URL 파라미터 변경:", roomId);
+		setSelectedRoomId(roomId || null);
 	}, [roomId]);
 
 	// 채팅방 목록이 로드된 후 URL 파라미터 처리
@@ -202,7 +200,10 @@ export default function DmPage() {
 
 	return (
 		<>
-			<div className="w-[1000px] h-[790px] bg-white rounded-xl flex flex-row overflow-hidden">
+			<div
+				key={roomId || null}
+				className="w-[1000px] h-[790px] bg-white rounded-xl flex flex-row overflow-hidden"
+			>
 				{/* 채팅 리스트 */}
 				<div className="w-[250px] border-r border-[#E5E7EB] bg-[#F9FAFB] rounded-l-xl flex flex-col">
 					<div className="h-[60px] border-b border-[#E5E7EB] rounded-t-xl p-4">
