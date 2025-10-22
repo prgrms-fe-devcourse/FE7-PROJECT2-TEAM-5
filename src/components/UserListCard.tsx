@@ -177,7 +177,7 @@ export default function UserListCard({
 									onClick={handleMessageClick}
 									disabled={isCreatingRoom}
 								>
-									{isCreatingRoom ? "생성 중..." : "메시지"}
+									메시지
 								</button>
 							</>
 						)}
