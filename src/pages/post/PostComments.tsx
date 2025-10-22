@@ -1,6 +1,6 @@
 import { Heart, MessageSquare, Smile } from "lucide-react";
 import type { Comment } from "../../types/comment";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import supabase from "../../utils/supabase";
 import { useProfileStore } from "../../stores/profileStore";
 import { getAge } from "../../utils/getAge";
@@ -26,6 +26,7 @@ export default function PostComments(props: PostCommentsProps) {
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 
 	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+	const emojiPickerRef = useRef<HTMLDivElement | null>(null);
 
 	const emojis = [
 		"😀",
@@ -49,6 +50,28 @@ export default function PostComments(props: PostCommentsProps) {
 		setInputComment(inputComment + emoji);
 		setShowEmojiPicker(false);
 	};
+
+	// 이모지 창 바깥 영역 클릭 시 닫음
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				emojiPickerRef.current &&
+				!emojiPickerRef.current.contains(event.target as Node)
+			) {
+				setShowEmojiPicker(false);
+			}
+		};
+
+		if (showEmojiPicker) {
+			document.addEventListener("mousedown", handleClickOutside);
+		} else {
+			document.removeEventListener("mousedown", handleClickOutside);
+		}
+
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, [showEmojiPicker]);
 
 	const writeComment = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -371,14 +394,17 @@ export default function PostComments(props: PostCommentsProps) {
 						<Button
 							type="button"
 							className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#8B5CF6]"
-							onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+							onClick={() => setShowEmojiPicker((prev) => !prev)}
 						>
 							<Smile size={20} />
 						</Button>
 
-						{/* 이모지 선택창 */}
+						{/* 이모지 피커 */}
 						{showEmojiPicker && (
-							<div className="absolute bottom-full right-0 mb-2 bg-white border rounded-lg shadow-md p-2 grid grid-cols-10 gap-1">
+							<div
+								ref={emojiPickerRef}
+								className="absolute z-30 bottom-full right-0 mb-2 bg-white border rounded-lg shadow-md p-2 grid grid-cols-10 gap-1"
+							>
 								{emojis.map((emoji) => (
 									<Button
 										key={emoji}
