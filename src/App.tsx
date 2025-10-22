@@ -24,6 +24,7 @@ import GroupPostCreatePage from "./pages/group/GroupPostCreatePage";
 import SocialSignupInfo from "./pages/auth/SocialSignupInfo";
 import { useCheckProfileCompleted } from "./hooks/useCheckProfileCompleted";
 import { useSetOnlineStatus } from "./hooks/useSetOnlineStatus";
+import NotFoundPage from "./layouts/NotFoundPage";
 
 export default function App() {
 	// 프로필 완성 여부 확인 훅
@@ -105,7 +106,9 @@ export default function App() {
 					<Route path="posts">
 						<Route index element={<PostListPage />} />
 						<Route path=":id" element={<PostDetailPage />} />
-						<Route path="create" element={<PostCreatePage />} />
+						<Route path="create" element={<PostCreatePage />}>
+							<Route path=":id" element={<PostCreatePage />} />
+						</Route>
 					</Route>
 
 					{/* DM */}
@@ -134,6 +137,9 @@ export default function App() {
 						element={<RegisterEmailPage />}
 					/>
 				</Route>
+
+				{/* 404 Page */}
+				<Route path="*" element={<NotFoundPage />} />
 			</Routes>
 		</>
 	);

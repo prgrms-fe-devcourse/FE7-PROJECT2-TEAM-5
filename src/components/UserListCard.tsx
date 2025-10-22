@@ -2,8 +2,8 @@ import { Link, useNavigate } from "react-router";
 import { getAge } from "../utils/getAge";
 import { getGrade } from "../utils/getGrade";
 import { useProfileStore } from "../stores/profileStore";
-import { useMemberStore } from "../stores/profileMemberStore";
 import { useCreateChatRoom } from "../hooks/useMessages";
+import { useMemberStore } from "../stores/memberStore";
 import basicImage from "../assets/basic_image.png";
 import type { Friend } from "../types/friend";
 

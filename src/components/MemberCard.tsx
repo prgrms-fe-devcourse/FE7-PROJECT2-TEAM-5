@@ -1,7 +1,7 @@
 import { ChevronDown } from "lucide-react";
 import type { Friend } from "../types/friend";
 import basicImage from "../assets/basic_image.png";
-import { useMemberStore } from "../stores/profileMemberStore";
+import { useMemberStore } from "../stores/memberStore";
 import { useProfileStore } from "../stores/profileStore";
 import { useEffect, useState } from "react";
 import Button from "./Button";
@@ -9,8 +9,8 @@ import { Link } from "react-router";
 
 type MemberCardProps = {
 	friend: Friend;
-	userId: string;
-	onUnfollow: (friendId: string) => void;
+	userId?: string;
+	onUnfollow?: (friendId: string) => void;
 };
 
 export default function MemberCard({

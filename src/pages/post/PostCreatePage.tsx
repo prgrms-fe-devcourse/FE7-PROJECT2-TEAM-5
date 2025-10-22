@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router";
 import supabase from "../../utils/supabase";
 import { useProfileStore } from "../../stores/profileStore";
 import Input from "../../components/Input";
@@ -8,6 +8,7 @@ import InputFile from "../../components/InputFile";
 // 게시글 생성 페이지
 export default function PostCreatePage() {
 	const navigate = useNavigate();
+	const { id } = useParams();
 	const profile = useProfileStore((state) => state.profile);
 	const [boardType, setBoardType] = useState("");
 	const [title, setTitle] = useState("");
@@ -35,47 +36,135 @@ export default function PostCreatePage() {
 		}
 		try {
 			//모듈로 분리 필요함
-			const { data: postData, error: postError } = await supabase
-				.from("posts")
-				.insert([
-					{
+			if (id) {
+				const { data, error } = await supabase
+					.from("posts")
+					.update({
 						board_type: boardType,
 						title,
 						content,
 						hash_tag: hashTag,
-						user_id: profile?.auth_id,
-					},
-				])
-				.select();
+					})
+					.eq("id", id)
+					.eq("user_id", profile?.auth_id)
+					.select();
 
-			for (const file of imgFiles) {
-				const { data: fileData, error: fileError } = await supabase
+				const { error: fileDeledtError } = await supabase
 					.from("files")
+					.delete()
+					.eq("post_id", id);
+				if (fileDeledtError) throw fileDeledtError;
+
+				for (const file of imgFiles) {
+					const { data: fileData, error: fileError } = await supabase
+						.from("files")
+						.insert([
+							{
+								post_id: id,
+								file_path: file.file,
+								file_name: file.fileName,
+							},
+						])
+						.select();
+					if (fileError) throw fileError;
+					if (!fileData) {
+						alert("이미지 파일 등록 실패");
+					}
+				}
+
+				if (error) throw error;
+				if (data) {
+					alert("게시글이 수정되었습니다.");
+					navigate("/posts/" + id);
+				}
+			} else {
+				const { data: postData, error: postError } = await supabase
+					.from("posts")
 					.insert([
 						{
-							post_id: postData?.[0].id,
-							file_path: file.file,
-							file_name: file.fileName,
+							board_type: boardType,
+							title,
+							content,
+							hash_tag: hashTag,
+							user_id: profile?.auth_id,
 						},
 					])
-					.select();
-				if (fileError) throw fileError;
-				if (!fileData) {
-					alert("이미지 파일 등록 실패");
-				}
-			}
+					.select()
+					.single();
 
-			if (postError) throw postError;
-			if (postData) {
-				alert("게시글이 등록되었습니다.");
-				console.log(postData);
-				navigate("/posts");
+				for (const file of imgFiles) {
+					const { data: fileData, error: fileError } = await supabase
+						.from("files")
+						.insert([
+							{
+								post_id: postData?.id,
+								file_path: file.file,
+								file_name: file.fileName,
+							},
+						])
+						.select();
+					if (fileError) throw fileError;
+					if (!fileData) {
+						alert("이미지 파일 등록 실패");
+					}
+				}
+
+				if (postError) throw postError;
+				if (postData) {
+					alert("게시글이 등록되었습니다.");
+					console.log(postData);
+					navigate("/posts/" + postData.id);
+				}
 			}
 		} catch (e) {
 			console.error(e);
 		}
 	};
 
+	useEffect(() => {
+		if (id) {
+			const fetchPost = async () => {
+				try {
+					const { data: posts, error } = await supabase
+						.from("posts")
+						.select("*")
+						.eq("id", id)
+						.single();
+					if (error) throw error;
+					if (posts) {
+						setTitle(posts.title);
+						setBoardType(posts.board_type);
+						setContent(posts.content);
+						setHashTag(posts.hash_tag);
+					}
+					const { data: flies, error: fileError } = await supabase
+						.from("files")
+						.select("file_path, file_name")
+						.eq("post_id", id);
+					if (fileError) throw fileError;
+					console.log(flies);
+
+					// if (flies && flies.length > 0) {
+					// 	setImgFiles((prev) => [
+					// 		...prev,
+					// 		...flies.map((file) => ({
+					// 			file: file.file_path,
+					// 			fileName: file.file_name,
+					// 		})),
+					// 	]);
+					// }
+				} catch (e) {
+					console.error(e);
+				}
+			};
+			fetchPost();
+		} else {
+			setTitle("");
+			setBoardType("");
+			setContent("");
+			setHashTag([]);
+		}
+	}, [id]);
 	const removeTag = (index: number) => {
 		const newHashTag = [
 			...hashTag.slice(0, index),
@@ -87,8 +176,8 @@ export default function PostCreatePage() {
 		const tag = inputTag.trim();
 		if (tag && e.key === "Enter" && !e.nativeEvent.isComposing) {
 			e.preventDefault();
-			if (!hashTag.includes(tag)) {
-				let hashTags = [...hashTag, tag];
+			if (hashTag && !hashTag.includes(tag)) {
+				let hashTags = [...hashTag, tag.replace(/ /g, "")];
 				setHashTag(hashTags);
 				setInputTag("");
 			} else {
@@ -216,21 +305,22 @@ export default function PostCreatePage() {
 								)}
 							</div>
 							<p className="mt-2 text-xs text-[#C8C8C8]">
-								예: 수학, AI, 공부법 (각각 태그 입력 s후 Enter)
+								예: 수학, AI, 공부법 (각각 태그 입력 후 Enter)
 							</p>
 							<div className="flex flex-wrap gap-2 mt-2 max-w-[920px]">
-								{hashTag.map((tag, index) => (
-									<div key={tag}>
-										<button
-											id="tag"
-											type="button"
-											className="px-3 py-2 bg-[#EDE9FE] text-[#8B5CF6] text-sm rounded-lg text-left break-all cursor-pointer"
-											onClick={() => removeTag(index)}
-										>
-											{"#" + tag} x
-										</button>
-									</div>
-								))}
+								{hashTag &&
+									hashTag.map((tag, index) => (
+										<div key={tag}>
+											<button
+												id="tag"
+												type="button"
+												className="px-3 py-2 bg-[#EDE9FE] text-[#8B5CF6] text-sm rounded-lg text-left break-all cursor-pointer"
+												onClick={() => removeTag(index)}
+											>
+												{"#" + tag} x
+											</button>
+										</div>
+									))}
 							</div>
 						</div>
 					</div>
@@ -240,13 +330,13 @@ export default function PostCreatePage() {
 							className="px-4 py-2.5 text-sm rounded-xl bg-white text-[#8B5CF6]
 						font-Regular hover:bg-[#B08DFF] hover:text-white cursor-pointer border-1 border-[#8B5CF6]"
 						>
-							삭제
+							취소
 						</Link>
 						<button
 							type="submit"
 							className="px-4 py-2.5 text-sm text-white rounded-xl bg-[#8B5CF6]  hover:bg-[#B08DFF] cursor-pointer"
 						>
-							등록
+							{id ? "수정" : "등록"}
 						</button>
 					</div>
 				</form>

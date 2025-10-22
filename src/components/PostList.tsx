@@ -19,11 +19,12 @@ type Post = {
 
 type PostListProps = {
 	posts: Post[];
+	isSearchPage?: boolean;
 };
 
 function PostItem({ post }: { post: Post }) {
 	return (
-		<Link to={`${post.id}`}>
+		<Link to={`/posts/${post.id}`}>
 			<div className="w-full mb-2 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-shadow">
 				{/* 제목 + 좋아요/댓글 */}
 				<div className="flex justify-between items-start mb-1">
@@ -80,11 +81,11 @@ function PostItem({ post }: { post: Post }) {
 	);
 }
 
-export default function PostList({ posts }: PostListProps) {
+export default function PostList({ posts, isSearchPage }: PostListProps) {
 	if (posts.length === 0) {
 		return (
 			<div className="text-center text-gray-500 py-12">
-				게시글이 없습니다.
+				{isSearchPage ? "검색 결과가 없습니다." : "게시글이 없습니다."}
 			</div>
 		);
 	}

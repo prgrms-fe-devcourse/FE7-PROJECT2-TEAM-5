@@ -2,9 +2,10 @@ import ProfileCard from "./ProfileCard";
 import DetailCard from "./DetailCard";
 import { useParams } from "react-router";
 import { useProfileStore } from "../../stores/profileStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ProfileCadeSkeleton from "../../components/loading/profile/ProfileCadeSkeleton";
 import DetailCardSkeleton from "../../components/loading/profile/DetailCardSkeleton";
+import { useActPostStore } from "../../stores/profileActivityStore";
 
 export default function ProfilePage() {
 	const {
@@ -15,20 +16,37 @@ export default function ProfilePage() {
 		loading,
 		error,
 	} = useProfileStore();
+	const { fetchUserPosts, fetchUserCommentsWithPosts } = useActPostStore();
 	const { id } = useParams();
 
+	const [ready, setReady] = useState(false);
+
+	// 현재 유저 ID 로드
 	useEffect(() => {
 		if (!currentUserId) {
-			fetchCurrentUserId();
+			fetchCurrentUserId().finally(() => setReady(true));
+		} else {
+			setReady(true);
 		}
 	}, [currentUserId, fetchCurrentUserId]);
 
+	// profile / posts / comments fetch
 	useEffect(() => {
-		if (!id || !currentUserId) return;
+		if (!ready || !currentUserId) return;
 
 		const targetAuthId = id === "me" ? currentUserId : id;
+
 		fetchProfile(targetAuthId);
-	}, [id, currentUserId, fetchProfile]);
+		fetchUserPosts(targetAuthId);
+		fetchUserCommentsWithPosts(targetAuthId);
+	}, [
+		ready,
+		id,
+		currentUserId,
+		fetchProfile,
+		fetchUserPosts,
+		fetchUserCommentsWithPosts,
+	]);
 
 	// 로딩 중
 	if (loading || !profile)
@@ -56,10 +74,7 @@ export default function ProfilePage() {
 			<div className="flex flex-row gap-10 w-full">
 				{/* 왼쪽 프로필 카드 */}
 				<div className="w-[270px]">
-					<ProfileCard
-						key={profile.auth_id} // URL 변경 시 재렌더링
-						profile={profile}
-					/>
+					<ProfileCard key={profile.auth_id} profile={profile} />
 				</div>
 
 				{/* 오른쪽 상세 정보 */}

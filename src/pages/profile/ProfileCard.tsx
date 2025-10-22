@@ -8,9 +8,10 @@ import { SquarePen, Trash2, X } from "lucide-react";
 import Modal from "../../components/Modal";
 import Button from "../../components/Button";
 import type { UserProfile } from "../../types/profile";
-import { useMemberStore } from "../../stores/profileMemberStore";
 import { useCreateChatRoom } from "../../hooks/useMessages";
+import { useMemberStore } from "../../stores/memberStore";
 import type { Friend } from "../../types/friend";
+import { useActPostStore } from "../../stores/profileActivityStore";
 
 type Props = {
 	profile: UserProfile | null;
@@ -28,6 +29,8 @@ export default function ProfileCard({ profile }: Props) {
 		setFriends,
 	} = useMemberStore();
 	const { createRoom, isLoading: isCreatingRoom } = useCreateChatRoom();
+	const userFollowed = useMemberStore((state) => state.userFollowed);
+	const { userPosts, userComments } = useActPostStore();
 
 	const isFollowing = followStatus[profile?.auth_id ?? ""] || false;
 
@@ -333,7 +336,7 @@ export default function ProfileCard({ profile }: Props) {
 						{/* 친구 통계 */}
 						<div className="flex flex-col items-center">
 							<div className="text-xl font-medium text-violet-500">
-								7
+								{userFollowed.length}
 							</div>
 							<div className="text-sm font-medium text-gray-500">
 								친구
@@ -343,7 +346,7 @@ export default function ProfileCard({ profile }: Props) {
 						{/* 게시글 통계 */}
 						<div className="flex flex-col items-center">
 							<div className="text-xl font-medium text-violet-500">
-								120
+								{userPosts.length}
 							</div>
 							<div className="text-sm font-medium text-gray-500">
 								게시글
@@ -353,7 +356,7 @@ export default function ProfileCard({ profile }: Props) {
 						{/* 댓글 통계 */}
 						<div className="flex flex-col items-center">
 							<div className="text-xl font-medium text-violet-500">
-								67
+								{userComments.length}
 							</div>
 							<div className="text-sm font-medium text-gray-500">
 								댓글
