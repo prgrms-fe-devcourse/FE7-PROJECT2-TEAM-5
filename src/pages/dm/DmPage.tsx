@@ -8,6 +8,7 @@ import {
 	useSendMessage,
 } from "../../hooks/useMessages";
 import { useProfileStore } from "../../stores/profileStore";
+import MessageListSkeleton from "../../components/loading/message/MessageListSkeleton";
 
 export default function DmPage() {
 	const { id: roomId } = useParams<{ id: string }>();
@@ -158,11 +159,7 @@ export default function DmPage() {
 						{/* 스크롤 되는 본문 */}
 						{selectedRoomId && currentUserId ? (
 							isLoading ? (
-								<div className="flex-1 flex items-center justify-center">
-									<div className="text-gray-500">
-										메시지를 불러오는 중...
-									</div>
-								</div>
+								<MessageListSkeleton />
 							) : (
 								<MessageList
 									messages={messages}
