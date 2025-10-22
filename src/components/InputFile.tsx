@@ -43,14 +43,14 @@ export default function InputFile(props: InputFileProps) {
 					<div className="relative pb-2">
 						<img
 							src={props.imgFiles[0].file}
-							alt={"image" + 0}
+							alt={"image"}
 							className="relative z-2 max-h-50 min-h-30 object-cover bg-white"
 						/>
 						{props.imgFiles.length > 1 && (
 							<div>
 								<img
 									src={props.imgFiles[0].file}
-									alt={"image" + 0}
+									alt={"image"}
 									className="absolute top-2 left-2 z-1 max-h-50 min-h-30 object-cover opacity-50"
 								/>
 								<div className="absolute z-2 -bottom-2 -right-4 px-3.5 py-1.5 text-xm text-[#6B7280] font-bold bg-white border-1 border-[#E5E7EB] rounded-3xl">

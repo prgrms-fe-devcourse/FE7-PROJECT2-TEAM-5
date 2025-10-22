@@ -3,7 +3,7 @@ type User = {
 	profile_image_url?: string;
 	nickname: string;
 	is_online: boolean;
-	role: string;
+	role?: string;
 	birth_date?: string;
 	major?: string;
 };

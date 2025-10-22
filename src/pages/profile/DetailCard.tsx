@@ -4,7 +4,7 @@ import Friends from "./Friends";
 import Info from "./Info";
 import TabContainer from "./TabContainer";
 import { useProfileStore } from "../../stores/profileStore";
-import { useMemberStore } from "../../stores/profileMemberStore";
+import { useMemberStore } from "../../stores/memberStore";
 
 export default function DetailCard() {
 	const [activeTab, setActiveTab] = useState<
@@ -12,8 +12,11 @@ export default function DetailCard() {
 	>("info");
 	const { profile, childInfos } = useProfileStore();
 	const { fetchUserFollowings, setFriends } = useMemberStore();
-
 	if (!profile || !childInfos) return null;
+
+	const friends = useMemberStore(
+		(state) => state.friendsByProfileId[profile?.auth_id] ?? [],
+	);
 
 	useEffect(() => {
 		async function loadFriends() {
@@ -35,14 +38,9 @@ export default function DetailCard() {
 				{activeTab === "info" && (
 					<Info profile={profile} childInfos={childInfos} />
 				)}
-				{activeTab === "activities" && (
-					<Activities
-						key={profile.auth_id}
-						userId={profile.auth_id}
-					/>
-				)}
+				{activeTab === "activities" && <Activities />}
 				{activeTab === "friends" && (
-					<Friends userId={profile.auth_id} />
+					<Friends friends={friends} userId={profile.auth_id} />
 				)}
 			</div>
 		</>

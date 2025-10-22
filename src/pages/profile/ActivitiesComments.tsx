@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import PageNation from "../../components/PageNation";
 import type { Comment } from "../../types/comment";
 import { Heart, MessageSquare } from "lucide-react";
-import { usePostStore } from "../../stores/profileActivityStore";
+import { useActPostStore } from "../../stores/profileActivityStore";
 
 export default function ActivitiesComments({
 	comments,
@@ -19,9 +19,9 @@ export default function ActivitiesComments({
 		{ key: "group", label: "그룹게시판" },
 	] as const;
 
-	const parentComments = usePostStore((state) => state.parentComments);
-	const commentsPosts = usePostStore((state) => state.commentsPosts);
-	const { fetchBoardType } = usePostStore();
+	const parentComments = useActPostStore((state) => state.parentComments);
+	const commentsPosts = useActPostStore((state) => state.commentsPosts);
+	const { fetchBoardType } = useActPostStore();
 
 	const fetchBoardTypeForAllComments = async () => {
 		for (const comment of comments) {

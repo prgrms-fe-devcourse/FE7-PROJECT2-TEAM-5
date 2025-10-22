@@ -37,14 +37,7 @@ export const useActPostStore = create<ActPostState>()(
 				.order("created_at", { ascending: false });
 
 			if (error) {
-<<<<<<< HEAD
 				console.error("유저 게시글 불러오기 실패:", error.message);
-=======
-				console.error(
-					"user의 posts 테이블 불러오기 실패:",
-					error.message,
-				);
->>>>>>> main
 				return;
 			}
 
@@ -62,14 +55,7 @@ export const useActPostStore = create<ActPostState>()(
 				.order("created_at", { ascending: false });
 
 			if (error) {
-<<<<<<< HEAD
 				console.error("유저 댓글 불러오기 실패:", error.message);
-=======
-				console.error(
-					"user의 comments 테이블 불러오기 실패:",
-					error.message,
-				);
->>>>>>> main
 				return;
 			}
 

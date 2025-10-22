@@ -7,6 +7,8 @@ import PageNation from "../../components/PageNation";
 import GroupAttendancePage from "./GroupAttendance";
 import GroupMembers from "./GroupMembers";
 import { useProfileStore } from "../../stores/profileStore";
+import type { Friend } from "../../types/friend";
+import { useMemberStore } from "../../stores/memberStore";
 
 type GroupRow = {
 	id: string;
@@ -29,12 +31,16 @@ export default function GroupPostListPage() {
 
 	const [activeTab, setActiveTab] = useState<string>(TABS[0].key);
 	const [group, setGroup] = useState<GroupRow | null>(null);
+	const [members, setMembers] = useState<Friend[]>([]);
 
 	const [posts, setPosts] = useState<any[]>([]);
 	const [loading, setLoading] = useState(true);
 
-	const currentUserId = useProfileStore((s) => s.currentUserId);
+	const { currentUserId } = useProfileStore();
+	if (!currentUserId) return "";
 	const isLoggedIn = useProfileStore((s) => s.isLoggedIn);
+
+	const { fetchUserFollowings } = useMemberStore();
 
 	// 페이지네이션
 	const postsPerPage = 4;
@@ -138,6 +144,16 @@ export default function GroupPostListPage() {
 					return;
 				}
 
+				if (activeTab === "members") {
+					const memberList = await fetchUserFollowings(
+						currentUserId,
+						g.id,
+					);
+					if (!memberList) return;
+					setMembers(memberList);
+					console.log(memberList);
+				}
+
 				const list = await fetchGroupPosts(g.id, activeTab);
 				if (!alive) return;
 				setPosts(list);
@@ -216,7 +232,12 @@ export default function GroupPostListPage() {
 							</div>
 						)}
 						{activeTab === "attendance" && <GroupAttendancePage />}
-						{activeTab === "members" && <GroupMembers />}
+						{activeTab === "members" && (
+							<GroupMembers
+								members={members}
+								userId={currentUserId}
+							/>
+						)}
 					</div>
 				</>
 			)}

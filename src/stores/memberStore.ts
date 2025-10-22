@@ -10,8 +10,8 @@ type MemberState = {
 	userFollowing: Friend[]; // 유저를 팔로우한 친구 List
 	onlineStatus: Record<string, boolean>; // 접속 여부 상태
 
-	// fetchUserPosts: 해당 User와 팔로잉 중인 users 불러오기
-	fetchUserFollowings: (userId: string) => Promise<Friend[]>;
+	// 해당 User와 팔로잉 중인 users 불러오기 or 그룹 멤버 불러오기
+	fetchUserFollowings: (userId: string, gid?: string) => Promise<Friend[]>;
 
 	// 팔로우/언팔로우 기능
 	followedUserFnc: (userId: string, following_id: string) => void;
@@ -41,37 +41,99 @@ export const useMemberStore = create<MemberState>()(
 		onlineStatus: {},
 
 		// 해당 User와 팔로잉 중인 users 불러오기
-		fetchUserFollowings: async (userId: string): Promise<Friend[]> => {
-			const { data, error } = await supabase
-				.from("follows")
-				.select(
-					"*, users!fk_Follows_following_id_users_id(auth_id, nickname, profile_image_url, is_online)",
-				)
-				.eq("follower_id", userId);
+		fetchUserFollowings: async (
+			userId: string,
+			gid?: string,
+		): Promise<Friend[]> => {
+			let result: Friend[] = [];
 
-			if (error) {
-				console.error("follows 테이블 불러오기 실패:", error.message);
-				return [];
+			// 그룹 멤버 가져오기
+			if (gid) {
+				try {
+					const { data: memberIds, error: memberError } =
+						await supabase
+							.from("group_members")
+							.select("user_id")
+							.eq("group_id", gid);
+
+					if (memberError) throw memberError;
+
+					const ids = memberIds.map((m) => m.user_id) ?? [];
+					if (ids.length === 0) {
+						set((state) => {
+							state.friendsByProfileId[gid] = [];
+						});
+						return [];
+					}
+
+					const { data: users, error: userError } = await supabase
+						.from("users")
+						.select(
+							"auth_id, nickname, profile_image_url, is_online",
+						)
+						.in("auth_id", ids);
+
+					if (userError) throw userError;
+
+					const members: Friend[] = users.map((user) => ({
+						id: crypto.randomUUID(), // 임의 id
+						created_at: new Date().toISOString(), // 임의 created_at
+						follower_id: "", // 그룹 멤버라서 팔로우 정보 없음
+						following_id: user.auth_id,
+						users: {
+							auth_id: user.auth_id,
+							nickname: user.nickname,
+							profile_image_url: user.profile_image_url,
+							is_online: user.is_online,
+						},
+					}));
+
+					result = members;
+
+					set((state) => {
+						state.friendsByProfileId[gid] = members;
+					});
+
+					return members;
+				} catch (err: any) {
+					console.error("그룹 멤버 불러오기 실패:", err.message);
+					return [];
+				}
 			}
 
-			const statusMap: Record<string, boolean> = {};
-			(data || []).forEach((item) => {
-				if (item.following_id) statusMap[item.following_id] = true;
-			});
+			try {
+				const { data, error } = await supabase
+					.from("follows")
+					.select(
+						"*, users!fk_Follows_following_id_users_id(auth_id, nickname, profile_image_url, is_online)",
+					)
+					.eq("follower_id", userId);
 
-			const sortedData = (data || []).sort((a, b) => {
-				const aOnline = a.users?.is_online ? 1 : 0;
-				const bOnline = b.users?.is_online ? 1 : 0;
-				return bOnline - aOnline;
-			});
+				if (error) throw error;
 
-			set((state) => {
-				state.userFollowed = sortedData;
-				state.friendsByProfileId[userId] = sortedData;
-				state.followStatus = statusMap;
-			});
+				const statusMap: Record<string, boolean> = {};
+				(data || []).forEach((item) => {
+					if (item.following_id) statusMap[item.following_id] = true;
+				});
 
-			return sortedData;
+				const sortedData = (data || []).sort((a, b) => {
+					const aOnline = a.users?.is_online ? 1 : 0;
+					const bOnline = b.users?.is_online ? 1 : 0;
+					return bOnline - aOnline;
+				});
+
+				set((state) => {
+					state.userFollowed = sortedData;
+					state.friendsByProfileId[userId] = sortedData;
+					state.followStatus = statusMap;
+				});
+
+				result = [...result, ...sortedData];
+			} catch (err: any) {
+				console.error("목록 불러오기 실패:", err.message);
+			}
+
+			return result;
 		},
 
 		// 해당 User를 팔로우한 users 불러오기

@@ -106,7 +106,9 @@ export default function App() {
 					<Route path="posts">
 						<Route index element={<PostListPage />} />
 						<Route path=":id" element={<PostDetailPage />} />
-						<Route path="create" element={<PostCreatePage />} />
+						<Route path="create" element={<PostCreatePage />}>
+							<Route path=":id" element={<PostCreatePage />} />
+						</Route>
 					</Route>
 
 					{/* DM */}

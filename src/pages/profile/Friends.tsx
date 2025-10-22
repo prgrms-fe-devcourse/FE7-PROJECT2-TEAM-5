@@ -1,12 +1,16 @@
 import { useState } from "react";
 import PageNation from "../../components/PageNation";
 import MemberCard from "../../components/MemberCard";
-import { useMemberStore } from "../../stores/profileMemberStore";
+import { useMemberStore } from "../../stores/memberStore";
+import type { Friend } from "../../types/friend";
 
-export default function Friends({ userId }: { userId: string }) {
-	const friends = useMemberStore(
-		(state) => state.friendsByProfileId[userId] ?? [],
-	);
+export default function Friends({
+	friends,
+	userId,
+}: {
+	friends: Friend[];
+	userId: string;
+}) {
 	const { unFollowUserFnc, removeFriend } = useMemberStore();
 
 	const handleUnfollow = async (friendId: string) => {
