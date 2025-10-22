@@ -1,5 +1,5 @@
 import { Heart, MessageSquare } from "lucide-react";
-import type { Comment } from "../../types/Comment";
+import type { Comment } from "../../types/comment";
 import { useState } from "react";
 import supabase from "../../utils/supabase";
 import { useProfileStore } from "../../stores/profileStore";
@@ -120,7 +120,7 @@ export default function PostComments(props: PostCommentsProps) {
 
 	//답글 쓰기 기능
 	const createMention = (comment: Comment) => {
-		if (comment.user.nickname) {
+		if (comment.user?.nickname) {
 			setMention({
 				nickname: comment.user.nickname,
 				userId: comment.user.auth_id,
@@ -198,7 +198,7 @@ export default function PostComments(props: PostCommentsProps) {
 							<img src="/src/assets/image.png" alt="userImg" />
 						</div>
 						<div>
-							{comment.user.representative_badge_id && (
+							{comment.user?.representative_badge_id && (
 								<p className="text-xs font-medium">
 									<img
 										src={
@@ -211,9 +211,9 @@ export default function PostComments(props: PostCommentsProps) {
 								</p>
 							)}
 							<p className="text-sm">
-								{comment.user.nickname}
+								{comment.user?.nickname}
 								<span className="text-xs text-[#6B7280] ml-1">
-									{getGrade(getAge(comment.user.birth_date))}
+									{getGrade(getAge(comment.user?.birth_date))}
 								</span>
 							</p>
 						</div>
