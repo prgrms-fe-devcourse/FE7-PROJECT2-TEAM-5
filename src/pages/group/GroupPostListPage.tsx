@@ -9,6 +9,7 @@ import GroupMembers from "./GroupMembers";
 import { useProfileStore } from "../../stores/profileStore";
 import type { Friend } from "../../types/friend";
 import { useMemberStore } from "../../stores/memberStore";
+import PostListSkeleton from "../../components/loading/post/PostListSkeleton";
 
 type GroupRow = {
 	id: string;
@@ -177,41 +178,47 @@ export default function GroupPostListPage() {
 
 	return (
 		<div className="w-[920px]">
-			{/* 헤더 */}
-			<div className="flex items-center justify-between">
-				<h2 className="text-[28px] md:text-[32px] font-semibold tracking-tight">
-					{group?.name ?? "그룹"}
-				</h2>
-
-				{activeTab !== "attendance" &&
-					activeTab !== "members" &&
-					group?.id && (
-						<button
-							type="button"
-							onClick={() =>
-								navigate(`/groups/${group.id}/posts/create`)
-							}
-							className="inline-flex h-9 items-center rounded-xl bg-[#8B5CF6] px-4 text-sm font-medium text-white hover:bg-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-violet-300"
-						>
-							새 글 작성
-						</button>
-					)}
-			</div>
-
-			{/* 탭 */}
-			<div className="mt-4">
-				<PostTabContainer
-					activeTab={activeTab}
-					setActiveTab={setActiveTab}
-					title=""
-					tabs={TABS as unknown as { key: string; label: string }[]}
-				/>
-			</div>
-
-			{loading ? (
-				<p className="mt-5 text-sm text-gray-500">불러오는 중…</p>
+			{loading && (activeTab === "notice" || activeTab === "activity") ? (
+				<PostListSkeleton />
 			) : (
 				<>
+					{/* 헤더 */}
+					<div className="flex items-center justify-between">
+						<h2 className="text-[28px] md:text-[32px] font-semibold tracking-tight">
+							{group?.name ?? "그룹"}
+						</h2>
+
+						{activeTab !== "attendance" &&
+							activeTab !== "members" &&
+							group?.id && (
+								<button
+									type="button"
+									onClick={() =>
+										navigate(
+											`/groups/${group.id}/posts/create`,
+										)
+									}
+									className="inline-flex h-9 items-center rounded-xl bg-[#8B5CF6] px-4 text-sm font-medium text-white hover:bg-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-violet-300"
+								>
+									새 글 작성
+								</button>
+							)}
+					</div>
+
+					{/* 탭 */}
+					<div className="mt-4">
+						<PostTabContainer
+							activeTab={activeTab}
+							setActiveTab={setActiveTab}
+							title=""
+							tabs={
+								TABS as unknown as {
+									key: string;
+									label: string;
+								}[]
+							}
+						/>
+					</div>
 					<div className="border-t border-gray-300 mt-2 pt-6">
 						{(activeTab === "notice" ||
 							activeTab === "activity") && (
