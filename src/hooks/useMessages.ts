@@ -10,6 +10,7 @@ import {
 	markRoomAsRead,
 	subscribeToMessages,
 	subscribeToChatRooms,
+	deleteChatRoom,
 } from "../utils/messageUtils";
 import type { ChatRoom, Message } from "../types/message";
 
@@ -184,4 +185,21 @@ export const useCreateChatRoom = () => {
 	);
 
 	return { createRoom, isLoading };
+};
+
+// 채팅방 삭제를 위한 훅
+export const useDeleteChatRoom = () => {
+	const [isLoading, setIsLoading] = useState(false);
+
+	const deleteRoom = useCallback(async (roomId: string) => {
+		setIsLoading(true);
+		try {
+			const result = await deleteChatRoom(roomId);
+			return result;
+		} finally {
+			setIsLoading(false);
+		}
+	}, []);
+
+	return { deleteRoom, isLoading };
 };

@@ -6,6 +6,7 @@ import {
 	useMessagesInRoom,
 	useChatRooms,
 	useSendMessage,
+	useDeleteChatRoom,
 } from "../../hooks/useMessages";
 import { useProfileStore } from "../../stores/profileStore";
 import MessageListSkeleton from "../../components/loading/message/MessageListSkeleton";
@@ -17,10 +18,12 @@ export default function DmPage() {
 		roomId || null,
 	);
 	const [messageInput, setMessageInput] = useState("");
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 	const { messages, isLoading } = useMessagesInRoom(selectedRoomId);
 	const { chatRooms, isLoading: chatRoomsLoading } = useChatRooms();
 	const { sendMessage, isLoading: isSending } = useSendMessage();
+	const { deleteRoom, isLoading: isDeleting } = useDeleteChatRoom();
 
 	// 디버깅용 로그
 	console.log("DMPage Debug:", {
@@ -91,6 +94,27 @@ export default function DmPage() {
 		}
 	};
 
+	// 채팅방 삭제 핸들러
+	const handleDeleteRoom = async () => {
+		if (!selectedRoomId || isDeleting) {
+			return;
+		}
+
+		try {
+			const result = await deleteRoom(selectedRoomId);
+			if (result) {
+				console.log("채팅방 삭제 성공");
+				setSelectedRoomId(null);
+				setShowDeleteModal(false);
+				navigate("/msg");
+			} else {
+				console.error("채팅방 삭제 실패");
+			}
+		} catch (error) {
+			console.error("채팅방 삭제 중 오류:", error);
+		}
+	};
+
 	// 선택된 채팅방의 상대방 정보 가져오기
 	const selectedRoom = chatRooms.find((room) => room.id === selectedRoomId);
 	const otherUser = selectedRoom
@@ -118,23 +142,6 @@ export default function DmPage() {
 						isLoading={chatRoomsLoading}
 					/>
 				</div>
-				{/* 나중에 데이터 받아와서 사용할 로직 */}
-				{/* <div className="w-[250px] border-r border-[#E5E7EB] bg-[#F9FAFB] rounded-l-xl">
-					{매개변수.map((room) => (
-						<div
-							key={room.id}
-							className="cursor-pointer flex flex-row p-4 items-center gap-3 hover:bg-[rgba(139,92,246,0.1)]"
-						>
-							<div className="w-10 h-10 bg-[#D9D9D9] rounded-full">
-								<img
-									src={room.user.avatar}
-									alt={room.user.name}
-								/>
-							</div>
-							<span>{room.user.name}</span>
-						</div>
-					))}
-				</div> */}
 				{/* 채팅창 */}
 				<div className="flex-1 flex flex-col">
 					{/* 상단 헤더 */}
@@ -142,7 +149,28 @@ export default function DmPage() {
 						<h3 className="text-xl font-medium">
 							{otherUser?.nickname || "채팅방을 선택해주세요"}
 						</h3>
-						<button className="w-[30px] h-[30px] bg-[#d9d9d9] cursor-pointer"></button>
+						<button
+							className="w-[30px] h-[30px] bg-[#d9d9d9] cursor-pointer rounded flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
+							onClick={() => setShowDeleteModal(true)}
+							disabled={!selectedRoomId || isDeleting}
+						>
+							{/* 휴지통 아이콘 */}
+							<svg
+								width="16"
+								height="16"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="2"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							>
+								<polyline points="3,6 5,6 21,6"></polyline>
+								<path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+								<line x1="10" y1="11" x2="10" y2="17"></line>
+								<line x1="14" y1="11" x2="14" y2="17"></line>
+							</svg>
+						</button>
 					</div>
 
 					{/* 채팅 내용 영역 */}
@@ -209,12 +237,46 @@ export default function DmPage() {
 										: "bg-[#8B5CF6] hover:bg-[#7C3AED]"
 								}`}
 							>
-								{isSending ? "전송 중" : "전송"}
+								전송
 							</button>
 						</form>
 					</div>
 				</div>
 			</div>
+
+			{/* 삭제 확인 모달 */}
+			{showDeleteModal && (
+				<div className="fixed inset-0 bg-gray-900/60 bg-opacity-50 flex items-center justify-center z-50">
+					<div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+						<h3 className="text-lg font-semibold mb-4">
+							{otherUser?.nickname}님과의 채팅방 삭제
+						</h3>
+						<p className="text-gray-600 mb-6">
+							정말로 이 채팅방을 삭제하시겠습니까?
+							<br />
+							삭제된 채팅방과 메시지는 복구할 수 없습니다.
+							<br />
+							상대방의 채팅방도 삭제됩니다!
+						</p>
+						<div className="flex gap-3 justify-end">
+							<button
+								onClick={() => setShowDeleteModal(false)}
+								className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+								disabled={isDeleting}
+							>
+								취소
+							</button>
+							<button
+								onClick={handleDeleteRoom}
+								disabled={isDeleting}
+								className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
+							>
+								삭제
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 		</>
 	);
 }

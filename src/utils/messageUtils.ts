@@ -231,7 +231,6 @@ export const subscribeToMessages = (
 
 	return channel;
 };
-
 // realtime) 채팅방 목록 구독 함수
 export const subscribeToChatRooms = (
 	currentUserId: string,
@@ -261,4 +260,39 @@ export const subscribeToChatRooms = (
 		.subscribe();
 
 	return channel;
+};
+
+// 채팅방 삭제 함수
+export const deleteChatRoom = async (roomId: string): Promise<boolean> => {
+	try {
+		console.log("채팅방 삭제 시작:", roomId);
+
+		// 먼저 해당 채팅방의 모든 메시지 삭제
+		const { error: messagesError } = await supabase
+			.from("messages")
+			.delete()
+			.eq("room_id", roomId);
+
+		if (messagesError) {
+			console.error("메시지 삭제 실패:", messagesError);
+			return false;
+		}
+
+		// 채팅방 삭제
+		const { error: roomError } = await supabase
+			.from("chat_rooms")
+			.delete()
+			.eq("id", roomId);
+
+		if (roomError) {
+			console.error("채팅방 삭제 실패:", roomError);
+			return false;
+		}
+
+		console.log("채팅방 삭제 성공:", roomId);
+		return true;
+	} catch (error) {
+		console.error("채팅방 삭제 중 오류:", error);
+		return false;
+	}
 };
