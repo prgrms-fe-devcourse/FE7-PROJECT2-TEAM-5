@@ -1,98 +1,32 @@
-import { MessageCircle, Milestone, UsersRound } from "lucide-react";
-import { Link } from "react-router";
-
-export default function Home() {
+export default function HomePageSkeleton() {
 	return (
 		<>
 			<div className="mt-30 flex flex-col items-center">
 				{/* Top */}
-				<div className="text-center mb-[120px] ">
-					<h2 className="mb-7 font-bold text-[46px] bg-gradient-to-r from-[#8B5CF6] to-[#EA489A] bg-clip-text text-transparent">
-						함께 배우고 성장하는 커뮤니티
-					</h2>
-					<p className="text-[#6B7280] text-[18px] mb-10">
-						학생·선생님·학부모가 모여 질문하고 답하며 성장하는 공간,
-						<br />
-						<strong>StudyHub</strong>에 오신 것을 환영합니다.
-					</p>
-					<div className="space-x-4">
-						<div className="cursor-pointer inline-block px-6 py-4 bg-white rounded-xl font-bold text-[#8B5CF6] shadow-[inset_0_0_0_2px_#8B5CF6]">
-							로그아웃
-						</div>
+				<div className="flex flex-col items-center justify-center mb-30">
+					<div className="w-140 h-16 rounded-xl bg-gray-300 mb-7"></div>
+					<div className="w-120 h-14 rounded-xl bg-gray-300 mb-10"></div>
+					{/* 버튼 */}
+					<div className="flex flex-row gap-4">
+						<div className="w-30 h-14 rounded-xl bg-gray-300"></div>
 					</div>
 				</div>
 				{/* 카드들 */}
-				<div className="h-[193px] flex items-center flex-nowrap gap-5">
-					{/* 게시판 카드 => Link 태그로 수정할 예정 */}
-					<Link
-						to="/posts"
-						className="w-[320px] h-full px-6 py-7 bg-white rounded-xl shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-					>
-						<div className="flex items-center gap-2 mb-4">
-							<Milestone size={18} />
-							<h3 className="font-bold text-xl text-[#8B5CF6]">
-								게시판
-							</h3>
-						</div>
-						<div className="text-[#6B7280] space-y-2 mb-3">
-							<p className="text-sm">
-								질문과 답변, 학습 팁, 경험담을 나누는 공간
-							</p>
-							<p className="text-xs">
-								게시글 120개 · 최근 글 2시간 전 · 💬 8개 · ❤️
-								15개
-							</p>
-						</div>
-						<div className="flex flex-row gap-2 text-xs text-[#8B5CF6]">
-							{/* 반복 함수 구현 예정 */}
-							<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
-								#수학
-							</span>
-							<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
-								#스터디
-							</span>
-							<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
-								#중학생
-							</span>
-						</div>
-					</Link>
-					{/* 그룹 카드 */}
-					{/* 그룹 활동 x */}
-					<div className="w-[320px] h-full flex-grow py-7 px-6 border-2 border-dashed border-[#8B5CF6] bg-white rounded-xl shadow-md text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-						<div className="flex flex-col items-center gap-3">
-							<div className="flex items-center gap-2">
-								<UsersRound size={18} />
-								<h3 className="font-bold text-xl text-[#8B5CF6]">
-									가입한 그룹이 없습니다
-								</h3>
+				<div className="flex flex-row gap-5">
+					{Array.from({ length: 3 }).map((_, i) => (
+						<div
+							key={i}
+							className="w-80 h-48 rounded-xl bg-white px-6 py-7 shadow-md"
+						>
+							<div className="w-18 h-7 mb-4 rounded-xl bg-gray-300"></div>
+							<div className="w-68 h-5 mb-2 rounded-xl bg-gray-300"></div>
+							<div className="w-68 h-4 mb-2 rounded-xl bg-gray-300"></div>
+							<div className="flex flex-row gap-2">
+								<div className="w-11 h-6 rounded-full bg-gray-300"></div>
+								<div className="w-11 h-6 rounded-full bg-gray-300"></div>
 							</div>
-							<p className="text-[#6B7280] text-sm mb-0.5">
-								아직 참여 중인 그룹이 없습니다.
-								<br />
-								관심 있는 그룹을 찾아 가입해보세요!
-							</p>
-							<Link
-								to="/groups"
-								className="inline-block px-5 py-3 bg-[#8B5CF6] text-sm text-white font-bold rounded-xl"
-							>
-								그룹 목록 보기
-							</Link>
 						</div>
-					</div>
-					<Link
-						to="/msg/1"
-						className="w-[320px] h-full px-6 py-7 bg-white rounded-xl shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-					>
-						<div className="flex items-center gap-2 mb-4">
-							<MessageCircle size={18} />
-							<h3 className="font-bold text-xl text-[#8B5CF6]">
-								메시지
-							</h3>
-						</div>
-						<p className="text-[#6B7280] space-y-2 mb-3 text-sm">
-							1:1 대화 메시지로 소통하세요
-						</p>
-					</Link>
+					))}
 				</div>
 			</div>
 		</>

@@ -2,6 +2,7 @@ import { useParams } from "react-router";
 import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
 import InfoBlock from "./InfoBlock";
+import type { ChildInfo, UserProfile } from "../../types/profile";
 
 export default function Info({
 	profile,

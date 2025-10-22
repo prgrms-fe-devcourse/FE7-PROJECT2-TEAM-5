@@ -28,10 +28,10 @@ export default function PostTabContainer({
 
 	return (
 		<>
-			<h1 className="font-bold text-[28px] my-3">{title}</h1>
+			<h1 className="font-bold text-[28px] mb-3">{title}</h1>
 
 			{/* 버튼 영역 */}
-			<div className="flex py-1 justify-between items-center">
+			<div className="flex justify-between items-center">
 				{/* 게시판 탭 버튼 */}
 				<div className="inline-flex gap-2">
 					{tabs.map((tab) => (

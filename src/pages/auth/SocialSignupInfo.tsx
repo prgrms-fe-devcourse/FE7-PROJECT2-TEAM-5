@@ -191,6 +191,26 @@ export default function SocialSignupInfo() {
 				return;
 			}
 
+			// 부모-자녀 연결
+			if (role === "parent" && childLinkCode.trim()) {
+				const { data: childUser, error: searchError } = await supabase
+					.from("users")
+					.select("auth_id")
+					.eq("child_link_code", childLinkCode.trim())
+					.single();
+
+				if (!childUser || searchError) {
+					console.warn("자녀 코드 검색 실패", searchError);
+				} else {
+					await supabase.from("child_parent_links").insert([
+						{
+							parent_id: profile?.auth_id,
+							child_id: childUser.auth_id,
+						},
+					]);
+				}
+			}
+
 			// 프로필 새로고침
 			await fetchProfile();
 

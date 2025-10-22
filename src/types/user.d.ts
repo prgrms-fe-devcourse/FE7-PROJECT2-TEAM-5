@@ -1,8 +1,9 @@
 type User = {
 	auth_id: string;
+	profile_image_url?: string;
 	nickname: string;
-	online?: string;
+	is_online: boolean;
 	role: string;
-	birth_date?: Date;
+	birth_date?: string;
 	major?: string;
 };

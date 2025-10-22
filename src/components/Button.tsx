@@ -1,9 +1,11 @@
 type ButtonProps = React.ComponentPropsWithoutRef<"button">;
 export default function Button(props: ButtonProps) {
-	const { children, ...rest } = props;
+	const { children, className, ...rest } = props;
 	return (
 		<>
-			<button {...rest}>{children}</button>
+			<button className={`cursor-pointer ${className}`} {...rest}>
+				{children}
+			</button>
 		</>
 	);
 }

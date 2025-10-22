@@ -4,6 +4,7 @@ import PostTabContainer from "../../components/PostTabContainer";
 import PostList from "../../components/PostList";
 import PageNation from "../../components/PageNation";
 import { usePostsStore } from "../../stores/postsStore";
+import PostListSkeleton from "../../components/loading/post/PostListSkeleton";
 
 export default function PostListPage() {
 	const [activeTab, setActiveTab] = useState<string>("all");
@@ -34,6 +35,8 @@ export default function PostListPage() {
 		(currentPage - 1) * postsPerPage,
 		currentPage * postsPerPage,
 	);
+
+	if (isLoading) return <PostListSkeleton />;
 
 	return (
 		<>

@@ -1,15 +1,7 @@
-import type { Database } from "../types/database";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import supabase from "../utils/supabase";
-
-type Post = Database["public"]["Tables"]["posts"]["Row"] & {
-	users?: {
-		nickname: string;
-	} | null;
-	likes?: string[] | null;
-	comments?: string[] | null;
-};
+import type { Post } from "../types/post";
 
 type PostsStore = {
 	posts: Post[];

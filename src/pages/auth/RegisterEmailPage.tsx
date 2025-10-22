@@ -204,9 +204,16 @@ export default function RegisterEmailPage() {
 				password,
 			});
 			if (error) {
-				setMessage(`회원가입 실패: ${error.message}`);
+				// 이메일 중복 에러 처리
+				if (error.message === "User already registered") {
+					setErrors((prev) => ({
+						...prev,
+						email: "이미 사용 중인 이메일입니다.",
+					}));
+				} else {
+					setMessage(`회원가입 실패: ${error.message}`);
+				}
 				setLoading(false);
-
 				return;
 			}
 			const user = data && "user" in data ? data.user : (data as any);
@@ -294,7 +301,7 @@ export default function RegisterEmailPage() {
 
 			{/* 이메일 입력 */}
 			<form
-				className="w-full flex flex-col gap-4 mb-7"
+				className="w-full flex flex-col gap-4 mb-4"
 				onSubmit={handleSubmit}
 			>
 				<div>
@@ -576,13 +583,13 @@ export default function RegisterEmailPage() {
 			</form>
 			{/* 폼 입력 에러가 아닌, signup중 발생한 서버/시스템 에러는 여기다가 표시 */}
 			<FormErrorMessage message={message} />
-			<div className="flex flex-col gap-4 items-center mb-3">
-				<div className="text-xs text-[#6B7280]">
-					이미 계정이 있나요?{" "}
-					<Link to="/login" className="text-[#8B5CF6] underline">
-						로그인
-					</Link>
-				</div>
+			<div className="flex justify-center items-center">
+				<Link
+					to="/login"
+					className="text-[#8B5CF6] text-sm hover:underline"
+				>
+					이미 계정이 있나요? <strong>로그인</strong>
+				</Link>
 			</div>
 		</>
 	);

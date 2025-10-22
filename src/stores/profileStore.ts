@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import supabase from "../utils/supabase";
+import type { ChildInfo, UserProfile } from "../types/profile";
 
 type ProfileState = {
 	profile: UserProfile | null;
@@ -67,27 +68,31 @@ export const useProfileStore = create<ProfileState>()(
 			});
 
 			try {
-				// 현재 로그인된 사용자 확인
+				// 로그인된 사용자 확인 (없어도 계속 진행)
 				const {
 					data: { user: currentUser },
 					error: userError,
 				} = await supabase.auth.getUser();
-				if (userError) throw userError;
 
-				if (!currentUser) throw new Error("로그인 정보가 없습니다.");
+				if (userError) {
+					console.warn("로그인하지 않음:", userError.message);
+				}
 
-				// 로그인 상태만 갱신 (currentUserId는 덮어쓰지 않음)
+				// 로그인 상태만 갱신
 				set((state) => {
-					state.isLoggedIn = true;
+					state.isLoggedIn = !!currentUser;
 				});
 
-				// 불러올 프로필 대상 결정
+				// 프로필 대상 결정
 				let authId: string | null = null;
 				if (!targetAuthId || targetAuthId === "me") {
+					if (!currentUser) throw new Error("로그인이 필요합니다.");
 					authId = currentUser.id; // 내 프로필
 				} else {
 					authId = targetAuthId; // 다른 사람 프로필
 				}
+
+				if (!authId) throw new Error("유효하지 않은 사용자 ID입니다.");
 
 				// users 테이블에서 대상 프로필 가져오기
 				const { data: profileData, error: profileError } =
@@ -99,9 +104,15 @@ export const useProfileStore = create<ProfileState>()(
 
 				if (profileError) throw profileError;
 
-				// 부모인 경우 자녀 목록도 가져오기
+				// 자녀 목록 (부모/선생님이고, 로그인한 본인일 때만)
 				let childInfos: ChildInfo[] = [];
-				if (profileData.role === "parent") {
+				if (
+					currentUser &&
+					profileData.role &&
+					(profileData.role === "parent" ||
+						profileData.role === "teacher") &&
+					authId === currentUser.id
+				) {
 					try {
 						const { data: childLinks, error: childError } =
 							await supabase
@@ -129,7 +140,6 @@ export const useProfileStore = create<ProfileState>()(
 					state.childInfos = childInfos;
 					state.loading = false;
 					state.error = null;
-					state.isLoggedIn = true; // 안전하게 로그인 상태 유지
 				});
 			} catch (err: any) {
 				set((state) => {
@@ -137,7 +147,6 @@ export const useProfileStore = create<ProfileState>()(
 					state.childInfos = [];
 					state.loading = false;
 					state.error = err.message ?? "프로필 불러오기 실패";
-					// ⚠️ isLoggedIn 상태는 유지
 				});
 			}
 		},
