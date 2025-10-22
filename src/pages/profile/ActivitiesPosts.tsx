@@ -21,7 +21,7 @@ export default function ActivitiesPosts({ posts }: { posts: Post[] }) {
 		<div>
 			{/* 게시글 반복 */}
 			{displayedPosts.map((post, idx) => (
-				<Link to={`/post/${post.id}`}>
+				<Link to={`/posts/${post.id}`}>
 					<div
 						key={post.id}
 						className={`p-4 flex flex-row justify-between ${
