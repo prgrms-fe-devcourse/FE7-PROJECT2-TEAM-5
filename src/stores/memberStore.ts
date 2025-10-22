@@ -58,7 +58,7 @@ export const useMemberStore = create<MemberState>()(
 
 					if (memberError) throw memberError;
 
-					const ids = memberIds?.map((m) => m.user_id) ?? [];
+					const ids = memberIds.map((m) => m.user_id) ?? [];
 					if (ids.length === 0) {
 						set((state) => {
 							state.friendsByProfileId[gid] = [];
@@ -101,40 +101,36 @@ export const useMemberStore = create<MemberState>()(
 				}
 			}
 
-			// 유저 팔로잉 가져오기
-			if (userId) {
-				try {
-					const { data, error } = await supabase
-						.from("follows")
-						.select(
-							"*, users!fk_Follows_following_id_users_id(auth_id, nickname, profile_image_url, is_online)",
-						)
-						.eq("follower_id", userId);
+			try {
+				const { data, error } = await supabase
+					.from("follows")
+					.select(
+						"*, users!fk_Follows_following_id_users_id(auth_id, nickname, profile_image_url, is_online)",
+					)
+					.eq("follower_id", userId);
 
-					if (error) throw error;
+				if (error) throw error;
 
-					const statusMap: Record<string, boolean> = {};
-					(data || []).forEach((item) => {
-						if (item.following_id)
-							statusMap[item.following_id] = true;
-					});
+				const statusMap: Record<string, boolean> = {};
+				(data || []).forEach((item) => {
+					if (item.following_id) statusMap[item.following_id] = true;
+				});
 
-					const sortedData = (data || []).sort((a, b) => {
-						const aOnline = a.users?.is_online ? 1 : 0;
-						const bOnline = b.users?.is_online ? 1 : 0;
-						return bOnline - aOnline;
-					});
+				const sortedData = (data || []).sort((a, b) => {
+					const aOnline = a.users?.is_online ? 1 : 0;
+					const bOnline = b.users?.is_online ? 1 : 0;
+					return bOnline - aOnline;
+				});
 
-					set((state) => {
-						state.userFollowed = sortedData;
-						state.friendsByProfileId[userId] = sortedData;
-						state.followStatus = statusMap;
-					});
+				set((state) => {
+					state.userFollowed = sortedData;
+					state.friendsByProfileId[userId] = sortedData;
+					state.followStatus = statusMap;
+				});
 
-					result = [...result, ...sortedData];
-				} catch (err: any) {
-					console.error("❌ fetchUserFollowings 실패:", err.message);
-				}
+				result = [...result, ...sortedData];
+			} catch (err: any) {
+				console.error("목록 불러오기 실패:", err.message);
 			}
 
 			return result;
