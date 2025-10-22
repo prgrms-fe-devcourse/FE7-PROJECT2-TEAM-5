@@ -4,7 +4,7 @@ type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
 	user: {
 		auth_id: string;
 		nickname?: string;
-		birth_date: Date;
+		birth_date: string;
 		representative_badge_id: {
 			badges: {
 				name: string;

@@ -1,11 +1,11 @@
 import { Heart, MessageSquare } from "lucide-react";
-import type { Comment } from "../../types/Comment";
 import { useState } from "react";
 import supabase from "../../utils/supabase";
 import { useProfileStore } from "../../stores/profileStore";
 import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
 import { useNavigate } from "react-router";
+import type { Comment } from "../../types/comment";
 
 type PostCommentsProps = {
 	comments: Comment[] | null;

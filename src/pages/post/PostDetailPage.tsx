@@ -1,18 +1,19 @@
 import { Heart } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import supabase from "../../utils/supabase";
 import PostComments from "./PostComments";
 import { useProfileStore } from "../../stores/profileStore";
 import { usePostStore } from "../../stores/postStore";
+import PostDetailSkeleton from "../../components/loading/post/PostDetailSkeleton";
 
 // 게시글 세부 페이지
 export default function PostDetailPage() {
 	const navigate = useNavigate();
 	const { id } = useParams();
 	const currentUserId = useProfileStore((state) => state.currentUserId);
+	const isLoading = usePostStore((state) => state.isLoading);
 	const postData = usePostStore((state) => state.post);
-	const [isLoading, setIsLoading] = useState(true);
 	const isLiked = usePostStore((state) => state.isLiked);
 	const comments = usePostStore((state) => state.comments);
 	const fetchPost = usePostStore((state) => state.fetchPost);
@@ -20,11 +21,9 @@ export default function PostDetailPage() {
 
 	useEffect(() => {
 		const loadPost = async () => {
-			setIsLoading(true);
 			if (id && currentUserId) {
 				await fetchPost(id, currentUserId);
 			}
-			setIsLoading(false);
 		};
 		loadPost();
 	}, [id, currentUserId]);
@@ -67,7 +66,7 @@ export default function PostDetailPage() {
 
 	return (
 		<>
-			{isLoading && <div>로딩중</div>}
+			{isLoading && <PostDetailSkeleton />}
 			{!isLoading && (
 				<div className="w-250 px-30 py-5">
 					<div className="flex justify-between items-center">
