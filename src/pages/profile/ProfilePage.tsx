@@ -16,7 +16,7 @@ export default function ProfilePage() {
 		loading,
 		error,
 	} = useProfileStore();
-	const { fetchUserPosts, fetchUserComments } = useActPostStore();
+	const { fetchUserPosts, fetchUserCommentsWithPosts } = useActPostStore();
 	const { id } = useParams();
 
 	const [ready, setReady] = useState(false);
@@ -38,14 +38,14 @@ export default function ProfilePage() {
 
 		fetchProfile(targetAuthId);
 		fetchUserPosts(targetAuthId);
-		fetchUserComments(targetAuthId);
+		fetchUserCommentsWithPosts(targetAuthId);
 	}, [
 		ready,
 		id,
 		currentUserId,
 		fetchProfile,
 		fetchUserPosts,
-		fetchUserComments,
+		fetchUserCommentsWithPosts,
 	]);
 
 	// 로딩 중

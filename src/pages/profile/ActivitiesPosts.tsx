@@ -1,18 +1,19 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import PageNation from "../../components/PageNation";
-import type { Post } from "../../types/post";
 import { Heart, MessageSquare } from "lucide-react";
+import { useActPostStore } from "../../stores/profileActivityStore";
 
-export default function ActivitiesPosts({ posts }: { posts: Post[] }) {
-	if (!posts) return <p>작성한 게시글이 없습니다.</p>;
+export default function ActivitiesPosts() {
+	const { userPosts } = useActPostStore();
+	if (!userPosts) return <p>작성한 게시글이 없습니다.</p>;
 
 	const postsPerPage = 4;
 	const [currentPage, setCurrentPage] = useState(1);
 
-	const totalPages = Math.ceil(posts.length / postsPerPage);
+	const totalPages = Math.ceil(userPosts.length / postsPerPage);
 
-	const displayedPosts = posts.slice(
+	const displayedPosts = userPosts.slice(
 		(currentPage - 1) * postsPerPage,
 		currentPage * postsPerPage,
 	);
