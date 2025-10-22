@@ -55,14 +55,9 @@ export default function DetailCard() {
 				{activeTab === "info" && (
 					<Info profile={profile} childInfos={childInfos} />
 				)}
-				{activeTab === "activities" && <Activities />}
-				{activeTab === "friends" && (
-					<Friends friends={friends} userId={profile.auth_id} />
 				{activeTab === "activities" && (
-					<Activities
-						key={profile.auth_id}
-						userId={profile.auth_id}
-					/>
+					<Activities key={profile.auth_id} />
+				)}
 				{activeTab === "friends" && (
 					<Friends friends={friends} userId={profile.auth_id} />
 				)}

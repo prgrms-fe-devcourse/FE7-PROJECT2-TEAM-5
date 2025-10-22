@@ -12,7 +12,7 @@ type ActPostState = {
 	// fetchUserPosts: 유저 게시글 불러오기
 	fetchUserPosts: (userId?: string | null) => Promise<void>;
 	// fetchUserComments: 유저 댓글 불러오기
-	fetchUserComments: (userId: string) => Promise<void>;
+	fetchUserComments: (userId?: string | null) => Promise<void>;
 	// fetchParentComments: 유저 댓글의 대댓글
 	fetchParentComments: (userId: string) => Promise<void>;
 	// fetchBoardType: 댓글을 달았던 게시글의 Board_Type 불러오기
@@ -89,7 +89,10 @@ export const useActPostStore = create<ActPostState>()(
 				.eq("id", postId);
 
 			if (error) {
-				console.error("댓글 달았던 게시글 불러오기 실패:", error.message);
+				console.error(
+					"댓글 달았던 게시글 불러오기 실패:",
+					error.message,
+				);
 				return;
 			}
 
