@@ -5,12 +5,6 @@ interface MessageBubbleProps {
 	currentUserId: string;
 }
 
-// URL이 이미지인지 확인하는 함수
-const isImageUrl = (text: string): boolean => {
-	// base64 이미지 확인
-	return text.startsWith("data:image/");
-};
-
 // 시간 포맷팅 함수
 const formatTime = (dateString: string): string => {
 	const date = new Date(dateString);
@@ -27,7 +21,7 @@ export default function MessageBubble({
 	// 현재 로그인한 사용자가 보낸 메시지인지 확인 (다르게 보여야 하니까)
 	const isCurrentUser = message.sender_id === currentUserId;
 	// 메시지가 이미지인지 확인
-	const isImage = isImageUrl(message.message);
+	const isImage = message.message.startsWith("data:image/");
 
 	return (
 		<div
