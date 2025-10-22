@@ -1,4 +1,4 @@
-import type { ChatRoom } from "../types/message";
+import type { ChatRoom } from "../../types/message";
 import ChatRoomItem from "./ChatRoomItem";
 
 interface ChatRoomListProps {
@@ -7,6 +7,7 @@ interface ChatRoomListProps {
 	selectedRoomId: string | null;
 	onRoomSelect: (roomId: string) => void;
 	isLoading: boolean;
+	isInitialLoad?: boolean;
 }
 
 export default function ChatRoomList({
@@ -15,9 +16,10 @@ export default function ChatRoomList({
 	selectedRoomId,
 	onRoomSelect,
 	isLoading,
+	isInitialLoad = false,
 }: ChatRoomListProps) {
 	// 스켈레톤 UI로 구현 예정
-	if (isLoading) {
+	if (isLoading && isInitialLoad) {
 		return (
 			<div className="flex-1 overflow-y-auto">
 				<div className="flex items-center justify-center h-32">

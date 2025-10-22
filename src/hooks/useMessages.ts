@@ -95,6 +95,7 @@ export const useChatRooms = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 
+	// 초기 로딩용, 스켈레톤 UI 적용 됨
 	const fetchChatRooms = useCallback(async () => {
 		if (!currentUserId) {
 			console.log("useChatRooms: currentUserId가 없습니다");
@@ -114,6 +115,18 @@ export const useChatRooms = () => {
 		}
 	}, [currentUserId]);
 
+	// 실시간 업데이트용, 스켈레톤 UI 적용 안됨
+	const fetchChatRoomsWithoutLoading = useCallback(async () => {
+		if (!currentUserId) return;
+
+		try {
+			const fetchedChatRooms = await getChatRooms(currentUserId);
+			setChatRooms(fetchedChatRooms);
+		} catch (error) {
+			console.error("useChatRooms: 실시간 업데이트 에러", error);
+		}
+	}, [currentUserId]);
+
 	useEffect(() => {
 		fetchChatRooms();
 	}, [fetchChatRooms]);
@@ -123,14 +136,14 @@ export const useChatRooms = () => {
 		if (!currentUserId) return;
 
 		const channel = subscribeToChatRooms(currentUserId, () => {
-			// 채팅방 목록 업데이트
-			fetchChatRooms();
+			// 실시간 업데이트 시에는 로딩 상태 없이 채팅방 목록 업데이트
+			fetchChatRoomsWithoutLoading();
 		});
 
 		return () => {
 			supabase.removeChannel(channel);
 		};
-	}, [currentUserId, fetchChatRooms]);
+	}, [currentUserId, fetchChatRoomsWithoutLoading]);
 
 	return { chatRooms, isLoading, refetch: fetchChatRooms };
 };

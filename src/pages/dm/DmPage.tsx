@@ -16,6 +16,7 @@ export default function DmPage() {
 		roomId || null,
 	);
 	const [messageInput, setMessageInput] = useState("");
+	const [isInitialLoad, setIsInitialLoad] = useState(true);
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 	const { messages, isLoading } = useMessagesInRoom(selectedRoomId);
 	const { chatRooms, isLoading: chatRoomsLoading } = useChatRooms();
@@ -40,6 +41,13 @@ export default function DmPage() {
 			setSelectedRoomId(roomId);
 		}
 	}, [roomId]);
+
+	// 초기 로딩 완료 감지, 초기 로딩 이후엔 isInitialLoad를 false로 설정
+	useEffect(() => {
+		if (!chatRoomsLoading && chatRooms.length >= 0) {
+			setIsInitialLoad(false);
+		}
+	}, [chatRoomsLoading, chatRooms.length]);
 
 	// 채팅방 목록이 로드된 후 URL 파라미터 처리
 	useEffect(() => {
@@ -115,6 +123,7 @@ export default function DmPage() {
 						selectedRoomId={selectedRoomId}
 						onRoomSelect={handleRoomSelect}
 						isLoading={chatRoomsLoading}
+						isInitialLoad={isInitialLoad}
 					/>
 				</div>
 				{/* 나중에 데이터 받아와서 사용할 로직 */}
