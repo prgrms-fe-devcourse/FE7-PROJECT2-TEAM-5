@@ -4,7 +4,8 @@ import PostList from "../../components/PostList";
 import type { Post } from "../../types/post";
 import PageNation from "../../components/PageNation";
 import type { Friend } from "../../types/friend";
-// import MemberCard from "../../components/MemberCard";
+import MemberCard from "../../components/MemberCard";
+
 export default function SearchPage() {
 	const [searchKeyword, setSearchKeyword] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
@@ -14,57 +15,61 @@ export default function SearchPage() {
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setIsLoading(true);
-		setSearchKeyword(searchKeyword.trim());
-		if (!searchKeyword || searchKeyword === " ") {
+		const keyword = searchKeyword.trim();
+		if (!keyword || keyword === " ") {
+			setSearchUserResult([]);
 			setSearchPostResult([]);
 			setIsLoading(false);
 			return;
 		}
 		try {
 			setIsLoading(true);
-			if (searchKeyword[0] === "@") {
+			if (keyword[0] === "@") {
 				const { data: users, error: userError } = await supabase
 					.from("users")
 					.select("*")
-					.ilike("nickname", "%" + searchKeyword.slice(1) + "%");
+					.ilike("nickname", "%" + keyword.slice(1) + "%")
+					.order("is_online", { ascending: false });
 
 				if (userError) throw userError;
-				if (users) {
+				if (users && users.length > 0) {
 					setSearchUserResult(users);
+					//유사 닉네임을 가진 유저의 id와 동일한가 or 매개변수 맵핑
+					const nicfilter = users
+						.map((user) => `user_id.eq.${user.auth_id}`)
+						.join(",");
+
+					const { data: posts, error: postError } = await supabase
+						.from("posts")
+						.select(
+							"*, users(nickname), likes:post_likes(id), comments:comments!comments_post_id_fkey(id)",
+						)
+						.is("group_id", null)
+						.or(nicfilter)
+						.order("created_at", { ascending: false });
+
+					if (postError) throw postError;
+					if (posts) {
+						setSearchPostResult(posts);
+						setIsLoading(false);
+					}
+				} else {
 					setIsLoading(false);
 				}
-
-				const nicfilter = users
-					.map((user) => `user_id.eq.${user.auth_id}`)
-					.join(",");
-
-				const { data: posts, error: postError } = await supabase
-					.from("posts")
-					.select(
-						"*, users(nickname), likes:post_likes(id), comments:comments!comments_post_id_fkey(id)",
-					)
-					.is("group_id", null)
-					.or(nicfilter)
-					.order("created_at", { ascending: false });
-
-				if (postError) throw postError;
-				if (posts) {
-					setSearchPostResult(posts);
-					setIsLoading(false);
-				}
-			} else if (searchKeyword[0] === "#") {
+			} else if (keyword[0] === "#") {
 				const { data: posts, error } = await supabase
 					.from("posts")
 					.select(
 						"*, users(nickname), likes:post_likes(id), comments:comments!comments_post_id_fkey(id)",
 					)
 					.is("group_id", null)
-					.contains("hash_tag", [searchKeyword.slice(1)])
+					.contains("hash_tag", [keyword.slice(1)])
 					.order("created_at", { ascending: false });
 
 				if (error) throw error;
 				if (posts) {
 					setSearchPostResult(posts);
+					setSearchUserResult([]);
 					setIsLoading(false);
 				}
 			} else {
@@ -74,12 +79,13 @@ export default function SearchPage() {
 						"*, users(nickname), likes:post_likes(id), comments:comments!comments_post_id_fkey(id)",
 					)
 					.is("group_id", null)
-					.ilike("title", "%" + searchKeyword + "%")
+					.ilike("title", "%" + keyword + "%")
 					.order("created_at", { ascending: false });
 
 				if (error) throw error;
 				if (posts) {
 					setSearchPostResult(posts);
+					setSearchUserResult([]);
 					setIsLoading(false);
 				}
 			}
@@ -87,10 +93,11 @@ export default function SearchPage() {
 			console.error(e);
 		}
 	};
-	const members: Friend[] = searchUserResult.map((user) => ({
-		id: crypto.randomUUID(), // 임의 id
-		created_at: new Date().toISOString(), // 임의 created_at
-		follower_id: "", // 그룹 멤버라서 팔로우 정보 없음
+	//그룹에 사용한 거 그냥 가져옴
+	const users: Friend[] = searchUserResult.map((user) => ({
+		id: crypto.randomUUID(),
+		created_at: new Date().toISOString(),
+		follower_id: "",
 		following_id: user.auth_id,
 		users: {
 			auth_id: user.auth_id,
@@ -100,23 +107,38 @@ export default function SearchPage() {
 		},
 	}));
 
-	const friendsPerPage = 4;
 	const [currentPage, setCurrentPage] = useState(1);
+	const resultPerPage = 4;
 	const totalPages = Math.ceil(
-		members.length + searchPostResult.length / friendsPerPage,
+		((users.length ?? 0) + (searchPostResult.length ?? 0)) / resultPerPage,
 	);
+	console.log("슬라이스 시작", searchPostResult, searchUserResult);
+	// // 현재 노출되는 게시글, 유저 아이템
+	let displayedUsers: Friend[] = [];
+	let displayedPosts: Post[] = [];
 
-	const displayedFriends = members.slice(
-		(currentPage - 1) * friendsPerPage,
-		currentPage * friendsPerPage,
-	);
+	const userPageCount = Math.ceil(users.length / resultPerPage);
+	if (currentPage > userPageCount) {
+		displayedPosts = searchPostResult.slice(
+			(currentPage - 1) * resultPerPage - users.length,
+			currentPage * resultPerPage - users.length,
+		);
+	} else if (currentPage === userPageCount) {
+		displayedUsers = users.slice((currentPage - 1) * resultPerPage);
 
-	const postsPerPage = 4;
-
-	const displayedPosts = searchPostResult.slice(
-		(currentPage - 1) * postsPerPage,
-		currentPage * postsPerPage,
-	);
+		displayedPosts = searchPostResult.slice(
+			((currentPage === 0 ? 2 : currentPage) - 1) * resultPerPage -
+				users.length +
+				(users.length % resultPerPage),
+			(currentPage === 0 ? 1 : currentPage) * resultPerPage -
+				users.length,
+		);
+	} else {
+		displayedUsers = users.slice(
+			(currentPage - 1) * resultPerPage,
+			currentPage * resultPerPage,
+		);
+	}
 
 	return (
 		<>
@@ -154,13 +176,27 @@ export default function SearchPage() {
 				)}
 				{!isLoading && (
 					<div className="border-t border-gray-300 mt-2 pt-6">
-						{displayedFriends.map((friend) => (
-							<div className="bg-white rounded-xl">
-								{/* <MemberCard friend={friend} /> */}
-							</div>
-						))}
+						{/* 검색 결과가 없을 때 */}
+						{users.length === 0 &&
+							searchPostResult.length === 0 && (
+								<div className="text-center text-gray-500 py-12">
+									검색 결과가 없습니다.
+								</div>
+							)}
+						{/* 멤버 영역 */}
+						{displayedUsers.length > 0 &&
+							displayedUsers.map((user) => (
+								<div
+									key={user.id}
+									className="bg-white rounded-xl mb-2"
+								>
+									<MemberCard friend={user} />
+								</div>
+							))}
 						{/* 게시판 영역 */}
-						<PostList posts={displayedPosts} isSearchPage={true} />
+						{displayedPosts.length > 0 && (
+							<PostList posts={displayedPosts} />
+						)}
 						{/* 페이지 네이션 */}
 						<PageNation
 							currentPage={currentPage}

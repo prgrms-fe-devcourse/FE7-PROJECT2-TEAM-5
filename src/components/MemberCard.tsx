@@ -53,7 +53,7 @@ export default function MemberCard({
 		if (!friend.users?.auth_id || !currentUserId) return;
 
 		await unFollowUserFnc(currentUserId, friend.users.auth_id);
-		onUnfollow(friend.users.auth_id);
+		onUnfollow?.(friend.users.auth_id);
 	};
 
 	return (
