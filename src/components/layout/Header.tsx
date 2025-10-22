@@ -1,8 +1,18 @@
 import { Link } from "react-router";
 import { useProfileStore } from "../../stores/profileStore";
+import { useState } from "react";
+import NotificationSidebar from "../NotificationSidebar";
+import { useNotifications } from "../../hooks/useNotifications";
 
 export default function Header() {
 	const isLoggedIn = useProfileStore((state) => state.isLoggedIn);
+	const { notifications } = useNotifications();
+	const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+
+	const handleNotificationToggle = () => {
+		setIsNotificationOpen(!isNotificationOpen);
+	};
+
 	return (
 		<>
 			<header className="z-10 w-full h-[70px] px-6 flex justify-between items-center border-b border-[#E6E9EE] shadow-[0_2px_6px_rgba(0,0,0,0.05)]">
@@ -15,7 +25,15 @@ export default function Header() {
 					<Link to="/groups">그룹</Link>
 					{isLoggedIn ? (
 						<>
-							<button className="cursor-pointer">알림</button>
+							<button
+								onClick={handleNotificationToggle}
+								className="cursor-pointer flex items-center gap-2 hover:text-[#8B5CF6] transition-colors relative"
+							>
+								알림
+								{notifications.length > 0 && (
+									<div className="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2 animate-pulse"></div>
+								)}
+							</button>
 							<Link to="/msg/1">메시지</Link>
 							<Link to="/profile/me">프로필</Link>
 						</>
@@ -25,6 +43,12 @@ export default function Header() {
 					<button className="cursor-pointer">다크모드</button>
 				</nav>
 			</header>
+
+			{/* 알림 사이드바 */}
+			<NotificationSidebar
+				isOpen={isNotificationOpen}
+				onClose={() => setIsNotificationOpen(false)}
+			/>
 		</>
 	);
 }

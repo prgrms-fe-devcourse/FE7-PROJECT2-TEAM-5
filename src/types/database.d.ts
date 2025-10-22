@@ -182,7 +182,7 @@ export type Database = {
 				};
 				Insert: {
 					content: string;
-					created_at: string;
+					created_at?: string;
 					id?: string;
 					parent_comment_id?: string | null;
 					post_id: string;
@@ -212,7 +212,7 @@ export type Database = {
 						referencedColumns: ["id"];
 					},
 					{
-						foreignKeyName: "fk_comments_user_id_users_id";
+						foreignKeyName: "comments_user_id_fkey";
 						columns: ["user_id"];
 						isOneToOne: false;
 						referencedRelation: "users";
@@ -387,6 +387,7 @@ export type Database = {
 			notifications: {
 				Row: {
 					actor_id: string;
+					content: string | null;
 					created_at: string;
 					id: string;
 					message: string;
@@ -396,6 +397,7 @@ export type Database = {
 				};
 				Insert: {
 					actor_id: string;
+					content?: string | null;
 					created_at: string;
 					id?: string;
 					message: string;
@@ -405,6 +407,7 @@ export type Database = {
 				};
 				Update: {
 					actor_id?: string;
+					content?: string | null;
 					created_at?: string;
 					id?: string;
 					message?: string;
@@ -469,7 +472,7 @@ export type Database = {
 					user_id: string;
 				};
 				Insert: {
-					created_at: string;
+					created_at?: string;
 					id?: string;
 					post_id: string;
 					user_id: string;
@@ -570,7 +573,9 @@ export type Database = {
 					gender: string | null;
 					habits: string[] | null;
 					interests: string[] | null;
+					is_online: boolean | null;
 					is_profile_completed: boolean;
+					last_seen: string | null;
 					major: string | null;
 					nickname: string;
 					profile_image_url: string | null;
@@ -589,7 +594,9 @@ export type Database = {
 					gender?: string | null;
 					habits?: string[] | null;
 					interests?: string[] | null;
+					is_online?: boolean | null;
 					is_profile_completed?: boolean;
+					last_seen?: string | null;
 					major?: string | null;
 					nickname: string;
 					profile_image_url?: string | null;
@@ -608,7 +615,9 @@ export type Database = {
 					gender?: string | null;
 					habits?: string[] | null;
 					interests?: string[] | null;
+					is_online?: boolean | null;
 					is_profile_completed?: boolean;
+					last_seen?: string | null;
 					major?: string | null;
 					nickname?: string;
 					profile_image_url?: string | null;

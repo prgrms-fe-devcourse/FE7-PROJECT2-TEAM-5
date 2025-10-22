@@ -2,8 +2,10 @@ import { Outlet } from "react-router";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import UserList from "../components/UserList";
+import { useProfileStore } from "../stores/profileStore";
 
 export default function MainLayout() {
+	const currentUserId = useProfileStore((state) => state.currentUserId);
 	return (
 		<>
 			{/* 전체 레이아웃 */}
@@ -20,7 +22,7 @@ export default function MainLayout() {
 						<Footer />
 					</div>
 					{/* 유저 리스트 모달 */}
-					<UserList />
+					<UserList currentUserId={currentUserId} />
 				</main>
 			</div>
 		</>

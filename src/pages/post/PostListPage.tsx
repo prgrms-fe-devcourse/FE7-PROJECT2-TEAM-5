@@ -4,6 +4,7 @@ import PostTabContainer from "../../components/PostTabContainer";
 import PostList from "../../components/PostList";
 import PageNation from "../../components/PageNation";
 import { usePostsStore } from "../../stores/postsStore";
+import PostListSkeleton from "../../components/loading/post/PostListSkeleton";
 
 export default function PostListPage() {
 	const [activeTab, setActiveTab] = useState<string>("all");
@@ -35,6 +36,8 @@ export default function PostListPage() {
 		currentPage * postsPerPage,
 	);
 
+	if (isLoading) return <PostListSkeleton />;
+
 	return (
 		<>
 			<div className="w-[920px]">
@@ -44,6 +47,11 @@ export default function PostListPage() {
 					title="게시판"
 					tabs={tabs}
 				/>
+				{isLoading && (
+					<div className="border-t border-gray-300 mt-2 pt-6">
+						로딩중...
+					</div>
+				)}
 				{!isLoading && (
 					<>
 						{/* 게시판 영역 */}

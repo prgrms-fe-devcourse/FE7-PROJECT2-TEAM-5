@@ -1,317 +1,171 @@
-import { Heart, MessageSquare } from "lucide-react";
+import { Heart } from "lucide-react";
+import { Link, useNavigate, useParams } from "react-router";
+import { useEffect, useState } from "react";
+import supabase from "../../utils/supabase";
+import PostComments from "./PostComments";
+import { useProfileStore } from "../../stores/profileStore";
+import { usePostStore } from "../../stores/postStore";
 
 // 게시글 세부 페이지
 export default function PostDetailPage() {
+	const navigate = useNavigate();
+	const { id } = useParams();
+	const currentUserId = useProfileStore((state) => state.currentUserId);
+	const postData = usePostStore((state) => state.post);
+	const [isLoading, setIsLoading] = useState(true);
+	const isLiked = usePostStore((state) => state.isLiked);
+	const comments = usePostStore((state) => state.comments);
+	const fetchPost = usePostStore((state) => state.fetchPost);
+	const updateLike = usePostStore((state) => state.updateLike);
+
+	useEffect(() => {
+		const loadPost = async () => {
+			setIsLoading(true);
+			if (id && currentUserId) {
+				await fetchPost(id, currentUserId);
+			}
+			setIsLoading(false);
+		};
+		loadPost();
+	}, [id, currentUserId]);
+
+	const pressLike = () => {
+		if (!currentUserId) {
+			alert("로그인이 필요합니다.");
+			navigate("/login");
+			return;
+		}
+		if (
+			postData?.post_likes?.some(
+				(like) => like.user_id === currentUserId,
+			) ||
+			isLiked === true
+		) {
+			alert("이미 좋아요를 눌렀습니다.");
+			return;
+		}
+		if (id) {
+			updateLike(id, currentUserId);
+			alert("좋아요 완료");
+		}
+	};
+
+	const deletePost = async () => {
+		console.log(postData?.id);
+		try {
+			const { error } = await supabase
+				.from("posts")
+				.delete()
+				.eq("id", postData?.id);
+			if (error) throw error;
+			alert("게시물이 삭제되었습니다");
+			navigate("/posts");
+		} catch (e) {
+			console.error(e);
+		}
+	};
+
 	return (
 		<>
-			<div className="w-250 px-30 py-5">
-				<div className="flex justify-between items-center">
-					{/* 글 제목 */}
-					<h1 className="font-bold text-[32px] text-[#8B5CF6]">
-						삼각함수 문제 질문
-					</h1>
-					{/* 작성자만 보이는 수정, 삭제 버튼 */}
-					<div className="flex gap-2">
-						<button
-							type="button"
-							className="px-4 py-2.5 text-sm text-white rounded-xl bg-[#8B5CF6] cursor-pointer"
-						>
-							수정
-						</button>
-						<button
-							type="button"
-							className="px-4 py-2.5 text-sm text-[#8B5CF6] rounded-xl bg-white border-1 border-[#8B5CF6] cursor-pointer"
-						>
-							삭제
-						</button>
-					</div>
-				</div>
-				{/* 작성자, 작성일 */}
-				<p className="text-sm text-[#6B7280]">
-					작성자: @햄버거 먹고싶다 | 2025-10-02
-				</p>
-				{/* 본문 */}
-				<div className="pt-9 pb-15">
-					<pre>
-						cos(A+B) 공식이 헷갈립니다. 예제와 함께 설명해주실
-						선생님 있으신가요?
-					</pre>
-				</div>
-				{/* 댓글 영역 */}
-
-				<div className="flex flex-col gap-y-3 h-80 pr-2 overflow-y-auto ">
-					{/* 댓글 1 */}
-					<div className="flex flex-col gap-y-3">
-						{/* 원 댓글 1 */}
-						<div className="w-full px-4 py-3 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
-							{/* 글 제목과 좋아요, 댓글 수 */}
-							<div className="flex justify-between items-start mb-1">
-								<div className="flex gap-1 items-center">
-									<div className="w-[35px] h-[35px]">
-										<img
-											src="/src/assets/image.png"
-											alt="userImg"
-										/>
-									</div>
-									<div>
-										<p className="text-xs font-medium">
-											🏆 초보 수학 마스터
-										</p>
-										<p className="text-sm">
-											홍길동
-											<span className="text-xs text-[#6B7280] ml-1">
-												중학교 1학년
-											</span>
-										</p>
-									</div>
-								</div>
-
-								{/* 좋아요, 댓글 수 */}
-								<div className="flex gap-3">
-									{/* 좋아요 개수 표시*/}
-									<div className="flex gap-1 items-top">
-										<Heart
-											color="red"
-											size={15}
-											className="mt-0.5"
-										/>
-										<p className="text-[14px]">2</p>
-									</div>
-									{/* 댓글 개수 표시 */}
-									<div className="flex gap-1 items-top">
-										<MessageSquare
-											color="#8B5CF6"
-											size={15}
-											className="mt-0.5"
-										/>
-										<p className="text-[14px]">2</p>
-									</div>
-								</div>
-							</div>
-							{/* 댓글 내용 */}
-							<p className="mt-3 mb-2 text-sm font-Regular text-[#6B7280]">
-								cos(A+B) = cosAcosB - sinAsinB 입니다!
-							</p>
-							{/* 답글 버튼, 작성일 */}
-							<div className="flex justify-between">
+			{isLoading && <div>로딩중</div>}
+			{!isLoading && (
+				<div className="w-250 px-30 py-5">
+					<div className="flex justify-between items-center">
+						{/* 글 제목 */}
+						<h1 className="font-bold text-[32px] text-[#8B5CF6]">
+							{postData?.title}
+						</h1>
+						{/* 작성자만 보이는 수정, 삭제 버튼 */}
+						{postData?.user_id === currentUserId && (
+							<div className="flex gap-2">
+								<Link
+									to={"/posts/create/" + id}
+									className="px-4 py-2.5 text-sm text-white rounded-xl bg-[#8B5CF6] cursor-pointer"
+								>
+									수정
+								</Link>
 								<button
 									type="button"
-									className="text-xs text-[#6B7280] cursor-pointer"
+									onClick={() => {
+										deletePost();
+									}}
+									className="px-4 py-2.5 text-sm text-[#8B5CF6] rounded-xl bg-white border-1 border-[#8B5CF6] cursor-pointer"
 								>
-									답글달기
+									삭제
 								</button>
-								<p className="text-xs text-[#6B7280]">
-									2025-10-10
-								</p>
 							</div>
-						</div>
-						{/* 대댓글은 아래로 추가 */}
-						<div className="w-full px-4 py-3 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
-							{/* 글 제목과 좋아요, 댓글 수 */}
-							<div className="flex justify-between items-start mb-1">
-								<div className="flex gap-1 items-center">
-									<div className="w-[35px] h-[35px]">
-										<img
-											src="/src/assets/image.png"
-											alt="userImg"
-										/>
-									</div>
-									<div>
-										<p className="text-xs font-medium">
-											🏆 초보 수학 마스터
-										</p>
-										<p className="text-sm">
-											홍길동
-											<span className="text-xs text-[#6B7280] ml-1">
-												중학교 1학년
-											</span>
-										</p>
-									</div>
-								</div>
-
-								{/* 좋아요, 댓글 수 */}
-								<div className="flex gap-3">
-									{/* 좋아요 개수 표시*/}
-									<div className="flex gap-1 items-top">
-										<Heart
-											color="red"
-											size={15}
-											className="mt-0.5"
-										/>
-										<p className="text-[14px]">2</p>
-									</div>
-									{/* 대댓글이므로 댓글 개수 표시 X
-									<div className="flex gap-1 items-top">
-										<img
-											className="object-none"
-											src="/src/assets/SpeechBubble.png"
-											alt="SpeechBubble"
-										/>
-										<p className="text-[14px]">2</p>
-									</div> */}
-								</div>
-							</div>
-							{/* 댓글 내용, 작성일 */}
-							<div className="flex justify-between items-end">
-								<p className="mt-3 text-sm font-Regular text-[#6B7280]">
-									<span className="mr-1 text-[#8B5CF6] ">
-										@홍길동
-									</span>
-									cos(A+B) = cosAcosB - sinAsinB 입니다!
-								</p>
-								<p className="text-xs text-[#6B7280]">
-									2025-10-10
-								</p>
-							</div>
+						)}
+					</div>
+					{/* 작성자, 작성일 */}
+					<p className="text-sm text-[#6B7280]">
+						작성자: {postData?.user?.nickname} |{" "}
+						{postData?.created_at.slice(0, 10)}
+					</p>
+					{/* 본문 */}
+					<div className="pt-9 pb-15">
+						<pre>{postData?.content}</pre>
+						<div className="mt-2">
+							{postData?.files?.map((file) => (
+								<img
+									key={file.file_path}
+									src={file.file_path}
+									alt={file.file_name}
+									className="max-h-80"
+								/>
+							))}
 						</div>
 					</div>
-					{/* 댓글 1 */}
-					<div className="flex flex-col gap-y-3">
-						{/* 원 댓글 1 */}
-						<div className="w-full px-4 py-3 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
-							{/* 글 제목과 좋아요, 댓글 수 */}
-							<div className="flex justify-between items-start mb-1">
-								<div className="flex gap-1 items-center">
-									<div className="w-[35px] h-[35px]">
-										<img
-											src="/src/assets/image.png"
-											alt="userImg"
-										/>
-									</div>
-									<div>
-										<p className="text-xs font-medium">
-											🏆 초보 수학 마스터
-										</p>
-										<p className="text-sm">
-											홍길동
-											<span className="text-xs text-[#6B7280] ml-1">
-												중학교 1학년
-											</span>
-										</p>
-									</div>
-								</div>
-
-								{/* 좋아요, 댓글 수 */}
-								<div className="flex gap-3">
-									{/* 좋아요 개수 표시*/}
-									<div className="flex gap-1 items-top">
-										<Heart
-											color="red"
-											size={15}
-											className="mt-0.5"
-										/>
-										<p className="text-[14px]">2</p>
-									</div>
-									{/* 댓글 개수 표시 */}
-									<div className="flex gap-1 items-top">
-										<MessageSquare
-											color="#8B5CF6"
-											size={15}
-											className="mt-0.5"
-										/>
-										<p className="text-[14px]">2</p>
-									</div>
-								</div>
-							</div>
-							{/* 댓글 내용 */}
-							<p className="mt-3 mb-2 text-sm font-Regular text-[#6B7280]">
-								cos(A+B) = cosAcosB - sinAsinB 입니다!
-							</p>
-							{/* 답글 버튼, 작성일 */}
-							<div className="flex justify-between">
-								<button
-									type="button"
-									className="text-xs text-[#6B7280] cursor-pointer"
-								>
-									답글달기
-								</button>
-								<p className="text-xs text-[#6B7280]">
-									2025-10-10
-								</p>
-							</div>
-						</div>
-						{/* 대댓글은 아래로 추가 */}
-						<div className="w-full px-4 py-3 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
-							{/* 글 제목과 좋아요, 댓글 수 */}
-							<div className="flex justify-between items-start mb-1">
-								<div className="flex gap-1 items-center">
-									<div className="w-[35px] h-[35px]">
-										<img
-											src="/src/assets/image.png"
-											alt="userImg"
-										/>
-									</div>
-									<div>
-										<p className="text-xs font-medium">
-											🏆 초보 수학 마스터
-										</p>
-										<p className="text-sm">
-											홍길동
-											<span className="text-xs text-[#6B7280] ml-1">
-												중학교 1학년
-											</span>
-										</p>
-									</div>
-								</div>
-
-								{/* 좋아요, 댓글 수 */}
-								<div className="flex gap-3">
-									{/* 좋아요 개수 표시*/}
-									<div className="flex gap-1 items-top">
-										<Heart
-											color="red"
-											size={15}
-											className="mt-0.5"
-										/>
-										<p className="text-[14px]">2</p>
-									</div>
-									{/* 대댓글이므로 댓글 개수 표시 X
-									<div className="flex gap-1 items-center">
-										<img
-											className="object-none"
-											src="/src/assets/SpeechBubble.png"
-											alt="SpeechBubble"
-										/>
-										<p className="text-[14px]">2</p>
-									</div> */}
-								</div>
-							</div>
-							{/* 댓글 내용, 작성일 */}
-							<div className="flex justify-between items-center">
-								<p className="mt-3 text-sm font-Regular text-[#6B7280]">
-									<span className="mr-1 text-[#8B5CF6] ">
-										@홍길동
-									</span>
-									cos(A+B) = cosAcosB - sinAsinB 입니다!
-								</p>
-								<p className="text-xs text-[#6B7280]">
-									2025-10-10
-								</p>
-							</div>
-						</div>
+					<div className="flex justify-center">
+						<button
+							type="button"
+							onClick={() => {
+								pressLike();
+							}}
+							className="cursor-pointer"
+						>
+							{isLiked ? (
+								<Heart
+									color="white"
+									size={40}
+									className="p-2 bg-[#EA489A] border-1 border-[#EA489A] rounded-4xl"
+								/>
+							) : (
+								<Heart
+									color="#EA489A"
+									size={40}
+									className="p-2 bg-white border-1 border-[#EA489A] rounded-4xl"
+								/>
+							)}
+						</button>
 					</div>
-				</div>
-
-				<form className="flex gap-2 mt-4 w-full ">
-					<input
-						type="textarea"
-						placeholder="댓글을 작성해주세요."
-						className="w-[696px] text-sm px-6 py-3 border-1 border-[#E5E7EB] rounded-xl focus:outline-none bg-white"
+					<div className="flex gap-2 mb-4">
+						{postData?.hash_tag?.map((tag, idx) => (
+							<div
+								key={idx}
+								className="px-2 py-1 rounded-lg bg-[#EDE9FE] font-Regular text-xs text-[#8B5CF6]"
+							>
+								#{tag}
+							</div>
+						))}
+					</div>
+					{/* 댓글 영역 */}
+					<PostComments
+						comments={comments}
+						postId={id}
+						adopted_comment_id={
+							postData?.adopted_comment_id ?? null
+						}
+						writerId={postData?.user_id}
 					/>
-					<button
-						type="button"
-						className="px-4 py-2.5 text-sm text-white rounded-xl bg-[#8B5CF6] cursor-pointer"
+
+					<Link
+						to={"/posts"}
+						className="inline-block mt-7 px-6 py-2.5 text-sm text-white rounded-xl bg-[#8B5CF6] cursor-pointer"
 					>
-						등록
-					</button>
-				</form>
-				<button
-					type="button"
-					className="mt-7 px-6 py-2.5 text-sm text-white rounded-xl bg-[#8B5CF6] cursor-pointer"
-				>
-					← 게시판으로 돌아가기
-				</button>
-			</div>
+						← 게시판으로 돌아가기
+					</Link>
+				</div>
+			)}
 		</>
 	);
 }

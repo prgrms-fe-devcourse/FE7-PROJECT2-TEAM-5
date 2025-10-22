@@ -5,6 +5,7 @@ import { useProfileStore } from "../../stores/profileStore";
 import { useEffect } from "react";
 import ProfileCadeSkeleton from "../../components/loading/profile/ProfileCadeSkeleton";
 import DetailCardSkeleton from "../../components/loading/profile/DetailCardSkeleton";
+import { useActPostStore } from "../../stores/profileActivityStore";
 
 export default function ProfilePage() {
 	const {
@@ -15,20 +16,22 @@ export default function ProfilePage() {
 		loading,
 		error,
 	} = useProfileStore();
+	const { fetchUserPosts, fetchUserComments } = useActPostStore();
 	const { id } = useParams();
 
-	// 로그인 유저 ID 먼저 가져오기
 	useEffect(() => {
-		fetchCurrentUserId();
-	}, [fetchCurrentUserId]);
+		if (!currentUserId) {
+			fetchCurrentUserId();
+		}
+	}, [currentUserId, fetchCurrentUserId]);
 
-	// URL이 바뀌면 해당 프로필 로딩
 	useEffect(() => {
 		if (!id || !currentUserId) return;
 
 		const targetAuthId = id === "me" ? currentUserId : id;
-
 		fetchProfile(targetAuthId);
+		fetchUserPosts(targetAuthId);
+		fetchUserComments(targetAuthId);
 	}, [id, currentUserId, fetchProfile]);
 
 	// 로딩 중

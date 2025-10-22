@@ -4,7 +4,7 @@ import supabase from "../utils/supabase";
 import type { Comment } from "../types/comment";
 import type { Post } from "../types/post";
 
-type PostState = {
+type ActPostState = {
 	userPosts: Post[]; // 유저 게시글 List
 	userComments: Comment[]; // 유저 댓글 List
 	parentComments: string[];
@@ -19,7 +19,7 @@ type PostState = {
 	fetchBoardType: (userId: string) => Promise<void>;
 };
 
-export const usePostStore = create<PostState>()(
+export const useActPostStore = create<ActPostState>()(
 	immer((set) => ({
 		userPosts: [],
 		userComments: [],
@@ -89,7 +89,7 @@ export const usePostStore = create<PostState>()(
 				.eq("id", postId);
 
 			if (error) {
-				console.error("대댓글 불러오기 실패:", error.message);
+				console.error("댓글 달았던 게시글 불러오기 실패:", error.message);
 				return;
 			}
 
