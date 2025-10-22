@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import MessageList from "../../components/message/MessageList";
 import ChatRoomList from "../../components/message/ChatRoomList";
@@ -21,6 +21,7 @@ export default function DmPage() {
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [selectedImage, setSelectedImage] = useState<string | null>(null);
 	const [showImageModal, setShowImageModal] = useState(false);
+	const messageInputRef = useRef<HTMLInputElement>(null);
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 	const { messages, isLoading } = useMessagesInRoom(selectedRoomId);
 	const {
@@ -91,6 +92,10 @@ export default function DmPage() {
 			);
 			if (result) {
 				setMessageInput(""); // 입력창 초기화
+				// 입력창에 포커스 다시 설정
+				setTimeout(() => {
+					messageInputRef.current?.focus();
+				}, 0);
 				console.log("메시지 전송 성공:", result);
 			} else {
 				console.error("메시지 전송 실패");
@@ -292,6 +297,7 @@ export default function DmPage() {
 								}
 								className="flex-1 h-11 border border-[#E5E7EB] rounded-xl p-2"
 								disabled={isSending}
+								ref={messageInputRef}
 							/>
 							<input
 								type="file"
