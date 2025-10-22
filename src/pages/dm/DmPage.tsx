@@ -22,6 +22,7 @@ export default function DmPage() {
 	const [selectedImage, setSelectedImage] = useState<string | null>(null);
 	const [showImageModal, setShowImageModal] = useState(false);
 	const messageInputRef = useRef<HTMLInputElement>(null);
+	const fileInputRef = useRef<HTMLInputElement>(null);
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 	const { messages, isLoading } = useMessagesInRoom(selectedRoomId);
 	const {
@@ -158,6 +159,11 @@ export default function DmPage() {
 			if (result) {
 				setSelectedImage(null);
 				setShowImageModal(false);
+				// 파일 입력 필드 초기화
+				// 없으면 같은 파일 연속으로 못 보냄
+				if (fileInputRef.current) {
+					fileInputRef.current.value = "";
+				}
 				console.log("이미지 전송 성공:", result);
 			} else {
 				console.error("이미지 전송 실패");
@@ -306,6 +312,7 @@ export default function DmPage() {
 								id="file-upload"
 								accept="image/*"
 								onChange={handleImageSelect}
+								ref={fileInputRef}
 							/>
 							<label
 								htmlFor="file-upload"
