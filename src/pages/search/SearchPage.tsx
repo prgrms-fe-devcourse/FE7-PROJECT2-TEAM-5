@@ -3,35 +3,53 @@ import supabase from "../../utils/supabase";
 import PostList from "../../components/PostList";
 import type { Post } from "../../types/post";
 import PageNation from "../../components/PageNation";
+import type { Friend } from "../../types/friend";
+// import MemberCard from "../../components/MemberCard";
 export default function SearchPage() {
 	const [searchKeyword, setSearchKeyword] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
-	const [searchResult, setSearchResult] = useState<Post[]>([]);
+	const [searchPostResult, setSearchPostResult] = useState<Post[]>([]);
+	const [searchUserResult, setSearchUserResult] = useState<User[]>([]);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setIsLoading(true);
 		setSearchKeyword(searchKeyword.trim());
 		if (!searchKeyword || searchKeyword === " ") {
-			setSearchResult([]);
+			setSearchPostResult([]);
 			setIsLoading(false);
 			return;
 		}
 		try {
 			setIsLoading(true);
 			if (searchKeyword[0] === "@") {
-				const { data: posts, error } = await supabase
+				const { data: users, error: userError } = await supabase
+					.from("users")
+					.select("*")
+					.ilike("nickname", "%" + searchKeyword.slice(1) + "%");
+
+				if (userError) throw userError;
+				if (users) {
+					setSearchUserResult(users);
+					setIsLoading(false);
+				}
+
+				const nicfilter = users
+					.map((user) => `user_id.eq.${user.auth_id}`)
+					.join(",");
+
+				const { data: posts, error: postError } = await supabase
 					.from("posts")
 					.select(
 						"*, users(nickname), likes:post_likes(id), comments:comments!comments_post_id_fkey(id)",
 					)
 					.is("group_id", null)
-					.ilike("title", "%" + searchKeyword + "%")
+					.or(nicfilter)
 					.order("created_at", { ascending: false });
 
-				if (error) throw error;
+				if (postError) throw postError;
 				if (posts) {
-					setSearchResult(posts);
+					setSearchPostResult(posts);
 					setIsLoading(false);
 				}
 			} else if (searchKeyword[0] === "#") {
@@ -41,12 +59,12 @@ export default function SearchPage() {
 						"*, users(nickname), likes:post_likes(id), comments:comments!comments_post_id_fkey(id)",
 					)
 					.is("group_id", null)
-					.contains("hash_tag", [searchKeyword])
+					.contains("hash_tag", [searchKeyword.slice(1)])
 					.order("created_at", { ascending: false });
 
 				if (error) throw error;
 				if (posts) {
-					setSearchResult(posts);
+					setSearchPostResult(posts);
 					setIsLoading(false);
 				}
 			} else {
@@ -61,7 +79,7 @@ export default function SearchPage() {
 
 				if (error) throw error;
 				if (posts) {
-					setSearchResult(posts);
+					setSearchPostResult(posts);
 					setIsLoading(false);
 				}
 			}
@@ -69,13 +87,33 @@ export default function SearchPage() {
 			console.error(e);
 		}
 	};
+	const members: Friend[] = searchUserResult.map((user) => ({
+		id: crypto.randomUUID(), // 임의 id
+		created_at: new Date().toISOString(), // 임의 created_at
+		follower_id: "", // 그룹 멤버라서 팔로우 정보 없음
+		following_id: user.auth_id,
+		users: {
+			auth_id: user.auth_id,
+			nickname: user.nickname,
+			profile_image_url: user.profile_image_url ?? null,
+			is_online: user.is_online,
+		},
+	}));
+
+	const friendsPerPage = 4;
+	const [currentPage, setCurrentPage] = useState(1);
+	const totalPages = Math.ceil(
+		members.length + searchPostResult.length / friendsPerPage,
+	);
+
+	const displayedFriends = members.slice(
+		(currentPage - 1) * friendsPerPage,
+		currentPage * friendsPerPage,
+	);
 
 	const postsPerPage = 4;
-	const [currentPage, setCurrentPage] = useState(1);
 
-	const totalPages = Math.ceil(searchResult.length / postsPerPage);
-
-	const displayedPosts = searchResult.slice(
+	const displayedPosts = searchPostResult.slice(
 		(currentPage - 1) * postsPerPage,
 		currentPage * postsPerPage,
 	);
@@ -116,6 +154,11 @@ export default function SearchPage() {
 				)}
 				{!isLoading && (
 					<div className="border-t border-gray-300 mt-2 pt-6">
+						{displayedFriends.map((friend) => (
+							<div className="bg-white rounded-xl">
+								{/* <MemberCard friend={friend} /> */}
+							</div>
+						))}
 						{/* 게시판 영역 */}
 						<PostList posts={displayedPosts} isSearchPage={true} />
 						{/* 페이지 네이션 */}
