@@ -23,7 +23,7 @@ type PostListProps = {
 
 function PostItem({ post }: { post: Post }) {
 	return (
-		<Link to={`${post.id}`}>
+		<Link to={`/posts/${post.id}`}>
 			<div className="w-full mb-2 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-shadow">
 				{/* 제목 + 좋아요/댓글 */}
 				<div className="flex justify-between items-start mb-1">

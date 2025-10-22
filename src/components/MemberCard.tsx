@@ -6,11 +6,12 @@ import { useProfileStore } from "../stores/profileStore";
 import { useEffect, useState } from "react";
 import Button from "./Button";
 import { Link } from "react-router";
+import { timeAgoIntl } from "../utils/timeAgoIntl";
 
 type MemberCardProps = {
 	friend: Friend;
 	userId?: string;
-	onUnfollow?: (friendId: string) => void;
+	onUnfollow: (friendId: string) => void;
 };
 
 export default function MemberCard({
@@ -23,6 +24,10 @@ export default function MemberCard({
 	const isFollowing = followStatus[friend.users?.auth_id ?? ""] || false;
 
 	const [openId, setOpenId] = useState<string | null>(null);
+	console.log(friend.users?.last_seen);
+	const time = timeAgoIntl(
+		friend.users?.last_seen ? friend.users?.last_seen : new Date(),
+	);
 
 	// 외부 클릭 시 드롭다운 닫기
 	useEffect(() => {
@@ -53,7 +58,7 @@ export default function MemberCard({
 		if (!friend.users?.auth_id || !currentUserId) return;
 
 		await unFollowUserFnc(currentUserId, friend.users.auth_id);
-		onUnfollow(friend.users.auth_id);
+		onUnfollow?.(friend.users.auth_id);
 	};
 
 	return (
@@ -80,7 +85,7 @@ export default function MemberCard({
 					<p className="text-xs text-gray-500">
 						{friend.users?.is_online
 							? "현재 활동 중"
-							: `(수정 예정)`}
+							: `마지막 활동: ${time}`}
 						{/* 최근 1시간 전 활동 */}
 					</p>
 				</div>

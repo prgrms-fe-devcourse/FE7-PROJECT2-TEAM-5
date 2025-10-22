@@ -8,6 +8,7 @@ import { SquarePen, Trash2, X } from "lucide-react";
 import Modal from "../../components/Modal";
 import Button from "../../components/Button";
 import type { UserProfile } from "../../types/profile";
+import { useCreateChatRoom } from "../../hooks/useMessages";
 import { useMemberStore } from "../../stores/memberStore";
 import type { Friend } from "../../types/friend";
 import { useActPostStore } from "../../stores/profileActivityStore";
@@ -27,6 +28,7 @@ export default function ProfileCard({ profile }: Props) {
 		setUserFollowed,
 		setFriends,
 	} = useMemberStore();
+	const { createRoom, isLoading: isCreatingRoom } = useCreateChatRoom();
 	const userFollowed = useMemberStore((state) => state.userFollowed);
 	const { userPosts, userComments } = useActPostStore();
 
@@ -157,6 +159,21 @@ export default function ProfileCard({ profile }: Props) {
 					] || [];
 				setFriends(profile.auth_id, [...currentFriends, newFriend]);
 			}
+		}
+	};
+
+	// 메시지 버튼 클릭 시 채팅방 생성 후 이동
+	const handleMessageClick = async () => {
+		if (!currentUserId || !profile || isCreatingRoom) return;
+
+		try {
+			const newRoom = await createRoom(profile.auth_id);
+			if (newRoom && newRoom.id) {
+				// 채팅방 생성 완료 후 즉시 이동
+				navigate(`/msg/${newRoom.id}`);
+			}
+		} catch (error) {
+			console.error("채팅방 생성 실패:", error);
 		}
 	};
 
@@ -300,7 +317,15 @@ export default function ProfileCard({ profile }: Props) {
 							>
 								{!isFollowing ? "팔로우" : "팔로잉"}
 							</Button>
-							<Button className="w-20 bg-violet-500 rounded-xl text-center px-4 py-2 text-base font-normal text-white">
+							<Button
+								onClick={handleMessageClick}
+								disabled={isCreatingRoom}
+								className={`w-20 rounded-xl text-center px-4 py-2 text-base font-normal ${
+									isCreatingRoom
+										? "bg-gray-400 cursor-not-allowed"
+										: "bg-violet-500 hover:bg-violet-600"
+								} text-white`}
+							>
 								메시지
 							</Button>
 						</div>

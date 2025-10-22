@@ -69,7 +69,7 @@ export const useMemberStore = create<MemberState>()(
 					const { data: users, error: userError } = await supabase
 						.from("users")
 						.select(
-							"auth_id, nickname, profile_image_url, is_online",
+							"auth_id, nickname, profile_image_url, is_online, last_seen",
 						)
 						.in("auth_id", ids);
 
@@ -85,6 +85,7 @@ export const useMemberStore = create<MemberState>()(
 							nickname: user.nickname,
 							profile_image_url: user.profile_image_url,
 							is_online: user.is_online,
+							last_seen: user.last_seen,
 						},
 					}));
 
@@ -105,7 +106,7 @@ export const useMemberStore = create<MemberState>()(
 				const { data, error } = await supabase
 					.from("follows")
 					.select(
-						"*, users!fk_Follows_following_id_users_id(auth_id, nickname, profile_image_url, is_online)",
+						"*, users!fk_Follows_following_id_users_id(auth_id, nickname, profile_image_url, is_online, last_seen)",
 					)
 					.eq("follower_id", userId);
 

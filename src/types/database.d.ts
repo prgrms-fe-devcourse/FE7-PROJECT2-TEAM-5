@@ -99,6 +99,61 @@ export type Database = {
 				};
 				Relationships: [];
 			};
+			chat_rooms: {
+				Row: {
+					created_at: string;
+					id: string;
+					is_read_user1: boolean | null;
+					is_read_user2: boolean | null;
+					last_message_at: string | null;
+					last_message_id: string | null;
+					user1_id: string;
+					user2_id: string;
+				};
+				Insert: {
+					created_at?: string;
+					id?: string;
+					is_read_user1?: boolean | null;
+					is_read_user2?: boolean | null;
+					last_message_at?: string | null;
+					last_message_id?: string | null;
+					user1_id: string;
+					user2_id: string;
+				};
+				Update: {
+					created_at?: string;
+					id?: string;
+					is_read_user1?: boolean | null;
+					is_read_user2?: boolean | null;
+					last_message_at?: string | null;
+					last_message_id?: string | null;
+					user1_id?: string;
+					user2_id?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: "chat_rooms_last_message_id_fkey";
+						columns: ["last_message_id"];
+						isOneToOne: false;
+						referencedRelation: "messages";
+						referencedColumns: ["id"];
+					},
+					{
+						foreignKeyName: "chat_rooms_user1_id_fkey";
+						columns: ["user1_id"];
+						isOneToOne: false;
+						referencedRelation: "users";
+						referencedColumns: ["auth_id"];
+					},
+					{
+						foreignKeyName: "chat_rooms_user2_id_fkey";
+						columns: ["user2_id"];
+						isOneToOne: false;
+						referencedRelation: "users";
+						referencedColumns: ["auth_id"];
+					},
+				];
+			};
 			child_parent_links: {
 				Row: {
 					child_id: string;
@@ -144,7 +199,7 @@ export type Database = {
 				};
 				Insert: {
 					comment_id: string;
-					created_at: string;
+					created_at?: string;
 					id?: string;
 					user_id: string;
 				};
@@ -351,6 +406,7 @@ export type Database = {
 					id: string;
 					message: string;
 					receiver_id: string;
+					room_id: string;
 					sender_id: string;
 				};
 				Insert: {
@@ -358,6 +414,7 @@ export type Database = {
 					id?: string;
 					message: string;
 					receiver_id: string;
+					room_id: string;
 					sender_id: string;
 				};
 				Update: {
@@ -365,6 +422,7 @@ export type Database = {
 					id?: string;
 					message?: string;
 					receiver_id?: string;
+					room_id?: string;
 					sender_id?: string;
 				};
 				Relationships: [
@@ -381,6 +439,13 @@ export type Database = {
 						isOneToOne: false;
 						referencedRelation: "users";
 						referencedColumns: ["auth_id"];
+					},
+					{
+						foreignKeyName: "messages_room_id_fkey";
+						columns: ["room_id"];
+						isOneToOne: false;
+						referencedRelation: "chat_rooms";
+						referencedColumns: ["id"];
 					},
 				];
 			};
@@ -644,10 +709,7 @@ export type Database = {
 				Args: { len: number };
 				Returns: string;
 			};
-			generate_random_string: {
-				Args: { len: number };
-				Returns: string;
-			};
+			generate_random_string: { Args: { len: number }; Returns: string };
 		};
 		Enums: {
 			user_role: "temp" | "student" | "teacher" | "parent";

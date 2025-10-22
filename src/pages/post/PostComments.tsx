@@ -1,11 +1,22 @@
+<<<<<<< HEAD
 import { Heart, MessageSquare } from "lucide-react";
 import { useState } from "react";
+=======
+import { Heart, MessageSquare, Smile } from "lucide-react";
+import type { Comment } from "../../types/comment";
+import { useEffect, useRef, useState } from "react";
+>>>>>>> main
 import supabase from "../../utils/supabase";
 import { useProfileStore } from "../../stores/profileStore";
 import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
 import { useNavigate } from "react-router";
+<<<<<<< HEAD
 import type { Comment } from "../../types/comment";
+=======
+import basicImage from "../../assets/basic_image.png";
+import Button from "../../components/Button";
+>>>>>>> main
 
 type PostCommentsProps = {
 	comments: Comment[] | null;
@@ -23,6 +34,54 @@ export default function PostComments(props: PostCommentsProps) {
 		commentId: "",
 	});
 	const currentUserId = useProfileStore((state) => state.currentUserId);
+
+	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+	const emojiPickerRef = useRef<HTMLDivElement | null>(null);
+
+	const emojis = [
+		"😀",
+		"😃",
+		"😄",
+		"😁",
+		"😆",
+		"😅",
+		"😂",
+		"🤣",
+		"😊",
+		"😇",
+		"🙂",
+		"🙃",
+		"😉",
+		"😌",
+		"😍",
+	];
+
+	const addEmoji = (emoji: string) => {
+		setInputComment(inputComment + emoji);
+		setShowEmojiPicker(false);
+	};
+
+	// 이모지 창 바깥 영역 클릭 시 닫음
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (
+				emojiPickerRef.current &&
+				!emojiPickerRef.current.contains(event.target as Node)
+			) {
+				setShowEmojiPicker(false);
+			}
+		};
+
+		if (showEmojiPicker) {
+			document.addEventListener("mousedown", handleClickOutside);
+		} else {
+			document.removeEventListener("mousedown", handleClickOutside);
+		}
+
+		return () => {
+			document.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, [showEmojiPicker]);
 
 	const writeComment = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -120,7 +179,7 @@ export default function PostComments(props: PostCommentsProps) {
 
 	//답글 쓰기 기능
 	const createMention = (comment: Comment) => {
-		if (comment.user.nickname) {
+		if (comment.user?.nickname) {
 			setMention({
 				nickname: comment.user.nickname,
 				userId: comment.user.auth_id,
@@ -156,6 +215,7 @@ export default function PostComments(props: PostCommentsProps) {
 	};
 
 	function Comment({ comment }: { comment: Comment }) {
+		console.log(comment);
 		const adoptedStyle =
 			props.adopted_comment_id === comment.id &&
 			"border-1 border-[#EA489A]";
@@ -173,13 +233,13 @@ export default function PostComments(props: PostCommentsProps) {
 				{!(currentUserId === comment.user_id) &&
 					currentUserId === props.writerId &&
 					!props.adopted_comment_id && (
-						<button
+						<Button
 							type="button"
 							onClick={() => adoptComment(comment)}
-							className="absolute -top-4 right-4 z-10 hidden group-hover:block hover:bg-[#8B5CF6] hover:text-white px-3 py-1 text-xs border-1 border-[#8B5CF6] rounded-2xl bg-white"
+							className="absolute -top-4 right-4 z-10 opacity-0 translate-y-[-10px] group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 hover:bg-[#8B5CF6] hover:text-white px-3 py-1 text-xs border-1 border-[#8B5CF6] rounded-2xl bg-white"
 						>
 							채택
-						</button>
+						</Button>
 					)}
 
 				{props.adopted_comment_id === comment.id && (
@@ -194,11 +254,18 @@ export default function PostComments(props: PostCommentsProps) {
 				{/* 글 제목과 좋아요, 댓글 수 */}
 				<div className="flex justify-between items-start mb-1">
 					<div className="flex gap-1 items-center">
-						<div className="w-[35px] h-[35px]">
-							<img src="/src/assets/image.png" alt="userImg" />
+						<div className="w-[35px] h-[35px] object-cover">
+							<img
+								className="w-full h-full rounded-full"
+								src={
+									comment.user?.profile_image_url ??
+									basicImage
+								}
+								alt="userImg"
+							/>
 						</div>
 						<div>
-							{comment.user.representative_badge_id && (
+							{comment.user?.representative_badge_id && (
 								<p className="text-xs font-medium">
 									<img
 										src={
@@ -211,9 +278,9 @@ export default function PostComments(props: PostCommentsProps) {
 								</p>
 							)}
 							<p className="text-sm">
-								{comment.user.nickname}
+								{comment.user?.nickname}
 								<span className="text-xs text-[#6B7280] ml-1">
-									{getGrade(getAge(comment.user.birth_date))}
+									{getGrade(getAge(comment.user?.birth_date))}
 								</span>
 							</p>
 						</div>
@@ -305,45 +372,85 @@ export default function PostComments(props: PostCommentsProps) {
 
 	return (
 		<>
-			{(!props.comments || props.comments.length === 0) && (
-				<div className="text-center text-gray-500 py-12">
-					현재 게시물에 등록된 댓글이 없습니다.
-				</div>
-			)}
-			{props.comments && props.comments.length > 0 && (
-				<div className="flex flex-col max-h-100 pr-2 overflow-y-auto ">
-					{/* 채택된 댓글 */}
-					{adoptedComment && adoptedComment[0] && (
-						<Comment comment={adoptedComment[0]} />
-					)}
+			<div className="h-full flex flex-col justify-between">
+				{/* 댓글이 없는 경우 */}
+				{!props.comments || props.comments.length === 0 ? (
+					<div className="text-center text-gray-500 py-12">
+						현재 게시물에 등록된 댓글이 없습니다.
+					</div>
+				) : (
+					<div className="flex flex-col pr-2 overflow-y-auto scrollbar-custom">
+						{/* 채택된 댓글 */}
+						{adoptedComment && adoptedComment[0] && (
+							<Comment comment={adoptedComment[0]} />
+						)}
+						{adoptedComment?.length === 0 && (
+							<div className="text-center text-gray-500 py-10">
+								채택된 댓글이 없습니다.
+							</div>
+						)}
+						<div className="border-t border-gray-300 mt-3.5" />
 
-					{/* 댓글 1 */}
-					<CommentItem comments={props.comments} />
-				</div>
-			)}
-			<form className="flex gap-2 mt-4 w-full " onSubmit={writeComment}>
-				<div className="w-[696px] text-sm px-6 py-3 border-1 border-[#E5E7EB] rounded-xl bg-white">
-					{mention.nickname && (
-						<span className="text-[#8B5CF6] text-sm mr-1 font-medium">
-							@{mention.nickname}
-						</span>
-					)}
-					<input
-						placeholder="댓글을 작성해주세요."
-						value={inputComment}
-						onChange={(e) => setInputComment(e.target.value)}
-						onKeyDown={handleKeyDown}
-						className="w-full focus:outline-none"
-					/>
-				</div>
+						{/* 일반 댓글 */}
+						<CommentItem comments={props.comments} />
+					</div>
+				)}
 
-				<button
-					type="submit"
-					className="px-4 py-2.5 text-sm text-white rounded-xl bg-[#8B5CF6] cursor-pointer"
+				{/* 댓글 작성 폼 */}
+				<form
+					className="flex gap-2 mt-4 w-full"
+					onSubmit={writeComment}
 				>
-					등록
-				</button>
-			</form>
+					<div className="relative flex-1 text-sm px-6 py-3 border-1 border-[#E5E7EB] rounded-xl bg-white">
+						{mention.nickname && (
+							<span className="text-[#8B5CF6] text-sm mr-1 font-medium">
+								@{mention.nickname}
+							</span>
+						)}
+						<input
+							placeholder="댓글을 작성해주세요."
+							value={inputComment}
+							onChange={(e) => setInputComment(e.target.value)}
+							onKeyDown={handleKeyDown}
+							className="w-full focus:outline-none"
+						/>
+						{/* 이모지 버튼 */}
+						<Button
+							type="button"
+							className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#8B5CF6]"
+							onClick={() => setShowEmojiPicker((prev) => !prev)}
+						>
+							<Smile size={20} />
+						</Button>
+
+						{/* 이모지 피커 */}
+						{showEmojiPicker && (
+							<div
+								ref={emojiPickerRef}
+								className="absolute z-30 bottom-full right-0 mb-2 bg-white border rounded-lg shadow-md p-2 grid grid-cols-10 gap-1"
+							>
+								{emojis.map((emoji) => (
+									<Button
+										key={emoji}
+										type="button"
+										onClick={() => addEmoji(emoji)}
+										className="text-lg hover:bg-gray-100 rounded p-1"
+									>
+										{emoji}
+									</Button>
+								))}
+							</div>
+						)}
+					</div>
+
+					<Button
+						type="submit"
+						className="px-4 py-2 text-sm text-white rounded-xl bg-[#8B5CF6]"
+					>
+						등록
+					</Button>
+				</form>
+			</div>
 		</>
 	);
 }
