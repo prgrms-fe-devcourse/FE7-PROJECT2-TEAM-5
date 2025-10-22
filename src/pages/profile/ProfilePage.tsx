@@ -21,7 +21,7 @@ export default function ProfilePage() {
 
 	const [ready, setReady] = useState(false);
 
-	// 1️⃣ 현재 유저 ID 로드
+	// 현재 유저 ID 로드
 	useEffect(() => {
 		if (!currentUserId) {
 			fetchCurrentUserId().finally(() => setReady(true));
@@ -30,7 +30,7 @@ export default function ProfilePage() {
 		}
 	}, [currentUserId, fetchCurrentUserId]);
 
-	// 2️⃣ profile / posts / comments fetch
+	// profile / posts / comments fetch
 	useEffect(() => {
 		if (!ready || !currentUserId) return;
 

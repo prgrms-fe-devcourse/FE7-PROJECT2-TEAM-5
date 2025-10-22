@@ -1,5 +1,5 @@
-export function getAge(birthDate?: string): number | null {
-	if (!birthDate) return null;
+export function getAge(birthDate?: string): number | undefined {
+	if (!birthDate) return undefined;
 	const today = new Date();
 	const birth = new Date(birthDate);
 	let age = today.getFullYear() - birth.getFullYear();

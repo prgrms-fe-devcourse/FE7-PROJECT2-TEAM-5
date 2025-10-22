@@ -37,6 +37,10 @@ export default function ActivitiesComments() {
 							?.label ?? "알 수 없음")
 					: "알 수 없음";
 
+				const replyCount = userComments.filter(
+					(c) => c.parent_comment_id === comment.id,
+				).length;
+
 				return (
 					<Link to={`/posts/${comment.post_id}`}>
 						<div
@@ -68,11 +72,18 @@ export default function ActivitiesComments() {
 									</span>
 								</div>
 
-								<span>·</span>
-								<div className="flex flex-row gap-1 items-center">
-									<MessageSquare color="#8B5CF6" size={15} />
-									<span>{comment.comment_likes?.length}</span>
-								</div>
+								{!comment.parent_comment_id && (
+									<>
+										<span>·</span>
+										<div className="flex flex-row gap-1 items-center">
+											<MessageSquare
+												color="#8B5CF6"
+												size={15}
+											/>
+											<span>{replyCount}</span>
+										</div>
+									</>
+								)}
 							</div>
 						</div>
 					</Link>
