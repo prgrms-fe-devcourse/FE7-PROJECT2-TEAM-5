@@ -1,18 +1,12 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ActivitiesTab from "./ActivitiesTab";
 import ActivitiesPosts from "./ActivitiesPosts";
 import ActivitiesComments from "./ActivitiesComments";
-import { usePostStore } from "../../stores/profileActivityStore";
+import { useActPostStore } from "../../stores/profileActivityStore";
 
-export default function Activities({ userId }: { userId: string }) {
+export default function Activities() {
 	const [activeTab, setActiveTab] = useState<"posts" | "comments">("posts");
-	const { userPosts, userComments, fetchUserPosts, fetchUserComments } =
-		usePostStore();
-
-	useEffect(() => {
-		fetchUserPosts(userId);
-		fetchUserComments(userId);
-	}, []);
+	const { userPosts, userComments } = useActPostStore();
 
 	return (
 		<div>

@@ -23,14 +23,18 @@ import GroupAttendancePage from "./pages/group/GroupAttendance";
 import GroupPostCreatePage from "./pages/group/GroupPostCreatePage";
 import SocialSignupInfo from "./pages/auth/SocialSignupInfo";
 import { useCheckProfileCompleted } from "./hooks/useCheckProfileCompleted";
+import { useSetOnlineStatus } from "./hooks/useSetOnlineStatus";
+import NotFoundPage from "./layouts/NotFoundPage";
 
 export default function App() {
 	// 프로필 완성 여부 확인 훅
 	useCheckProfileCompleted();
 
 	// 유저
-	const fetchProfile = useProfileStore((state) => state.fetchProfile);
+	const { currentUserId, fetchProfile } = useProfileStore();
 	const location = useLocation();
+
+	useSetOnlineStatus(currentUserId || "");
 
 	useEffect(() => {
 		const initAuth = async () => {
@@ -63,6 +67,7 @@ export default function App() {
 
 		initAuth();
 	}, [fetchProfile, location.pathname]);
+
 	return (
 		<>
 			<Routes>
@@ -129,6 +134,9 @@ export default function App() {
 						element={<RegisterEmailPage />}
 					/>
 				</Route>
+
+				{/* 404 Page */}
+				<Route path="*" element={<NotFoundPage />} />
 			</Routes>
 		</>
 	);

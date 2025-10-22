@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+import Button from "./Button";
 
 type ModalProps = {
 	isOpen: boolean;
@@ -24,12 +25,12 @@ export default function Modal({
 				style={{ width }}
 			>
 				{/* 닫기 버튼 */}
-				<button
+				<Button
 					onClick={onClose}
 					className="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
 				>
 					<X size={20} />
-				</button>
+				</Button>
 
 				{/* 제목 */}
 				{title && (

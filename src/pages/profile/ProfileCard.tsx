@@ -4,10 +4,13 @@ import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
 import { useMemo, useState } from "react";
 import basicImage from "../../assets/basic_image.png";
-import { SquarePen, Trash2 } from "lucide-react";
+import { SquarePen, Trash2, X } from "lucide-react";
 import Modal from "../../components/Modal";
 import Button from "../../components/Button";
 import type { UserProfile } from "../../types/profile";
+import { useMemberStore } from "../../stores/profileMemberStore";
+import type { Friend } from "../../types/friend";
+import { useActPostStore } from "../../stores/profileActivityStore";
 
 type Props = {
 	profile: UserProfile | null;
@@ -15,13 +18,29 @@ type Props = {
 
 export default function ProfileCard({ profile }: Props) {
 	const navigate = useNavigate();
-	const { deleteProfile, currentUserId } = useProfileStore();
-	const [isModalOpen, setIsModalOpen] = useState(false);
+	const { updateProfile, deleteProfile, currentUserId } = useProfileStore();
+	const {
+		followStatus,
+		followedUserFnc,
+		unFollowUserFnc,
+		setFollowStatus,
+		setUserFollowed,
+		setFriends,
+	} = useMemberStore();
+	const userFollowed = useMemberStore((state) => state.userFollowed);
+	const { userPosts, userComments } = useActPostStore();
+
+	const isFollowing = followStatus[profile?.auth_id ?? ""] || false;
+
+	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+	const [isImgModalOpen, setIsImgModalOpen] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
+	const [isUpdating, setIsUpdating] = useState(false);
+	const [imgFile, setImgFile] = useState<string | null>(null);
 
 	if (!profile) return null;
 
-	// 현재 보고 있는 프로필이 내 프로필인지 판별
+	// 내 프로필 여부
 	const isMyProfile = useMemo(
 		() => profile.auth_id === currentUserId,
 		[profile, currentUserId],
@@ -40,7 +59,7 @@ export default function ProfileCard({ profile }: Props) {
 		setIsDeleting(true);
 		try {
 			await deleteProfile();
-			setIsModalOpen(false);
+			setIsDeleteModalOpen(false);
 			navigate("/");
 		} catch (err) {
 			console.error("탈퇴 실패:", err);
@@ -48,30 +67,202 @@ export default function ProfileCard({ profile }: Props) {
 			setIsDeleting(false);
 		}
 	};
+
+	const handleImgFileUpload = async (
+		e: React.ChangeEvent<HTMLInputElement>,
+	) => {
+		const file = e.target.files && e.target.files[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = (e) => {
+				setImgFile(e.target?.result as string);
+			};
+			reader.readAsDataURL(file);
+		}
+	};
+
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		if (!imgFile?.trim()) {
+			alert("수정한 이미지를 선택하세요.");
+			return;
+		}
+
+		setIsUpdating(true);
+		try {
+			await updateProfile({ profile_image_url: imgFile });
+			alert("프로필 이미지가 업데이트되었습니다!");
+			setIsImgModalOpen(false);
+		} catch (err) {
+			console.error("이미지 수정 실패:", err);
+			alert("이미지 수정 중 오류가 발생했습니다.");
+		} finally {
+			setIsUpdating(false);
+		}
+	};
+
+	const removeImgFile = () => {
+		setImgFile(null);
+	};
+
+	const handleFollowToggle = async () => {
+		if (!currentUserId || !profile) return;
+
+		const isFollowing = followStatus[profile.auth_id] || false;
+
+		if (isFollowing) {
+			// 언팔로우
+			await unFollowUserFnc(currentUserId, profile.auth_id);
+			setFollowStatus(profile.auth_id, false);
+			setUserFollowed((prev) =>
+				prev.filter((f) => f.users?.auth_id !== profile.auth_id),
+			);
+
+			// 내 프로필 친구 상태 업데이트
+			if (isMyProfile) {
+				const currentFriends =
+					useMemberStore.getState().friendsByProfileId[
+						profile.auth_id
+					] || [];
+				setFriends(
+					profile.auth_id,
+					currentFriends.filter(
+						(f) => f.users?.auth_id !== profile.auth_id,
+					),
+				);
+			}
+		} else {
+			// 팔로우
+			await followedUserFnc(currentUserId, profile.auth_id);
+			setFollowStatus(profile.auth_id, true);
+
+			const newFriend: Friend = {
+				users: {
+					auth_id: profile.auth_id,
+					nickname: profile.nickname,
+					profile_image_url: profile.profile_image_url ?? null,
+					is_online: profile.is_online ?? false,
+				},
+				created_at: new Date().toISOString(),
+				follower_id: currentUserId,
+				following_id: profile.auth_id,
+				id: crypto.randomUUID(),
+			};
+			setUserFollowed((prev) => [...prev, newFriend]);
+
+			if (isMyProfile) {
+				const currentFriends =
+					useMemberStore.getState().friendsByProfileId[
+						profile.auth_id
+					] || [];
+				setFriends(profile.auth_id, [...currentFriends, newFriend]);
+			}
+		}
+	};
+
 	return (
 		<>
 			{/* // 왼쪽 영역 - 프로필 카드 */}
 			<div className="flex flex-col items-center relative">
 				{/* 프로필 이미지 영역 */}
 				<div className="z-10 w-30 h-30">
-					<div className="relative w-full h-full rounded-xl cursor-pointer">
+					<div className="relative w-full h-full rounded-xl">
 						<img
 							className="img w-full h-full rounded-xl object-cover"
 							src={profile.profile_image_url ?? basicImage}
 							alt="profile"
 						/>
 						{isMyProfile && (
-							<div className="absolute top-0 left-0 w-full h-full rounded-xl bg-[rgba(0,0,0,0.4)] bg-opacity-40 opacity-0 hover:opacity-100 flex items-center justify-center text-white font-medium transition-opacity">
-								<label htmlFor="profile_img">
+							<>
+								<Button
+									onClick={() => setIsImgModalOpen(true)}
+									className="cursor-pointer absolute top-0 left-0 w-full h-full rounded-xl bg-[rgba(0,0,0,0.4)] bg-opacity-40 opacity-0 hover:opacity-100 flex items-center justify-center text-white font-medium transition-opacity"
+								>
 									<SquarePen size={24} />
-								</label>
-								<input
-									id="profile_img"
-									type="file"
-									accept="image/*"
-									className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-								/>
-							</div>
+								</Button>
+								<Modal
+									isOpen={isImgModalOpen}
+									onClose={() => setIsImgModalOpen(false)}
+									title="프로필 수정"
+								>
+									<form method="post" onSubmit={handleSubmit}>
+										<div className="mb-4">
+											{!imgFile && (
+												<div className="flex flex-col gap-2 items-center px-6 py-4 rounded-xl bg-white border-2 border-[#E5E7EB] border-dashed">
+													<input
+														id="imgFile"
+														accept="image/*"
+														className="hidden"
+														type="file"
+														name="imgFile"
+														onChange={
+															handleImgFileUpload
+														}
+													/>
+													<p className="text-[#6B7280]">
+														Upload image
+													</p>
+													<label
+														htmlFor="imgFile"
+														className="px-6 py-4 rounded-xl text-[#6B7280] bg-[#E5E7EB] cursor-pointer"
+													>
+														Choose Img File
+													</label>
+												</div>
+											)}
+											{imgFile && (
+												<div className="relative flex flex-col items-center px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB]">
+													<div className="relative py-2">
+														<img
+															src={imgFile}
+															alt={"image" + 0}
+															className="relative z-1 max-h-50 min-h-30 object-cover bg-white"
+														/>
+													</div>
+
+													<Button
+														type="button"
+														className="absolute z-9 top-1.5 right-1.5 p-1 rounded-full text-red-500 border-1 border-[#E5E7EB] bg-white"
+														onClick={removeImgFile}
+													>
+														<X
+															className="z-99"
+															size={14}
+														/>
+													</Button>
+												</div>
+											)}
+										</div>
+										<div className="flex justify-center gap-3">
+											{isUpdating ? (
+												""
+											) : (
+												<>
+													<Button
+														onClick={() =>
+															setIsImgModalOpen(
+																false,
+															)
+														}
+														className="px-8 py-3 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+													>
+														취소
+													</Button>
+												</>
+											)}
+
+											<Button
+												disabled={isUpdating}
+												className="px-8 py-3 rounded-md bg-violet-500 text-white hover:bg-violet-600 transition-colors"
+											>
+												{isUpdating
+													? "수정 중..."
+													: "수정"}
+											</Button>
+										</div>
+									</form>
+								</Modal>
+							</>
 						)}
 					</div>
 				</div>
@@ -103,10 +294,13 @@ export default function ProfileCard({ profile }: Props) {
 						</Link>
 					) : (
 						<div className="flex flex-row gap-2">
-							<Button className="w-1/2 bg-violet-500 rounded-xl text-center px-4 py-2 cursor-pointer text-base font-normal text-white">
-								팔로우
+							<Button
+								onClick={handleFollowToggle}
+								className={`w-20 rounded-xl text-center px-4 py-2 text-base font-normal ${!isFollowing ? "border border-violet-500 text-violet-500 hover:bg-violet-100" : " text-white bg-violet-500"}`}
+							>
+								{!isFollowing ? "팔로우" : "팔로잉"}
 							</Button>
-							<Button className="w-1/2 bg-violet-500 rounded-xl text-center px-4 py-2 cursor-pointer text-base font-normal text-white">
+							<Button className="w-20 bg-violet-500 rounded-xl text-center px-4 py-2 text-base font-normal text-white">
 								메시지
 							</Button>
 						</div>
@@ -117,7 +311,7 @@ export default function ProfileCard({ profile }: Props) {
 						{/* 친구 통계 */}
 						<div className="flex flex-col items-center">
 							<div className="text-xl font-medium text-violet-500">
-								7
+								{userFollowed.length}
 							</div>
 							<div className="text-sm font-medium text-gray-500">
 								친구
@@ -127,7 +321,7 @@ export default function ProfileCard({ profile }: Props) {
 						{/* 게시글 통계 */}
 						<div className="flex flex-col items-center">
 							<div className="text-xl font-medium text-violet-500">
-								120
+								{userPosts.length}
 							</div>
 							<div className="text-sm font-medium text-gray-500">
 								게시글
@@ -137,7 +331,7 @@ export default function ProfileCard({ profile }: Props) {
 						{/* 댓글 통계 */}
 						<div className="flex flex-col items-center">
 							<div className="text-xl font-medium text-violet-500">
-								67
+								{userComments.length}
 							</div>
 							<div className="text-sm font-medium text-gray-500">
 								댓글
@@ -158,19 +352,19 @@ export default function ProfileCard({ profile }: Props) {
 					)}
 
 					{isMyProfile && (
-						<button
+						<Button
 							className="absolute left-10 bottom-[-70px] px-4 py-2 bg-red-400 text-white rounded hover:bg-red-600"
-							onClick={() => setIsModalOpen(true)}
+							onClick={() => setIsDeleteModalOpen(true)}
 						>
 							<Trash2 />
-						</button>
+						</Button>
 					)}
 				</div>
 			</div>
 			{/* 모달 컴포넌트 */}
 			<Modal
-				isOpen={isModalOpen}
-				onClose={() => setIsModalOpen(false)}
+				isOpen={isDeleteModalOpen}
+				onClose={() => setIsDeleteModalOpen(false)}
 				title="회원 탈퇴"
 			>
 				<p className="text-gray-600 mb-5">
@@ -182,22 +376,22 @@ export default function ProfileCard({ profile }: Props) {
 						""
 					) : (
 						<>
-							<button
-								onClick={() => setIsModalOpen(false)}
+							<Button
+								onClick={() => setIsDeleteModalOpen(false)}
 								className="px-8 py-3 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
 							>
 								취소
-							</button>
+							</Button>
 						</>
 					)}
 
-					<button
+					<Button
 						onClick={handleDeleteAccount}
 						disabled={isDeleting}
 						className="px-8 py-3 rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors"
 					>
 						{isDeleting ? "삭제 중..." : "삭제"}
-					</button>
+					</Button>
 				</div>
 			</Modal>
 		</>
