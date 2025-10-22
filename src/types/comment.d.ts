@@ -19,5 +19,5 @@ type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
 		title: string;
 	};
 	comment_likes?: { user_id: string }[];
-	parentNickname: string | null;
+	parentNickname?: string | null;
 };

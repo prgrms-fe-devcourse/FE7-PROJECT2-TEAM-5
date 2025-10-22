@@ -26,8 +26,9 @@ export default function ActivitiesComments() {
 		currentPage * commentsPerPage,
 	);
 
-	if (!userComments.length) return <p>작성한 댓글이 없습니다.</p>;
 	console.log(displayedComments);
+
+	if (!userComments.length) return <p>작성한 댓글이 없습니다.</p>;
 	return (
 		<div>
 			{/* 댓글 목록 */}
@@ -38,7 +39,7 @@ export default function ActivitiesComments() {
 					: "알 수 없음";
 
 				const replyCount = userComments.filter(
-					(c) => c.parent_comment_id === comment.id,
+					(c) => c.parent_comment_id !== comment.id,
 				).length;
 
 				return (
@@ -56,7 +57,17 @@ export default function ActivitiesComments() {
 									{comment.post?.title ?? "제목 없음"}"
 								</p>
 								<p className="text-gray-500">
-									{comment.content}
+									{!comment.parent_comment_id ? (
+										comment.content
+									) : (
+										<div className="space-x-2">
+											<span className="text-[#8B5CF6] font-medium">
+												@{comment.user?.nickname}
+											</span>
+											<span>{comment.content}</span>
+										</div>
+									)}
+									{}
 								</p>
 							</div>
 
