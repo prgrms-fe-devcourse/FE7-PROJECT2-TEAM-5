@@ -6,7 +6,7 @@ export default function MessageListSkeleton() {
 				<div key={groupIndex}>
 					{/* 날짜 구분선 스켈레톤 */}
 					<div className="flex justify-center mb-6">
-						<div className="h-8 rounded-full w-32 skeleton-40"></div>
+						<div className="h-8 rounded-full w-45 skeleton-40"></div>
 					</div>
 
 					{/* 메시지 버블들 스켈레톤 */}

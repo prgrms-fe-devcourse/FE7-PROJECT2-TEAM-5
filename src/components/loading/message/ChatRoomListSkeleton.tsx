@@ -16,8 +16,8 @@ export default function ChatRoomListSkeleton() {
 						<div className="flex items-center gap-2">
 							{/* 사용자 이름 스켈레톤 */}
 							<div className="h-4 bg-gray-200 rounded w-20"></div>
-							{/* 읽지 않은 메시지 표시 스켈레톤 (가끔 표시) */}
-							{index % 3 === 0 && (
+							{/* 읽지 않은 메시지 표시 스켈레톤, 짝수에서 */}
+							{index % 2 === 0 && (
 								<div className="w-2 h-2 bg-gray-300 rounded-full"></div>
 							)}
 						</div>

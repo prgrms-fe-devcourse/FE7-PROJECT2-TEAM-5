@@ -8,7 +8,6 @@ interface ChatRoomListProps {
 	selectedRoomId: string | null;
 	onRoomSelect: (roomId: string) => void;
 	isLoading: boolean;
-	isInitialLoad?: boolean;
 }
 
 export default function ChatRoomList({
@@ -17,13 +16,13 @@ export default function ChatRoomList({
 	selectedRoomId,
 	onRoomSelect,
 	isLoading,
-	isInitialLoad = false,
 }: ChatRoomListProps) {
-	// 스켈레톤 UI로 구현 예정
-	if (isLoading && isInitialLoad) {
+	// 로딩 중일 때만 스켈레톤 표시
+	if (isLoading) {
 		return <ChatRoomListSkeleton />;
 	}
 
+	// 로딩 완료 후 채팅방이 없을 때 빈 상태 표시
 	if (chatRooms.length === 0) {
 		return (
 			<div className="flex-1 overflow-y-auto">

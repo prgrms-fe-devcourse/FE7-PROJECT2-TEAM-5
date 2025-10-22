@@ -157,6 +157,7 @@ export const useCreateChatRoom = () => {
 		async (targetUserId: string) => {
 			if (!currentUserId) return null;
 
+			// 로딩상태로 변경하여 버튼 비활성화 효과와 스켈레톤 UI 적용 됨
 			setIsLoading(true);
 			try {
 				// 먼저 기존 채팅방이 있는지 확인
