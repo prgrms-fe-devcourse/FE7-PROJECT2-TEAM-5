@@ -19,6 +19,7 @@ type Post = {
 
 type PostListProps = {
 	posts: Post[];
+	isSearchPage?: boolean;
 };
 
 function PostItem({ post }: { post: Post }) {
@@ -80,11 +81,11 @@ function PostItem({ post }: { post: Post }) {
 	);
 }
 
-export default function PostList({ posts }: PostListProps) {
+export default function PostList({ posts, isSearchPage }: PostListProps) {
 	if (posts.length === 0) {
 		return (
 			<div className="text-center text-gray-500 py-12">
-				게시글이 없습니다.
+				{isSearchPage ? "검색 결과가 없습니다." : "게시글이 없습니다."}
 			</div>
 		);
 	}

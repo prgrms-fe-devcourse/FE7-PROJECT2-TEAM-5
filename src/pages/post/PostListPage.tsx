@@ -47,11 +47,6 @@ export default function PostListPage() {
 					title="게시판"
 					tabs={tabs}
 				/>
-				{isLoading && (
-					<div className="border-t border-gray-300 mt-2 pt-6">
-						로딩중...
-					</div>
-				)}
 				{!isLoading && (
 					<>
 						{/* 게시판 영역 */}
