@@ -1,4 +1,5 @@
-import type { Message } from "../types/message";
+import { useEffect, useRef } from "react";
+import type { Message } from "../../types/message";
 import MessageBubble from "./MessageBubble";
 
 interface MessageListProps {
@@ -32,10 +33,23 @@ export default function MessageList({
 	messages,
 	currentUserId,
 }: MessageListProps) {
+	const scrollContainerRef = useRef<HTMLDivElement>(null);
 	const groupedMessages = groupMessagesByDate(messages);
 
+	// 메시지가 변경될 때마다 최하단으로 스크롤
+	useEffect(() => {
+		if (scrollContainerRef.current) {
+			const scrollContainer = scrollContainerRef.current;
+			// 부드러운 스크롤 애니메이션으로 최하단으로 이동
+			scrollContainer.scrollTo({
+				top: scrollContainer.scrollHeight,
+				behavior: "smooth",
+			});
+		}
+	}, [messages]);
+
 	return (
-		<div className="flex-1 overflow-y-auto p-6">
+		<div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-6">
 			{/*date와 dateMessages 순회하면서 메시지 표시 */}
 			{Object.entries(groupedMessages).map(([date, dateMessages]) => (
 				<div key={date}>
