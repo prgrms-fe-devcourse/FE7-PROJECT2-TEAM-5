@@ -19,6 +19,8 @@ export default function DmPage() {
 	);
 	const [messageInput, setMessageInput] = useState("");
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
+	const [selectedImage, setSelectedImage] = useState<string | null>(null);
+	const [showImageModal, setShowImageModal] = useState(false);
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 	const { messages, isLoading } = useMessagesInRoom(selectedRoomId);
 	const {
@@ -95,6 +97,39 @@ export default function DmPage() {
 			}
 		} catch (error) {
 			console.error("메시지 전송 중 오류:", error);
+		}
+	};
+
+	// 이미지 파일 선택 핸들러
+	const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files && e.target.files[0];
+		if (file) {
+			const reader = new FileReader();
+			reader.onload = (e) => {
+				setSelectedImage(e.target?.result as string);
+				setShowImageModal(true);
+			};
+			reader.readAsDataURL(file);
+		}
+	};
+
+	// 이미지 전송 핸들러
+	const handleSendImage = async () => {
+		if (!selectedImage || !selectedRoomId || isSending) {
+			return;
+		}
+
+		try {
+			const result = await sendMessage(selectedRoomId, selectedImage);
+			if (result) {
+				setSelectedImage(null);
+				setShowImageModal(false);
+				console.log("이미지 전송 성공:", result);
+			} else {
+				console.error("이미지 전송 실패");
+			}
+		} catch (error) {
+			console.error("이미지 전송 중 오류:", error);
 		}
 	};
 
@@ -232,14 +267,34 @@ export default function DmPage() {
 								className="hidden"
 								id="file-upload"
 								accept="image/*"
+								onChange={handleImageSelect}
 							/>
 							<label
 								htmlFor="file-upload"
-								className="w-11 h-11 border border-[#E5E7EB] rounded-lg flex justify-center items-center cursor-pointer"
+								className="w-11 h-11 border border-[#E5E7EB] rounded-lg flex justify-center items-center cursor-pointer hover:bg-gray-50 transition-colors"
 							>
 								{/* 이미지 전송 버튼 아이콘 */}
-								{/* 이미지를 첨부하면 이미지 전송할지 팝업창이 나오고 그 팝업창에는
-                                이미지 프리뷰가 나오고 전송하시겠습니까? 문구를 통해 전송할지 취소할지 결정 */}
+								<svg
+									width="20"
+									height="20"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="#6B7280"
+									strokeWidth="2"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								>
+									<rect
+										x="3"
+										y="3"
+										width="18"
+										height="18"
+										rx="2"
+										ry="2"
+									></rect>
+									<circle cx="8.5" cy="8.5" r="1.5"></circle>
+									<polyline points="21,15 16,10 5,21"></polyline>
+								</svg>
 							</label>
 							<button
 								type="submit"
@@ -291,6 +346,46 @@ export default function DmPage() {
 								className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
 							>
 								삭제
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* 이미지 전송 확인 모달 */}
+			{showImageModal && selectedImage && (
+				<div className="fixed inset-0 bg-gray-900/60 flex items-center justify-center z-50">
+					<div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+						<h3 className="text-lg font-semibold mb-4">
+							이미지 전송
+						</h3>
+						<div className="mb-4">
+							<img
+								src={selectedImage}
+								alt="전송할 이미지"
+								className="w-full max-h-64 object-contain rounded-lg"
+							/>
+						</div>
+						<p className="text-gray-600 mb-6">
+							이 이미지를 전송하시겠습니까?
+						</p>
+						<div className="flex gap-3 justify-end">
+							<button
+								onClick={() => {
+									setShowImageModal(false);
+									setSelectedImage(null);
+								}}
+								className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+								disabled={isSending}
+							>
+								취소
+							</button>
+							<button
+								onClick={handleSendImage}
+								disabled={isSending}
+								className="px-4 py-2 bg-[#8B5CF6] text-white rounded-lg hover:bg-[#7C3AED] transition-colors disabled:opacity-50"
+							>
+								전송
 							</button>
 						</div>
 					</div>

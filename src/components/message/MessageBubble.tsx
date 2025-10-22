@@ -1,4 +1,4 @@
-import type { Message } from "../types/message";
+import type { Message } from "../../types/message";
 
 interface MessageBubbleProps {
 	message: Message;
@@ -7,6 +7,12 @@ interface MessageBubbleProps {
 
 // URL이 이미지인지 확인하는 함수
 const isImageUrl = (text: string): boolean => {
+	// base64 이미지 확인
+	if (text.startsWith("data:image/")) {
+		return true;
+	}
+
+	// 일반 URL 이미지 확인
 	try {
 		const url = new URL(text);
 		const imageExtensions = [
