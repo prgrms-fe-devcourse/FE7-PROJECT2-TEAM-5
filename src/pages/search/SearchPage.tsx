@@ -2,7 +2,7 @@ import { useState } from "react";
 import supabase from "../../utils/supabase";
 import PostList from "../../components/PostList";
 import type { Post } from "../../types/post";
-// import PageNation from "../../components/PageNation";
+import PageNation from "../../components/PageNation";
 import type { Friend } from "../../types/friend";
 import MemberCard from "../../components/MemberCard";
 
@@ -14,7 +14,6 @@ export default function SearchPage() {
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		console.log(searchPostResult, searchUserResult);
 		setIsLoading(true);
 		const keyword = searchKeyword.trim();
 		if (!keyword || keyword === " ") {
@@ -29,7 +28,8 @@ export default function SearchPage() {
 				const { data: users, error: userError } = await supabase
 					.from("users")
 					.select("*")
-					.ilike("nickname", "%" + keyword.slice(1) + "%");
+					.ilike("nickname", "%" + keyword.slice(1) + "%")
+					.order("is_online", { ascending: false });
 
 				if (userError) throw userError;
 				if (users) {
@@ -106,32 +106,40 @@ export default function SearchPage() {
 		},
 	}));
 
-	// const [currentPage, setCurrentPage] = useState(1);
-	// const resultPerPage = 4;
-	// const totalPages = Math.ceil(
-	// 	((users.length ?? 0) + (searchPostResult.length ?? 0)) / resultPerPage,
-	// );
+	const [currentPage, setCurrentPage] = useState(1);
+	const resultPerPage = 4;
+	const totalPages = Math.ceil(
+		((users.length ?? 0) + (searchPostResult.length ?? 0)) / resultPerPage,
+	);
+	console.log("슬라이스 시작", searchPostResult, searchUserResult);
+	// // 현재 노출되는 게시글, 유저 아이템
+	let displayedUsers: Friend[] = [];
+	let displayedPosts: Post[] = [];
 
-	// //걸친 구간일때, 남은 아이템 수 계산
-	// let userRestItemIdx = 0;
-	// if (currentPage === users.length / resultPerPage + 1)
-	// 	userRestItemIdx = users.length % resultPerPage;
+	const userPageCount = Math.ceil(users.length / resultPerPage);
+	if (currentPage > userPageCount) {
+		displayedPosts = searchPostResult.slice(
+			(currentPage - 1) * resultPerPage - users.length,
+			currentPage * resultPerPage - users.length,
+		);
+	} else if (currentPage === userPageCount) {
+		console.log("걸친");
+		displayedUsers = users.slice((currentPage - 1) * resultPerPage);
 
-	// // 현재 노출되는 유저 아이템
-	// let displayedUsers: Friend[] = [];
-	// let displayedPosts: Post[] = [];
-	// if (currentPage * resultPerPage > users.length) {
-	// 	displayedUsers = users.slice((currentPage - 1) * resultPerPage);
-	// 	displayedPosts = searchPostResult.slice(
-	// 		(currentPage - 1) * resultPerPage - users.length + userRestItemIdx,
-	// 		currentPage * resultPerPage - users.length,
-	// 	);
-	// } else {
-	// 	displayedUsers = users.slice(
-	// 		(currentPage - 1) * resultPerPage,
-	// 		currentPage * resultPerPage,
-	// 	);
-	// }
+		displayedPosts = searchPostResult.slice(
+			((currentPage === 0 ? 2 : currentPage) - 1) * resultPerPage -
+				users.length +
+				(users.length % resultPerPage),
+			(currentPage === 0 ? 1 : currentPage) * resultPerPage -
+				users.length,
+		);
+	} else {
+		displayedUsers = users.slice(
+			(currentPage - 1) * resultPerPage,
+			currentPage * resultPerPage,
+		);
+	}
+	console.log("포스트", displayedPosts, "유저", displayedUsers);
 
 	return (
 		<>
@@ -169,15 +177,16 @@ export default function SearchPage() {
 				)}
 				{!isLoading && (
 					<div className="border-t border-gray-300 mt-2 pt-6">
-						{/* 멤버 영역 */}
+						{/* 검색 결과가 없을 때 */}
 						{users.length === 0 &&
 							searchPostResult.length === 0 && (
 								<div className="text-center text-gray-500 py-12">
 									검색 결과가 없습니다.
 								</div>
 							)}
-						{users.length > 0 &&
-							users.map((user) => (
+						{/* 멤버 영역 */}
+						{displayedUsers.length > 0 &&
+							displayedUsers.map((user) => (
 								<div
 									key={user.id}
 									className="bg-white rounded-xl mb-2"
@@ -186,15 +195,15 @@ export default function SearchPage() {
 								</div>
 							))}
 						{/* 게시판 영역 */}
-						{searchPostResult.length > 0 && (
-							<PostList posts={searchPostResult} />
+						{displayedPosts.length > 0 && (
+							<PostList posts={displayedPosts} />
 						)}
 						{/* 페이지 네이션 */}
-						{/* <PageNation
+						<PageNation
 							currentPage={currentPage}
 							totalPages={totalPages}
 							onPageChange={setCurrentPage}
-						/> */}
+						/>
 					</div>
 				)}
 			</div>
