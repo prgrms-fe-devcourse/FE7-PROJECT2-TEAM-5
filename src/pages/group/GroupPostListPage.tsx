@@ -126,7 +126,7 @@ export default function GroupPostListPage() {
 
 				const { data: membership, error: mErr } = await supabase
 					.from("group_members")
-					.select("id")
+					.select("*")
 					.eq("group_id", g.id)
 					.eq("user_id", currentUserId)
 					.maybeSingle();
@@ -158,38 +158,6 @@ export default function GroupPostListPage() {
 			alive = false;
 		};
 	}, [groupParam, activeTab, isLoggedIn, currentUserId, navigate]);
-
-	const renderBody = () => {
-		if (loading)
-			/* 스켈레톤 UI */
-			return <p className="mt-5 text-sm text-gray-500">불러오는 중…</p>;
-
-		return (
-			<>
-				<div className="border-t border-gray-300 mt-2 pt-6">
-					{(activeTab === "notice" || activeTab === "activity") && (
-						<div>
-							{posts.length === 0 ? (
-								<p className="mt-12 text-center text-sm text-gray-500">
-									게시글이 없습니다.
-								</p>
-							) : (
-								<PostList posts={displayedPosts as any} />
-							)}
-
-							<PageNation
-								currentPage={currentPage}
-								totalPages={totalPages}
-								onPageChange={setCurrentPage}
-							/>
-						</div>
-					)}
-					{activeTab === "attendance" && <GroupAttendancePage />}
-					{activeTab === "members" && <GroupMembers />}
-				</div>
-			</>
-		);
-	};
 
 	return (
 		<div className="w-[920px]">
@@ -224,7 +192,34 @@ export default function GroupPostListPage() {
 				/>
 			</div>
 
-			{renderBody()}
+			{loading ? (
+				<p className="mt-5 text-sm text-gray-500">불러오는 중…</p>
+			) : (
+				<>
+					<div className="border-t border-gray-300 mt-2 pt-6">
+						{(activeTab === "notice" ||
+							activeTab === "activity") && (
+							<div>
+								{posts.length === 0 ? (
+									<p className="mt-12 text-center text-sm text-gray-500">
+										게시글이 없습니다.
+									</p>
+								) : (
+									<PostList posts={displayedPosts as any} />
+								)}
+
+								<PageNation
+									currentPage={currentPage}
+									totalPages={totalPages}
+									onPageChange={setCurrentPage}
+								/>
+							</div>
+						)}
+						{activeTab === "attendance" && <GroupAttendancePage />}
+						{activeTab === "members" && <GroupMembers />}
+					</div>
+				</>
+			)}
 		</div>
 	);
 }
