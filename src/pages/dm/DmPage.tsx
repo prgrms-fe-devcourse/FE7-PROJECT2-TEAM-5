@@ -149,28 +149,41 @@ export default function DmPage() {
 						<h3 className="text-xl font-medium">
 							{otherUser?.nickname || "채팅방을 선택해주세요"}
 						</h3>
-						<button
-							className="w-[30px] h-[30px] bg-[#d9d9d9] cursor-pointer rounded flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
-							onClick={() => setShowDeleteModal(true)}
-							disabled={!selectedRoomId || isDeleting}
-						>
-							{/* 휴지통 아이콘 */}
-							<svg
-								width="16"
-								height="16"
-								viewBox="0 0 24 24"
-								fill="none"
-								stroke="currentColor"
-								strokeWidth="2"
-								strokeLinecap="round"
-								strokeLinejoin="round"
+						{/* 채팅방이 선택되었을 때만 삭제 버튼 표시 */}
+						{selectedRoomId && (
+							<button
+								className="w-[30px] h-[30px] cursor-pointer rounded flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
+								onClick={() => setShowDeleteModal(true)}
+								disabled={isDeleting}
 							>
-								<polyline points="3,6 5,6 21,6"></polyline>
-								<path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
-								<line x1="10" y1="11" x2="10" y2="17"></line>
-								<line x1="14" y1="11" x2="14" y2="17"></line>
-							</svg>
-						</button>
+								{/* 휴지통 아이콘 */}
+								<svg
+									width="30"
+									height="30"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="#6B7280"
+									strokeWidth="2"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								>
+									<polyline points="3,6 5,6 21,6"></polyline>
+									<path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
+									<line
+										x1="10"
+										y1="11"
+										x2="10"
+										y2="17"
+									></line>
+									<line
+										x1="14"
+										y1="11"
+										x2="14"
+										y2="17"
+									></line>
+								</svg>
+							</button>
+						)}
 					</div>
 
 					{/* 채팅 내용 영역 */}
