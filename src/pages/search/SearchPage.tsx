@@ -32,27 +32,28 @@ export default function SearchPage() {
 					.order("is_online", { ascending: false });
 
 				if (userError) throw userError;
-				if (users) {
+				if (users && users.length > 0) {
 					setSearchUserResult(users);
-				}
+					//유사 닉네임을 가진 유저의 id와 동일한가 or 매개변수 맵핑
+					const nicfilter = users
+						.map((user) => `user_id.eq.${user.auth_id}`)
+						.join(",");
 
-				//유사 닉네임을 가진 유저의 id와 동일한가 or 매개변수 맵핑
-				const nicfilter = users
-					.map((user) => `user_id.eq.${user.auth_id}`)
-					.join(",");
+					const { data: posts, error: postError } = await supabase
+						.from("posts")
+						.select(
+							"*, users(nickname), likes:post_likes(id), comments:comments!comments_post_id_fkey(id)",
+						)
+						.is("group_id", null)
+						.or(nicfilter)
+						.order("created_at", { ascending: false });
 
-				const { data: posts, error: postError } = await supabase
-					.from("posts")
-					.select(
-						"*, users(nickname), likes:post_likes(id), comments:comments!comments_post_id_fkey(id)",
-					)
-					.is("group_id", null)
-					.or(nicfilter)
-					.order("created_at", { ascending: false });
-
-				if (postError) throw postError;
-				if (posts) {
-					setSearchPostResult(posts);
+					if (postError) throw postError;
+					if (posts) {
+						setSearchPostResult(posts);
+						setIsLoading(false);
+					}
+				} else {
 					setIsLoading(false);
 				}
 			} else if (keyword[0] === "#") {
