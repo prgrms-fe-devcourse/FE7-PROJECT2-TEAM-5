@@ -18,7 +18,7 @@ export default function ActivitiesComments() {
 	] as const;
 
 	// 페이지네이션 관련
-	const commentsPerPage = 6;
+	const commentsPerPage = 5;
 	const [currentPage, setCurrentPage] = useState(1);
 	const totalPages = Math.ceil(userComments.length / commentsPerPage);
 	const displayedComments = userComments.slice(
