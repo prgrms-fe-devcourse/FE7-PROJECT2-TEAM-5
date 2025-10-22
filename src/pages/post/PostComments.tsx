@@ -375,6 +375,11 @@ export default function PostComments(props: PostCommentsProps) {
 						{adoptedComment && adoptedComment[0] && (
 							<Comment comment={adoptedComment[0]} />
 						)}
+						{adoptedComment?.length === 0 && (
+							<div className="text-center text-gray-500 py-10">
+								채택된 댓글이 없습니다.
+							</div>
+						)}
 						<div className="border-t border-gray-300 mt-3.5" />
 
 						{/* 일반 댓글 */}
