@@ -34,7 +34,7 @@ export default function Header() {
 									<div className="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2 animate-pulse"></div>
 								)}
 							</button>
-							<Link to="/msg/1">메시지</Link>
+							<Link to="/msg">메시지</Link>
 							<Link to="/profile/me">프로필</Link>
 						</>
 					) : (

@@ -21,7 +21,11 @@ export default function DmPage() {
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 	const { messages, isLoading } = useMessagesInRoom(selectedRoomId);
-	const { chatRooms, isLoading: chatRoomsLoading } = useChatRooms();
+	const {
+		chatRooms,
+		isLoading: chatRoomsLoading,
+		refetch: refetchChatRooms,
+	} = useChatRooms();
 	const { sendMessage, isLoading: isSending } = useSendMessage();
 	const { deleteRoom, isLoading: isDeleting } = useDeleteChatRoom();
 
@@ -106,6 +110,8 @@ export default function DmPage() {
 				console.log("채팅방 삭제 성공");
 				setSelectedRoomId(null);
 				setShowDeleteModal(false);
+				// 채팅방 리스트 리렌더링
+				await refetchChatRooms();
 				navigate("/msg");
 			} else {
 				console.error("채팅방 삭제 실패");
