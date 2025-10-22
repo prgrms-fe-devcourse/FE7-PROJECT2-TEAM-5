@@ -1,4 +1,4 @@
-import { Heart, MessageSquare } from "lucide-react";
+import { Heart, MessageSquare, Smile } from "lucide-react";
 import type { Comment } from "../../types/comment";
 import { useState } from "react";
 import supabase from "../../utils/supabase";
@@ -24,6 +24,42 @@ export default function PostComments(props: PostCommentsProps) {
 		commentId: "",
 	});
 	const currentUserId = useProfileStore((state) => state.currentUserId);
+
+	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+	const emojis = [
+		`"😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇"`,
+		`"🙂","🙃","😉","😌","😍","🥰","😘","😗","😙","😚"`,
+		`"😋","😛","😜","🤪","😝","🤑","🤗","🤭","🤫","🤔"`,
+		`"🤐","🤨","😐","😑","😶","😏","😒","🙄","😬","🤥"`,
+		`"😌","😔","😪","🤤","😴","😷","🤒","🤕","🤢","🤮"`,
+		`"🤧","🥵","🥶","🥴","😵","🤯","🤠","🥳","😎","🤓"`,
+		`"🧐","😕","😟","🙁","☹️","😮","😯","😲","😳","🥺"`,
+		`"😦","😧","😨","😰","😥","😢","😭","😱","😖","😣"`,
+		`"😞","😓","😩","😫","🥱","😤","😡","😠","🤬","😈"`,
+		`"👿","💀","☠️","💩","🤡","👹","👺","👻","👽","👾"`,
+		`"🤖","😺","😸","😹","😻","😼","😽","🙀","😿","😾"`,
+		`"👶","🧒","👦","👧","🧑","👱‍♂️","👱‍♀️","👨","🧔","👩"`,
+		`"🧓","👴","👵","🙍‍♂️","🙍‍♀️","🙎‍♂️","🙎‍♀️","🙇‍♂️","🙇‍♀️","🤦‍♂️"`,
+		`"🤦‍♀️","🤷‍♂️","🤷‍♀️","💁‍♂️","💁‍♀️","🙅‍♂️","🙅‍♀️","🙆‍♂️","🙆‍♀️","🙋‍♂️"`,
+		`"🙋‍♀️","🧏‍♂️","🧏‍♀️","🙎","🙍","🙆","💇","💆","🧖","💅"`,
+		`"🤳","💃","🕺","🕴️","👯‍♂️","👯‍♀️","🧗‍♂️","🧗‍♀️","🏇","⛷️"`,
+		`"🏂","🏌️‍♂️","🏌️‍♀️","🏄‍♂️","🏄‍♀️","🚣‍♂️","🚣‍♀️","🏊‍♂️","🏊‍♀️","⛹️‍♂️"`,
+		`"⛹️‍♀️","🏋️‍♂️","🏋️‍♀️","🚴‍♂️","🚴‍♀️","🚵‍♂️","🚵‍♀️","🤸‍♂️","🤸‍♀️","🤼‍♂️"`,
+		`"🤼‍♀️","🤽‍♂️","🤽‍♀️","🤾‍♂️","🤾‍♀️","🤹‍♂️","🤹‍♀️","🧘‍♂️","🧘‍♀️","🛀"`,
+		`"🛌","🧑‍🤝‍🧑","👭","👬","💏","💑","👪","👨‍👩‍👧","👨‍👩‍👧‍👦","👨‍👨‍👦‍👦"`,
+		`"👩‍👩‍👦‍👦","👨‍👨‍👧‍👧","👩‍👩‍👧‍👧","👫","💪","🦵","🦶","👂","👃","🧠"`,
+		`"🫀","🫁","🦷","🦴","👀","👁️","👅","👄","💋","🩸"`,
+		`"👓","🕶️","🥽","🥼","🦺","👔","👕","👖","🩳","👗"`,
+		`"👘","🥻","🩱","🩲","🩳","👙","🥿","👠","👡","👢"`,
+		`"👑","👒","🎩","🎓","🧢","🪖","⛑️","🎒","👝","👛"`,
+		`"👜","💼","🛍️","🛒","🎁","🎀","🧸","📿","💄","💍"`,
+	];
+
+	const addEmoji = (emoji: string) => {
+		setInputComment(inputComment + emoji);
+		setShowEmojiPicker(false);
+	};
 
 	const writeComment = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -306,54 +342,76 @@ export default function PostComments(props: PostCommentsProps) {
 
 	return (
 		<>
-			{!props.comments || props.comments.length === 0 ? (
-				<div className="text-center text-gray-500 py-12">
-					현재 게시물에 등록된 댓글이 없습니다.
-				</div>
-			) : (
-				<div className="h-full flex flex-col justify-between">
-					{props.comments && props.comments.length > 0 && (
-						<div className="flex flex-col pr-2 overflow-y-auto scrollbar-custom">
-							{/* 채택된 댓글 */}
-							{adoptedComment && adoptedComment[0] && (
-								<Comment comment={adoptedComment[0]} />
-							)}
+			<div className="h-full flex flex-col justify-between">
+				{/* 댓글이 없는 경우 */}
+				{!props.comments || props.comments.length === 0 ? (
+					<div className="text-center text-gray-500 py-12">
+						현재 게시물에 등록된 댓글이 없습니다.
+					</div>
+				) : (
+					<div className="flex flex-col pr-2 overflow-y-auto scrollbar-custom">
+						{/* 채택된 댓글 */}
+						{adoptedComment && adoptedComment[0] && (
+							<Comment comment={adoptedComment[0]} />
+						)}
 
-							{/* 댓글 1 */}
-							<CommentItem comments={props.comments} />
-						</div>
-					)}
+						{/* 일반 댓글 */}
+						<CommentItem comments={props.comments} />
+					</div>
+				)}
 
-					<form
-						className="flex gap-2 mt-4 w-full "
-						onSubmit={writeComment}
-					>
-						<div className="flex-1 text-sm px-6 py-3 border-1 border-[#E5E7EB] rounded-xl bg-white">
-							{mention.nickname && (
-								<span className="text-[#8B5CF6] text-sm mr-1 font-medium">
-									@{mention.nickname}
-								</span>
-							)}
-							<input
-								placeholder="댓글을 작성해주세요."
-								value={inputComment}
-								onChange={(e) =>
-									setInputComment(e.target.value)
-								}
-								onKeyDown={handleKeyDown}
-								className="w-full focus:outline-none"
-							/>
-						</div>
-
+				{/* 댓글 작성 폼 */}
+				<form
+					className="flex gap-2 mt-4 w-full"
+					onSubmit={writeComment}
+				>
+					<div className="relative flex-1 text-sm px-6 py-3 border-1 border-[#E5E7EB] rounded-xl bg-white">
+						{mention.nickname && (
+							<span className="text-[#8B5CF6] text-sm mr-1 font-medium">
+								@{mention.nickname}
+							</span>
+						)}
+						<input
+							placeholder="댓글을 작성해주세요."
+							value={inputComment}
+							onChange={(e) => setInputComment(e.target.value)}
+							onKeyDown={handleKeyDown}
+							className="w-full focus:outline-none"
+						/>
+						{/* 이모지 버튼 */}
 						<Button
-							type="submit"
-							className="px-4 py-2 text-sm text-white rounded-xl bg-[#8B5CF6]"
+							type="button"
+							className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#8B5CF6]"
+							onClick={() => setShowEmojiPicker(!showEmojiPicker)}
 						>
-							등록
+							<Smile size={20} />
 						</Button>
-					</form>
-				</div>
-			)}
+
+						{/* 이모지 선택창 */}
+						{showEmojiPicker && (
+							<div className="absolute bottom-full right-0 mb-2 bg-white border rounded-lg shadow-md p-2 grid grid-cols-10 gap-1">
+								{emojis.map((emoji) => (
+									<Button
+										key={emoji}
+										type="button"
+										onClick={() => addEmoji(emoji)}
+										className="text-lg hover:bg-gray-100 rounded p-1"
+									>
+										{emoji}
+									</Button>
+								))}
+							</div>
+						)}
+					</div>
+
+					<Button
+						type="submit"
+						className="px-4 py-2 text-sm text-white rounded-xl bg-[#8B5CF6]"
+					>
+						등록
+					</Button>
+				</form>
+			</div>
 		</>
 	);
 }
