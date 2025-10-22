@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Heart, MessageSquare } from "lucide-react";
 import PageNation from "../../components/PageNation";
 import { useActPostStore } from "../../stores/profileActivityStore";
+import { Link } from "react-router";
 
 export default function ActivitiesComments() {
 	const { userComments } = useActPostStore();
@@ -37,40 +38,44 @@ export default function ActivitiesComments() {
 					: "알 수 없음";
 
 				return (
-					<div
-						key={comment.id}
-						className={`p-4 flex flex-row justify-between ${
-							idx > 0 ? "border-t border-[#E5E7EB]" : ""
-						}`}
-					>
-						{/* left: 게시판명 + 댓글 내용 */}
-						<div className="flex flex-col gap-1">
-							<p className="font-bold text-lg">
-								{boardLabel}: "
-								{comment.post?.title ?? "제목 없음"}"
-							</p>
-							<p className="text-gray-500">{comment.content}</p>
-						</div>
-
-						{/* right: 날짜, 좋아요, 대댓글 수 */}
-						<div className="text-sm text-[#9CA3AF] flex flex-row items-start gap-1">
-							<div>{comment.created_at.slice(0, 10)}</div>
-							<span>·</span>
-
-							<div className="flex flex-row gap-1 items-center">
-								<Heart color="red" size={15} />
-								<span>
-									{comment.comment_likes?.length ?? 0}
-								</span>
+					<Link to={`/posts/${comment.post_id}`}>
+						<div
+							key={comment.id}
+							className={`p-4 flex flex-row justify-between ${
+								idx > 0 ? "border-t border-[#E5E7EB]" : ""
+							}`}
+						>
+							{/* left: 게시판명 + 댓글 내용 */}
+							<div className="flex flex-col gap-1">
+								<p className="font-bold text-lg">
+									{boardLabel}: "
+									{comment.post?.title ?? "제목 없음"}"
+								</p>
+								<p className="text-gray-500">
+									{comment.content}
+								</p>
 							</div>
 
-							<span>·</span>
-							<div className="flex flex-row gap-1 items-center">
-								<MessageSquare color="#8B5CF6" size={15} />
-								<span>{comment.comment_likes?.length}</span>
+							{/* right: 날짜, 좋아요, 대댓글 수 */}
+							<div className="text-sm text-[#9CA3AF] flex flex-row items-start gap-1">
+								<div>{comment.created_at.slice(0, 10)}</div>
+								<span>·</span>
+
+								<div className="flex flex-row gap-1 items-center">
+									<Heart color="red" size={15} />
+									<span>
+										{comment.comment_likes?.length ?? 0}
+									</span>
+								</div>
+
+								<span>·</span>
+								<div className="flex flex-row gap-1 items-center">
+									<MessageSquare color="#8B5CF6" size={15} />
+									<span>{comment.comment_likes?.length}</span>
+								</div>
 							</div>
 						</div>
-					</div>
+					</Link>
 				);
 			})}
 
