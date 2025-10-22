@@ -38,10 +38,6 @@ export default function ActivitiesComments() {
 							?.label ?? "알 수 없음")
 					: "알 수 없음";
 
-				const replyCount = userComments.filter(
-					(c) => c.parent_comment_id !== comment.id,
-				).length;
-
 				return (
 					<Link to={`/posts/${comment.post_id}`}>
 						<div
@@ -91,7 +87,9 @@ export default function ActivitiesComments() {
 												color="#8B5CF6"
 												size={15}
 											/>
-											<span>{replyCount}</span>
+											<span>
+												{comment.reply_count ?? 0}
+											</span>
 										</div>
 									</>
 								)}
