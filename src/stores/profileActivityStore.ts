@@ -10,7 +10,7 @@ type ActPostState = {
 	parentComments: string[];
 	commentsPosts: Post[];
 	// fetchUserPosts: 유저 게시글 불러오기
-	fetchUserPosts: (userId: string) => Promise<void>;
+	fetchUserPosts: (userId?: string | null) => Promise<void>;
 	// fetchUserComments: 유저 댓글 불러오기
 	fetchUserComments: (userId: string) => Promise<void>;
 	// fetchParentComments: 유저 댓글의 대댓글
@@ -27,7 +27,7 @@ export const useActPostStore = create<ActPostState>()(
 		commentsPosts: [],
 
 		// 전체 게시글
-		fetchUserPosts: async (userId: string) => {
+		fetchUserPosts: async (userId?: string | null) => {
 			const { data, error } = await supabase
 				.from("posts")
 				.select(
@@ -47,7 +47,7 @@ export const useActPostStore = create<ActPostState>()(
 		},
 
 		// 전체 댓글
-		fetchUserComments: async (userId: string) => {
+		fetchUserComments: async (userId?: string | null) => {
 			const { data, error } = await supabase
 				.from("comments")
 				.select("*, comment_likes(id)")
