@@ -8,7 +8,7 @@ import { getGrade } from "../../utils/getGrade";
 import { useNavigate } from "react-router";
 
 type PostCommentsProps = {
-	comments: Comment[] | null | undefined;
+	comments: Comment[] | null;
 	postId: string | undefined;
 	adopted_comment_id: string | null;
 	writerId: string | undefined;

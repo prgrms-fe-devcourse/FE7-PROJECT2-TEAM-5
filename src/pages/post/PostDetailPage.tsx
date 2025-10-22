@@ -1,117 +1,52 @@
 import { Heart } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router";
-import type { Database } from "../../types/database";
-import type { Comment } from "../../types/Comment";
 import { useEffect, useState } from "react";
 import supabase from "../../utils/supabase";
 import PostComments from "./PostComments";
 import { useProfileStore } from "../../stores/profileStore";
-
-type DetailPost = Database["public"]["Tables"]["posts"]["Row"] & {
-	user?: {
-		nickname: string;
-	} | null;
-	files?:
-		| {
-				file_path: string;
-				file_name: string;
-		  }[]
-		| undefined;
-
-	post_likes?: { user_id: string }[];
-};
+import { usePostStore } from "../../stores/postStore";
 
 // 게시글 세부 페이지
 export default function PostDetailPage() {
 	const navigate = useNavigate();
 	const { id } = useParams();
-	const [isLoading, setIsLoading] = useState(true);
-	const [isLiked, setIsLiked] = useState(false);
-	const [postData, setPostData] = useState<DetailPost | null>(null);
-	const [comments, setComments] = useState<Comment[]>([]);
 	const currentUserId = useProfileStore((state) => state.currentUserId);
+	const postData = usePostStore((state) => state.post);
+	const [isLoading, setIsLoading] = useState(true);
+	const isLiked = usePostStore((state) => state.isLiked);
+	const comments = usePostStore((state) => state.comments);
+	const fetchPost = usePostStore((state) => state.fetchPost);
+	const updateLike = usePostStore((state) => state.updateLike);
 
 	useEffect(() => {
-		const fetchPost = async () => {
-			try {
-				//게시물 정보 (작성자 닉네임, 첨부 파일도)
-				const { data: post, error: postError } = await supabase
-					.from("posts")
-					.select(
-						"*, user:users(nickname, representative_badge_id(badges(name,icon_url))), files(file_path, file_name), post_likes(user_id)",
-					)
-					.eq("id", id)
-					.single();
-				if (postError) throw postError;
-
-				//댓글과 댓글 작성자 정보 및 댓글 좋아요 (뱃지 현재 착용 뱃지 컬럼이 없는 것 같아서 아직 안가져옴)
-				const { data: comments, error: commentsError } = await supabase
-					.from("comments")
-					.select(
-						"*, user:users(auth_id,nickname, birth_date, representative_badge_id(badges(name,icon_url))), comment_likes(user_id)",
-					)
-					.eq("post_id", id);
-				if (commentsError) throw commentsError;
-
-				// 원댓글 닉네임 매핑
-				const parentMap: Record<string, string> = {};
-				comments.forEach((c) => {
-					if (!c.parent_comment_id) {
-						parentMap[c.id] = c.user.nickname ?? "";
-					}
-				});
-				const commentsWithParent = comments.map((c) => ({
-					...c,
-					parentNickname: c.parent_comment_id
-						? parentMap[c.parent_comment_id]
-						: null,
-				}));
-
-				//좋아요 눌렀는지 확인
-				console.log(post.post_likes);
-				if (
-					post.post_likes.some((like: { user_id: string }) => {
-						return like.user_id === currentUserId;
-					})
-				) {
-					setIsLiked(true);
-				}
-				setPostData({ ...post });
-				setComments(commentsWithParent);
-				console.log(commentsWithParent);
-				setIsLoading(false);
-			} catch (e) {
-				console.error(e);
+		const loadPost = async () => {
+			setIsLoading(true);
+			if (id && currentUserId) {
+				await fetchPost(id, currentUserId);
 			}
+			setIsLoading(false);
 		};
-		fetchPost();
-	}, [id]);
+		loadPost();
+	}, [id, currentUserId]);
 
-	const pressLike = async () => {
+	const pressLike = () => {
 		if (!currentUserId) {
 			alert("로그인이 필요합니다.");
 			navigate("/login");
 			return;
 		}
 		if (
-			postData?.post_likes?.some((like) => like.user_id === currentUserId)
+			postData?.post_likes?.some(
+				(like) => like.user_id === currentUserId,
+			) ||
+			isLiked === true
 		) {
 			alert("이미 좋아요를 눌렀습니다.");
 			return;
 		}
-		try {
-			const { data, error } = await supabase
-				.from("post_likes")
-				.insert([{ user_id: currentUserId, post_id: postData?.id }])
-				.select();
-			if (error) throw error;
-			if (data) {
-				console.log(data);
-				alert("좋아요 완료");
-				setIsLiked(true);
-			}
-		} catch (error) {
-			console.error(error);
+		if (id) {
+			updateLike(id, currentUserId);
+			alert("좋아요 완료");
 		}
 	};
 
@@ -130,9 +65,10 @@ export default function PostDetailPage() {
 		}
 	};
 
-	if (!isLoading) {
-		return (
-			<>
+	return (
+		<>
+			{isLoading && <div>로딩중</div>}
+			{!isLoading && (
 				<div className="w-250 px-30 py-5">
 					<div className="flex justify-between items-center">
 						{/* 글 제목 */}
@@ -229,7 +165,7 @@ export default function PostDetailPage() {
 						← 게시판으로 돌아가기
 					</Link>
 				</div>
-			</>
-		);
-	}
+			)}
+		</>
+	);
 }
