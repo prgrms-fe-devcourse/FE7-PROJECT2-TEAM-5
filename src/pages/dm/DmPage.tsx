@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import MessageList from "../../components/message/MessageList";
 import ChatRoomList from "../../components/message/ChatRoomList";
@@ -19,6 +19,10 @@ export default function DmPage() {
 	);
 	const [messageInput, setMessageInput] = useState("");
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
+	const [selectedImage, setSelectedImage] = useState<string | null>(null);
+	const [showImageModal, setShowImageModal] = useState(false);
+	const messageInputRef = useRef<HTMLInputElement>(null);
+	const fileInputRef = useRef<HTMLInputElement>(null);
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 	const { messages, isLoading } = useMessagesInRoom(selectedRoomId);
 	const {
@@ -43,10 +47,8 @@ export default function DmPage() {
 
 	// URL 파라미터가 변경될 때 채팅방 업데이트
 	useEffect(() => {
-		if (roomId) {
-			console.log("URL 파라미터 변경:", roomId);
-			setSelectedRoomId(roomId);
-		}
+		console.log("URL 파라미터 변경:", roomId);
+		setSelectedRoomId(roomId || null);
 	}, [roomId]);
 
 	// 채팅방 목록이 로드된 후 URL 파라미터 처리
@@ -89,12 +91,85 @@ export default function DmPage() {
 			);
 			if (result) {
 				setMessageInput(""); // 입력창 초기화
+				// 입력창에 포커스 다시 설정
+				setTimeout(() => {
+					messageInputRef.current?.focus();
+				}, 0);
 				console.log("메시지 전송 성공:", result);
 			} else {
 				console.error("메시지 전송 실패");
 			}
 		} catch (error) {
 			console.error("메시지 전송 중 오류:", error);
+		}
+	};
+
+	// 이미지 파일 유효성 검사
+	const isValidImageFile = (file: File): boolean => {
+		const validImageTypes = [
+			"image/jpeg",
+			"image/jpg",
+			"image/png",
+			"image/gif",
+			"image/webp",
+			"image/svg+xml",
+		];
+		return validImageTypes.includes(file.type);
+	};
+
+	// 이미지 파일 선택 핸들러
+	const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files && e.target.files[0];
+		if (file) {
+			// 이미지 파일 유효성 검사
+			if (!isValidImageFile(file)) {
+				alert(
+					"이미지 파일만 전송할 수 있습니다. (JPG, PNG, GIF, WebP, SVG)",
+				);
+				// 파일 입력 초기화
+				e.target.value = "";
+				return;
+			}
+
+			// 파일 크기 제한
+			const maxSize = 10 * 1024 * 1024; // 10MB
+			if (file.size > maxSize) {
+				alert("파일 크기는 10MB 이하여야 합니다.");
+				e.target.value = "";
+				return;
+			}
+
+			const reader = new FileReader();
+			reader.onload = (e) => {
+				setSelectedImage(e.target?.result as string);
+				setShowImageModal(true);
+			};
+			reader.readAsDataURL(file);
+		}
+	};
+
+	// 이미지 전송 핸들러
+	const handleSendImage = async () => {
+		if (!selectedImage || !selectedRoomId || isSending) {
+			return;
+		}
+
+		try {
+			const result = await sendMessage(selectedRoomId, selectedImage);
+			if (result) {
+				setSelectedImage(null);
+				setShowImageModal(false);
+				// 파일 입력 필드 초기화
+				// 없으면 같은 파일 연속으로 못 보냄
+				if (fileInputRef.current) {
+					fileInputRef.current.value = "";
+				}
+				console.log("이미지 전송 성공:", result);
+			} else {
+				console.error("이미지 전송 실패");
+			}
+		} catch (error) {
+			console.error("이미지 전송 중 오류:", error);
 		}
 	};
 
@@ -131,7 +206,10 @@ export default function DmPage() {
 
 	return (
 		<>
-			<div className="w-[1000px] h-[790px] bg-white rounded-xl flex flex-row overflow-hidden">
+			<div
+				key={roomId || null}
+				className="w-[1000px] h-[790px] bg-white rounded-xl flex flex-row overflow-hidden"
+			>
 				{/* 채팅 리스트 */}
 				<div className="w-[250px] border-r border-[#E5E7EB] bg-[#F9FAFB] rounded-l-xl flex flex-col">
 					<div className="h-[60px] border-b border-[#E5E7EB] rounded-t-xl p-4">
@@ -226,20 +304,42 @@ export default function DmPage() {
 								}
 								className="flex-1 h-11 border border-[#E5E7EB] rounded-xl p-2"
 								disabled={isSending}
+								ref={messageInputRef}
 							/>
 							<input
 								type="file"
 								className="hidden"
 								id="file-upload"
 								accept="image/*"
+								onChange={handleImageSelect}
+								ref={fileInputRef}
 							/>
 							<label
 								htmlFor="file-upload"
-								className="w-11 h-11 border border-[#E5E7EB] rounded-lg flex justify-center items-center cursor-pointer"
+								className="w-11 h-11 border border-[#E5E7EB] rounded-lg flex justify-center items-center cursor-pointer hover:bg-gray-50 transition-colors"
 							>
 								{/* 이미지 전송 버튼 아이콘 */}
-								{/* 이미지를 첨부하면 이미지 전송할지 팝업창이 나오고 그 팝업창에는
-                                이미지 프리뷰가 나오고 전송하시겠습니까? 문구를 통해 전송할지 취소할지 결정 */}
+								<svg
+									width="20"
+									height="20"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="#6B7280"
+									strokeWidth="2"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								>
+									<rect
+										x="3"
+										y="3"
+										width="18"
+										height="18"
+										rx="2"
+										ry="2"
+									></rect>
+									<circle cx="8.5" cy="8.5" r="1.5"></circle>
+									<polyline points="21,15 16,10 5,21"></polyline>
+								</svg>
 							</label>
 							<button
 								type="submit"
@@ -291,6 +391,46 @@ export default function DmPage() {
 								className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors disabled:opacity-50"
 							>
 								삭제
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
+			{/* 이미지 전송 확인 모달 */}
+			{showImageModal && selectedImage && (
+				<div className="fixed inset-0 bg-gray-900/60 flex items-center justify-center z-50">
+					<div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
+						<h3 className="text-lg font-semibold mb-4">
+							이미지 전송
+						</h3>
+						<div className="mb-4">
+							<img
+								src={selectedImage}
+								alt="전송할 이미지"
+								className="w-full max-h-64 object-contain rounded-lg"
+							/>
+						</div>
+						<p className="text-gray-600 mb-6">
+							이 이미지를 전송하시겠습니까?
+						</p>
+						<div className="flex gap-3 justify-end">
+							<button
+								onClick={() => {
+									setShowImageModal(false);
+									setSelectedImage(null);
+								}}
+								className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+								disabled={isSending}
+							>
+								취소
+							</button>
+							<button
+								onClick={handleSendImage}
+								disabled={isSending}
+								className="px-4 py-2 bg-[#8B5CF6] text-white rounded-lg hover:bg-[#7C3AED] transition-colors disabled:opacity-50"
+							>
+								전송
 							</button>
 						</div>
 					</div>

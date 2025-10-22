@@ -1,29 +1,9 @@
-import type { Message } from "../types/message";
+import type { Message } from "../../types/message";
 
 interface MessageBubbleProps {
 	message: Message;
 	currentUserId: string;
 }
-
-// URL이 이미지인지 확인하는 함수
-const isImageUrl = (text: string): boolean => {
-	try {
-		const url = new URL(text);
-		const imageExtensions = [
-			".jpg",
-			".jpeg",
-			".png",
-			".gif",
-			".webp",
-			".svg",
-		];
-		return imageExtensions.some((ext) =>
-			url.pathname.toLowerCase().endsWith(ext),
-		);
-	} catch {
-		return false;
-	}
-};
 
 // 시간 포맷팅 함수
 const formatTime = (dateString: string): string => {
@@ -41,7 +21,7 @@ export default function MessageBubble({
 	// 현재 로그인한 사용자가 보낸 메시지인지 확인 (다르게 보여야 하니까)
 	const isCurrentUser = message.sender_id === currentUserId;
 	// 메시지가 이미지인지 확인
-	const isImage = isImageUrl(message.message);
+	const isImage = message.message.startsWith("data:image/");
 
 	return (
 		<div
