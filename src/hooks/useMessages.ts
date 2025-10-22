@@ -5,6 +5,7 @@ import {
 	sendMessage,
 	getMessagesInRoom,
 	getChatRooms,
+	findExistingChatRoom,
 	createChatRoom,
 	markRoomAsRead,
 	subscribeToMessages,
@@ -145,8 +146,22 @@ export const useCreateChatRoom = () => {
 
 			setIsLoading(true);
 			try {
-				const room = await createChatRoom(currentUserId, targetUserId);
-				return room;
+				// 먼저 기존 채팅방이 있는지 확인
+				const existingRoom = await findExistingChatRoom(
+					currentUserId,
+					targetUserId,
+				);
+				if (existingRoom) {
+					// 기존 채팅방이 있으면 그 채팅방 반환
+					return existingRoom;
+				}
+
+				// 기존 채팅방이 없으면 새로 생성
+				const newRoom = await createChatRoom(
+					currentUserId,
+					targetUserId,
+				);
+				return newRoom;
 			} finally {
 				setIsLoading(false);
 			}

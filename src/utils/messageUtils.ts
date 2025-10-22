@@ -125,6 +125,33 @@ export const getChatRooms = async (
 	}
 };
 
+// 특정 사용자와의 기존 채팅방 찾기 함수
+// 이미 채팅방이 있는데, 중복 생성하는 경우 방지
+export const findExistingChatRoom = async (
+	currentUserId: string,
+	targetUserId: string,
+): Promise<ChatRoom | null> => {
+	try {
+		const { data, error } = await supabase
+			.from("chat_rooms")
+			.select("*")
+			.or(
+				`and(user1_id.eq.${currentUserId},user2_id.eq.${targetUserId}),and(user1_id.eq.${targetUserId},user2_id.eq.${currentUserId})`,
+			)
+			.single();
+
+		if (error) {
+			// 채팅방이 없으면 null 반환
+			return null;
+		}
+
+		return data;
+	} catch (error) {
+		// 채팅방이 없으면 null 반환
+		return null;
+	}
+};
+
 // 채팅방 생성 함수
 export const createChatRoom = async (
 	user1Id: string,
