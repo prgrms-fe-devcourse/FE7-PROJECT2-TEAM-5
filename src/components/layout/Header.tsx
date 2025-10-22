@@ -27,6 +27,7 @@ export default function Header() {
 					<Link to="/groups">그룹</Link>
 					{isLoggedIn ? (
 						<>
+							{/* 알림 */}
 							<button
 								onClick={handleNotificationToggle}
 								className="cursor-pointer flex items-center gap-2 hover:text-[#8B5CF6] transition-colors relative"
@@ -36,6 +37,7 @@ export default function Header() {
 									<div className="absolute -top-1 -right-1 bg-red-500 rounded-full w-2 h-2 animate-pulse"></div>
 								)}
 							</button>
+							{/* 메시지 */}
 							<Link
 								to="/msg"
 								className="cursor-pointer flex items-center gap-2 hover:text-[#8B5CF6] transition-colors relative"
