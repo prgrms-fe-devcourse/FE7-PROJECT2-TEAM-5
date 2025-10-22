@@ -4,8 +4,12 @@ import PostList from "../../components/PostList";
 import type { Post } from "../../types/post";
 import PageNation from "../../components/PageNation";
 import type { Friend } from "../../types/friend";
-// import MemberCard from "../../components/MemberCard";
+import MemberCard from "../../components/MemberCard";
+// import { useMemberStore } from "../../stores/memberStore";
+import { useProfileStore } from "../../stores/profileStore";
+
 export default function SearchPage() {
+	const currentUserId = useProfileStore((state) => state.currentUserId);
 	const [searchKeyword, setSearchKeyword] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [searchPostResult, setSearchPostResult] = useState<Post[]>([]);
@@ -87,7 +91,8 @@ export default function SearchPage() {
 			console.error(e);
 		}
 	};
-	const members: Friend[] = searchUserResult.map((user) => ({
+	console.log(searchPostResult, searchUserResult);
+	const users: Friend[] = searchUserResult.map((user) => ({
 		id: crypto.randomUUID(), // 임의 id
 		created_at: new Date().toISOString(), // 임의 created_at
 		follower_id: "", // 그룹 멤버라서 팔로우 정보 없음
@@ -100,24 +105,46 @@ export default function SearchPage() {
 		},
 	}));
 
-	const friendsPerPage = 4;
-	const [currentPage, setCurrentPage] = useState(1);
-	const totalPages = Math.ceil(
-		members.length + searchPostResult.length / friendsPerPage,
-	);
+	// const [currentPage, setCurrentPage] = useState(1);
+	// const resultPerPage = 4;
+	// const totalPages = Math.ceil(
+	// 	(users.length ?? 0 + searchPostResult.length) / resultPerPage,
+	// );
 
-	const displayedFriends = members.slice(
-		(currentPage - 1) * friendsPerPage,
-		currentPage * friendsPerPage,
-	);
+	// // 현재 노출되는 유저 아이템
+	// let displayedUsers: Friend[] = [];
+	// if (currentPage >= users.length / resultPerPage + 1) {
+	// 	displayedUsers = [];
+	// } else if (currentPage * resultPerPage > users.length) {
+	// 	displayedUsers = users.slice((currentPage - 1) * resultPerPage);
+	// } else {
+	// 	displayedUsers = users.slice(
+	// 		(currentPage - 1) * resultPerPage,
+	// 		currentPage * resultPerPage,
+	// 	);
+	// }
 
-	const postsPerPage = 4;
+	// //걸친 구간 남은 아이템 수 계산
+	// let userRestItemIdx = 0;
+	// if (currentPage === users.length / resultPerPage + 1)
+	// 	userRestItemIdx = users.length % resultPerPage;
 
-	const displayedPosts = searchPostResult.slice(
-		(currentPage - 1) * postsPerPage,
-		currentPage * postsPerPage,
-	);
+	// // 현재 노출되는 게시글 아이템
+	// let displayedPosts: Post[] = [];
+	// if (currentPage < users.length / resultPerPage + 1) {
+	// 	displayedUsers = [];
+	// } else {
+	// 	displayedPosts = searchPostResult.slice(
+	// 		(currentPage - 1) * resultPerPage - users.length + userRestItemIdx,
+	// 		currentPage * resultPerPage - users.length,
+	// 	);
+	// }
 
+	const handleUnfollow = (friendId: string) => {
+		if (currentUserId) {
+			console.log(friendId + "팔로우 취소");
+		}
+	};
 	return (
 		<>
 			<div className="mx-auto">
@@ -154,19 +181,29 @@ export default function SearchPage() {
 				)}
 				{!isLoading && (
 					<div className="border-t border-gray-300 mt-2 pt-6">
-						{displayedFriends.map((friend) => (
-							<div className="bg-white rounded-xl">
-								{/* <MemberCard friend={friend} /> */}
-							</div>
-						))}
+						{/* 멤버 영역 */}
+						{users.length > 0 &&
+							users.map((user) => (
+								<div className="bg-white rounded-xl mb-2">
+									<MemberCard
+										friend={user}
+										onUnfollow={handleUnfollow}
+									/>
+								</div>
+							))}
 						{/* 게시판 영역 */}
-						<PostList posts={displayedPosts} isSearchPage={true} />
+						{searchPostResult.length > 0 && (
+							<PostList
+								posts={searchPostResult}
+								isSearchPage={true}
+							/>
+						)}
 						{/* 페이지 네이션 */}
-						<PageNation
+						{/* <PageNation
 							currentPage={currentPage}
 							totalPages={totalPages}
 							onPageChange={setCurrentPage}
-						/>
+						/> */}
 					</div>
 				)}
 			</div>
