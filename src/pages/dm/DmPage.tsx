@@ -100,10 +100,41 @@ export default function DmPage() {
 		}
 	};
 
+	// 이미지 파일 유효성 검사
+	const isValidImageFile = (file: File): boolean => {
+		const validImageTypes = [
+			"image/jpeg",
+			"image/jpg",
+			"image/png",
+			"image/gif",
+			"image/webp",
+			"image/svg+xml",
+		];
+		return validImageTypes.includes(file.type);
+	};
+
 	// 이미지 파일 선택 핸들러
 	const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files && e.target.files[0];
 		if (file) {
+			// 이미지 파일 유효성 검사
+			if (!isValidImageFile(file)) {
+				alert(
+					"이미지 파일만 전송할 수 있습니다. (JPG, PNG, GIF, WebP, SVG)",
+				);
+				// 파일 입력 초기화
+				e.target.value = "";
+				return;
+			}
+
+			// 파일 크기 제한
+			const maxSize = 10 * 1024 * 1024; // 10MB
+			if (file.size > maxSize) {
+				alert("파일 크기는 10MB 이하여야 합니다.");
+				e.target.value = "";
+				return;
+			}
+
 			const reader = new FileReader();
 			reader.onload = (e) => {
 				setSelectedImage(e.target?.result as string);
