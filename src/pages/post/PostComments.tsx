@@ -6,6 +6,7 @@ import { useProfileStore } from "../../stores/profileStore";
 import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
 import { useNavigate } from "react-router";
+import Button from "../../components/Button";
 
 type PostCommentsProps = {
 	comments: Comment[] | null;
@@ -173,13 +174,13 @@ export default function PostComments(props: PostCommentsProps) {
 				{!(currentUserId === comment.user_id) &&
 					currentUserId === props.writerId &&
 					!props.adopted_comment_id && (
-						<button
+						<Button
 							type="button"
 							onClick={() => adoptComment(comment)}
-							className="absolute -top-4 right-4 z-10 hidden group-hover:block hover:bg-[#8B5CF6] hover:text-white px-3 py-1 text-xs border-1 border-[#8B5CF6] rounded-2xl bg-white"
+							className="absolute -top-4 right-4 z-10 opacity-0 translate-y-[-10px] group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 hover:bg-[#8B5CF6] hover:text-white px-3 py-1 text-xs border-1 border-[#8B5CF6] rounded-2xl bg-white"
 						>
 							채택
-						</button>
+						</Button>
 					)}
 
 				{props.adopted_comment_id === comment.id && (
@@ -305,45 +306,54 @@ export default function PostComments(props: PostCommentsProps) {
 
 	return (
 		<>
-			{(!props.comments || props.comments.length === 0) && (
+			{!props.comments || props.comments.length === 0 ? (
 				<div className="text-center text-gray-500 py-12">
 					현재 게시물에 등록된 댓글이 없습니다.
 				</div>
-			)}
-			{props.comments && props.comments.length > 0 && (
-				<div className="flex flex-col max-h-100 pr-2 overflow-y-auto ">
-					{/* 채택된 댓글 */}
-					{adoptedComment && adoptedComment[0] && (
-						<Comment comment={adoptedComment[0]} />
+			) : (
+				<div className="h-full flex flex-col justify-between">
+					{props.comments && props.comments.length > 0 && (
+						<div className="flex flex-col pr-2 overflow-y-auto scrollbar-custom">
+							{/* 채택된 댓글 */}
+							{adoptedComment && adoptedComment[0] && (
+								<Comment comment={adoptedComment[0]} />
+							)}
+
+							{/* 댓글 1 */}
+							<CommentItem comments={props.comments} />
+						</div>
 					)}
 
-					{/* 댓글 1 */}
-					<CommentItem comments={props.comments} />
+					<form
+						className="flex gap-2 mt-4 w-full "
+						onSubmit={writeComment}
+					>
+						<div className="flex-1 text-sm px-6 py-3 border-1 border-[#E5E7EB] rounded-xl bg-white">
+							{mention.nickname && (
+								<span className="text-[#8B5CF6] text-sm mr-1 font-medium">
+									@{mention.nickname}
+								</span>
+							)}
+							<input
+								placeholder="댓글을 작성해주세요."
+								value={inputComment}
+								onChange={(e) =>
+									setInputComment(e.target.value)
+								}
+								onKeyDown={handleKeyDown}
+								className="w-full focus:outline-none"
+							/>
+						</div>
+
+						<Button
+							type="submit"
+							className="px-4 py-2 text-sm text-white rounded-xl bg-[#8B5CF6]"
+						>
+							등록
+						</Button>
+					</form>
 				</div>
 			)}
-			<form className="flex gap-2 mt-4 w-full " onSubmit={writeComment}>
-				<div className="w-[696px] text-sm px-6 py-3 border-1 border-[#E5E7EB] rounded-xl bg-white">
-					{mention.nickname && (
-						<span className="text-[#8B5CF6] text-sm mr-1 font-medium">
-							@{mention.nickname}
-						</span>
-					)}
-					<input
-						placeholder="댓글을 작성해주세요."
-						value={inputComment}
-						onChange={(e) => setInputComment(e.target.value)}
-						onKeyDown={handleKeyDown}
-						className="w-full focus:outline-none"
-					/>
-				</div>
-
-				<button
-					type="submit"
-					className="px-4 py-2.5 text-sm text-white rounded-xl bg-[#8B5CF6] cursor-pointer"
-				>
-					등록
-				</button>
-			</form>
 		</>
 	);
 }

@@ -10,7 +10,7 @@ import { Link } from "react-router";
 type MemberCardProps = {
 	friend: Friend;
 	userId?: string;
-	onUnfollow?: (friendId: string) => void;
+	onUnfollow: (friendId: string) => void;
 };
 
 export default function MemberCard({
