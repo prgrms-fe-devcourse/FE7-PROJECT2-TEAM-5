@@ -87,16 +87,6 @@ export const getChatRooms = async (
 	currentUserId: string,
 ): Promise<ChatRoom[]> => {
 	try {
-		console.log("getChatRooms: 함수 호출", { currentUserId });
-
-		// 먼저 테이블 존재 여부 확인
-		const { data: tableCheck, error: tableError } = await supabase
-			.from("chat_rooms")
-			.select("*")
-			.limit(1);
-
-		console.log("테이블 존재 확인:", { tableCheck, tableError });
-
 		const { data, error } = await supabase
 			.from("chat_rooms")
 			.select(
@@ -110,14 +100,11 @@ export const getChatRooms = async (
 			.or(`user1_id.eq.${currentUserId},user2_id.eq.${currentUserId}`)
 			.order("last_message_at", { ascending: false });
 
-		console.log("getChatRooms: Supabase 응답", { data, error });
-
 		if (error) {
 			console.error("채팅방 목록 조회 실패:", error);
 			return [];
 		}
 
-		console.log("getChatRooms: 성공", data);
 		return data || [];
 	} catch (error) {
 		console.error("채팅방 목록 조회 중 오류:", error);
@@ -265,8 +252,6 @@ export const subscribeToChatRooms = (
 // 채팅방 삭제 함수
 export const deleteChatRoom = async (roomId: string): Promise<boolean> => {
 	try {
-		console.log("채팅방 삭제 시작:", roomId);
-
 		// 먼저 해당 채팅방의 모든 메시지 삭제
 		const { error: messagesError } = await supabase
 			.from("messages")
@@ -289,7 +274,6 @@ export const deleteChatRoom = async (roomId: string): Promise<boolean> => {
 			return false;
 		}
 
-		console.log("채팅방 삭제 성공:", roomId);
 		return true;
 	} catch (error) {
 		console.error("채팅방 삭제 중 오류:", error);
