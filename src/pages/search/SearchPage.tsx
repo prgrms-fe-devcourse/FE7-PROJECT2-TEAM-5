@@ -2,14 +2,11 @@ import { useState } from "react";
 import supabase from "../../utils/supabase";
 import PostList from "../../components/PostList";
 import type { Post } from "../../types/post";
-import PageNation from "../../components/PageNation";
+// import PageNation from "../../components/PageNation";
 import type { Friend } from "../../types/friend";
 import MemberCard from "../../components/MemberCard";
-// import { useMemberStore } from "../../stores/memberStore";
-import { useProfileStore } from "../../stores/profileStore";
 
 export default function SearchPage() {
-	const currentUserId = useProfileStore((state) => state.currentUserId);
 	const [searchKeyword, setSearchKeyword] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [searchPostResult, setSearchPostResult] = useState<Post[]>([]);
@@ -17,27 +14,29 @@ export default function SearchPage() {
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		console.log(searchPostResult, searchUserResult);
 		setIsLoading(true);
-		setSearchKeyword(searchKeyword.trim());
-		if (!searchKeyword || searchKeyword === " ") {
+		const keyword = searchKeyword.trim();
+		if (!keyword || keyword === " ") {
+			setSearchUserResult([]);
 			setSearchPostResult([]);
 			setIsLoading(false);
 			return;
 		}
 		try {
 			setIsLoading(true);
-			if (searchKeyword[0] === "@") {
+			if (keyword[0] === "@") {
 				const { data: users, error: userError } = await supabase
 					.from("users")
 					.select("*")
-					.ilike("nickname", "%" + searchKeyword.slice(1) + "%");
+					.ilike("nickname", "%" + keyword.slice(1) + "%");
 
 				if (userError) throw userError;
 				if (users) {
 					setSearchUserResult(users);
-					setIsLoading(false);
 				}
 
+				//유사 닉네임을 가진 유저의 id와 동일한가 or 매개변수 맵핑
 				const nicfilter = users
 					.map((user) => `user_id.eq.${user.auth_id}`)
 					.join(",");
@@ -56,19 +55,20 @@ export default function SearchPage() {
 					setSearchPostResult(posts);
 					setIsLoading(false);
 				}
-			} else if (searchKeyword[0] === "#") {
+			} else if (keyword[0] === "#") {
 				const { data: posts, error } = await supabase
 					.from("posts")
 					.select(
 						"*, users(nickname), likes:post_likes(id), comments:comments!comments_post_id_fkey(id)",
 					)
 					.is("group_id", null)
-					.contains("hash_tag", [searchKeyword.slice(1)])
+					.contains("hash_tag", [keyword.slice(1)])
 					.order("created_at", { ascending: false });
 
 				if (error) throw error;
 				if (posts) {
 					setSearchPostResult(posts);
+					setSearchUserResult([]);
 					setIsLoading(false);
 				}
 			} else {
@@ -78,12 +78,13 @@ export default function SearchPage() {
 						"*, users(nickname), likes:post_likes(id), comments:comments!comments_post_id_fkey(id)",
 					)
 					.is("group_id", null)
-					.ilike("title", "%" + searchKeyword + "%")
+					.ilike("title", "%" + keyword + "%")
 					.order("created_at", { ascending: false });
 
 				if (error) throw error;
 				if (posts) {
 					setSearchPostResult(posts);
+					setSearchUserResult([]);
 					setIsLoading(false);
 				}
 			}
@@ -91,11 +92,11 @@ export default function SearchPage() {
 			console.error(e);
 		}
 	};
-	console.log(searchPostResult, searchUserResult);
+	//그룹에 사용한 거 그냥 가져옴
 	const users: Friend[] = searchUserResult.map((user) => ({
-		id: crypto.randomUUID(), // 임의 id
-		created_at: new Date().toISOString(), // 임의 created_at
-		follower_id: "", // 그룹 멤버라서 팔로우 정보 없음
+		id: crypto.randomUUID(),
+		created_at: new Date().toISOString(),
+		follower_id: "",
 		following_id: user.auth_id,
 		users: {
 			auth_id: user.auth_id,
@@ -108,15 +109,23 @@ export default function SearchPage() {
 	// const [currentPage, setCurrentPage] = useState(1);
 	// const resultPerPage = 4;
 	// const totalPages = Math.ceil(
-	// 	(users.length ?? 0 + searchPostResult.length) / resultPerPage,
+	// 	((users.length ?? 0) + (searchPostResult.length ?? 0)) / resultPerPage,
 	// );
+
+	// //걸친 구간일때, 남은 아이템 수 계산
+	// let userRestItemIdx = 0;
+	// if (currentPage === users.length / resultPerPage + 1)
+	// 	userRestItemIdx = users.length % resultPerPage;
 
 	// // 현재 노출되는 유저 아이템
 	// let displayedUsers: Friend[] = [];
-	// if (currentPage >= users.length / resultPerPage + 1) {
-	// 	displayedUsers = [];
-	// } else if (currentPage * resultPerPage > users.length) {
+	// let displayedPosts: Post[] = [];
+	// if (currentPage * resultPerPage > users.length) {
 	// 	displayedUsers = users.slice((currentPage - 1) * resultPerPage);
+	// 	displayedPosts = searchPostResult.slice(
+	// 		(currentPage - 1) * resultPerPage - users.length + userRestItemIdx,
+	// 		currentPage * resultPerPage - users.length,
+	// 	);
 	// } else {
 	// 	displayedUsers = users.slice(
 	// 		(currentPage - 1) * resultPerPage,
@@ -124,27 +133,6 @@ export default function SearchPage() {
 	// 	);
 	// }
 
-	// //걸친 구간 남은 아이템 수 계산
-	// let userRestItemIdx = 0;
-	// if (currentPage === users.length / resultPerPage + 1)
-	// 	userRestItemIdx = users.length % resultPerPage;
-
-	// // 현재 노출되는 게시글 아이템
-	// let displayedPosts: Post[] = [];
-	// if (currentPage < users.length / resultPerPage + 1) {
-	// 	displayedUsers = [];
-	// } else {
-	// 	displayedPosts = searchPostResult.slice(
-	// 		(currentPage - 1) * resultPerPage - users.length + userRestItemIdx,
-	// 		currentPage * resultPerPage - users.length,
-	// 	);
-	// }
-
-	const handleUnfollow = (friendId: string) => {
-		if (currentUserId) {
-			console.log(friendId + "팔로우 취소");
-		}
-	};
 	return (
 		<>
 			<div className="mx-auto">
@@ -182,21 +170,24 @@ export default function SearchPage() {
 				{!isLoading && (
 					<div className="border-t border-gray-300 mt-2 pt-6">
 						{/* 멤버 영역 */}
+						{users.length === 0 &&
+							searchPostResult.length === 0 && (
+								<div className="text-center text-gray-500 py-12">
+									검색 결과가 없습니다.
+								</div>
+							)}
 						{users.length > 0 &&
 							users.map((user) => (
-								<div className="bg-white rounded-xl mb-2">
-									<MemberCard
-										friend={user}
-										onUnfollow={handleUnfollow}
-									/>
+								<div
+									key={user.id}
+									className="bg-white rounded-xl mb-2"
+								>
+									<MemberCard friend={user} />
 								</div>
 							))}
 						{/* 게시판 영역 */}
 						{searchPostResult.length > 0 && (
-							<PostList
-								posts={searchPostResult}
-								isSearchPage={true}
-							/>
+							<PostList posts={searchPostResult} />
 						)}
 						{/* 페이지 네이션 */}
 						{/* <PageNation
