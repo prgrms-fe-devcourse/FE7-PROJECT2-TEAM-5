@@ -1,4 +1,4 @@
-import { Heart, MoveLeft } from "lucide-react";
+import { Heart, MoveLeft, Download, File } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router";
 import { useEffect, useState } from "react";
 import PostComments from "./PostComments";
@@ -7,12 +7,14 @@ import { usePostStore } from "../../stores/postStore";
 import PostDetailSkeleton from "../../components/loading/post/PostDetailSkeleton";
 import Button from "../../components/Button";
 import supabase from "../../utils/supabase";
+import { downloadFile, getFileUrl } from "../../utils/fileDownload";
 
 // 게시글 세부 페이지
 export default function PostDetailPage() {
 	const navigate = useNavigate();
 	const { id } = useParams();
 	const currentUserId = useProfileStore((state) => state.currentUserId);
+	const profile = useProfileStore((state) => state.profile);
 	const isLoading = usePostStore((state) => state.isLoading);
 	const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 	const postData = usePostStore((state) => state.post);
@@ -22,6 +24,12 @@ export default function PostDetailPage() {
 	const updateLike = usePostStore((state) => state.updateLike);
 	const deletePost = usePostStore((state) => state.deletePost);
 	const resetPostStore = usePostStore((state) => state.resetPostStore);
+
+	// 파일 다운로드 권한 확인 함수
+	const canDownloadFile = () => {
+		// 선생님만 파일을 다운로드할 수 있음
+		return profile?.role === "teacher";
+	};
 
 	useEffect(() => {
 		const checkAuth = async () => {
@@ -151,16 +159,114 @@ export default function PostDetailPage() {
 											{postData?.content}
 										</pre>
 									</div>
-									<div className="mt-2">
-										{postData?.files?.map((file) => (
-											<img
-												key={file.file_path}
-												src={file.file_path}
-												alt={file.file_name}
-												className="max-h-80"
-											/>
-										))}
-									</div>
+									{/* 첨부파일 섹션 */}
+									{postData?.files &&
+										postData.files.length > 0 && (
+											<div className="mt-6">
+												<h3 className="text-lg font-semibold text-gray-800 mb-3">
+													첨부파일
+												</h3>
+												<div className="space-y-2">
+													{postData.files.map(
+														(file, index) => {
+															const isImage =
+																file.file_name.match(
+																	/\.(jpg|jpeg|png|gif)$/i,
+																);
+															const fileUrl =
+																getFileUrl(
+																	file.file_path,
+																);
+
+															return (
+																<div
+																	key={index}
+																	className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"
+																>
+																	<div className="flex items-center space-x-3">
+																		{isImage ? (
+																			<img
+																				src={
+																					fileUrl
+																				}
+																				alt={
+																					file.file_name
+																				}
+																				className="w-12 h-12 object-cover rounded"
+																				onError={(
+																					e,
+																				) => {
+																					// 이미지 로드 실패 시 파일 아이콘으로 대체
+																					e.currentTarget.style.display =
+																						"none";
+																					e.currentTarget.nextElementSibling?.classList.remove(
+																						"hidden",
+																					);
+																				}}
+																			/>
+																		) : null}
+																		<div
+																			className={`w-12 h-12 bg-gray-200 rounded flex items-center justify-center ${isImage ? "hidden" : ""}`}
+																		>
+																			<File
+																				size={
+																					20
+																				}
+																				className="text-gray-500"
+																			/>
+																		</div>
+																		<div>
+																			<p className="text-sm font-medium text-gray-900">
+																				{
+																					file.file_name
+																				}
+																			</p>
+																			<p className="text-xs text-gray-500">
+																				첨부파일
+																			</p>
+																		</div>
+																	</div>
+																	{canDownloadFile() ? (
+																		<button
+																			type="button"
+																			onClick={() =>
+																				downloadFile(
+																					file.file_path,
+																					file.file_name,
+																				)
+																			}
+																			className="flex items-center space-x-2 px-3 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors cursor-pointer"
+																		>
+																			<Download
+																				size={
+																					16
+																				}
+																			/>
+																			<span>
+																				다운로드
+																			</span>
+																		</button>
+																	) : (
+																		<div className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-500 bg-gray-200 rounded-lg">
+																			<Download
+																				size={
+																					16
+																				}
+																			/>
+																			<span>
+																				선생님만
+																				다운로드
+																				가능
+																			</span>
+																		</div>
+																	)}
+																</div>
+															);
+														},
+													)}
+												</div>
+											</div>
+										)}
 								</div>
 								{/* 해시태그 */}
 								<div className="flex gap-2">
