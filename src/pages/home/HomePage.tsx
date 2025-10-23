@@ -10,6 +10,7 @@ import { useGroupStore } from "../../stores/groupStore";
 import { useEffect, useState } from "react";
 import { useSetOnlineStatus } from "../../hooks/useSetOnlineStatus";
 import HomePageSkeleton from "../../components/loading/home/HomePageSkeleton";
+import Button from "../../components/Button";
 
 export default function HomePage() {
 	const currentUserId = useProfileStore((state) => state.currentUserId);
@@ -106,7 +107,7 @@ export default function HomePage() {
 					</p>
 					<div className="space-x-4">
 						{currentUserId ? (
-							<button
+							<Button
 								onClick={async () => {
 									await logoutOffline();
 									logout();
@@ -114,7 +115,7 @@ export default function HomePage() {
 								className="cursor-pointer inline-block px-6 py-4 bg-white rounded-xl font-bold text-[#8B5CF6] shadow-[inset_0_0_0_2px_#8B5CF6]"
 							>
 								로그아웃
-							</button>
+							</Button>
 						) : (
 							<>
 								<Link
@@ -216,13 +217,13 @@ export default function HomePage() {
 
 							{/* 다음 그룹 버튼 (그룹이 2개 이상일 때만 보이도록) */}
 							{groups.length > 1 && (
-								<button
+								<Button
 									onClick={goToNextGroup}
 									className="absolute top-1/2 -right-4 transform -translate-y-1/2 w-8 h-8 bg-[#8B5CF6] text-white rounded-full shadow-lg hover:bg-[#B08DFF] transition-colors flex items-center justify-center z-10"
 									title="다음 그룹 보기"
 								>
 									<ChevronRight size={16} />
-								</button>
+								</Button>
 							)}
 						</div>
 					) : (
