@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Activities from "./Activities";
 import Friends from "./Friends";
 import Info from "./Info";
@@ -6,13 +6,28 @@ import TabContainer from "./TabContainer";
 import { useProfileStore } from "../../stores/profileStore";
 import { useMemberStore } from "../../stores/memberStore";
 
+type TabKey = "info" | "activities" | "friends";
+
 export default function DetailCard() {
 	const [activeTab, setActiveTab] = useState<
 		"info" | "activities" | "friends"
 	>("info");
 	const { profile, childInfos } = useProfileStore();
+	const { currentUserId } = useProfileStore();
 
 	const { fetchUserFollowings, setFriends } = useMemberStore();
+
+	const isMyProfile = profile?.auth_id === currentUserId;
+
+	const tabs = useMemo(() => {
+		const baseTabs: { key: TabKey; label: string }[] = [
+			{ key: "info", label: "개인 프로필" },
+		];
+		if (isMyProfile)
+			baseTabs.push({ key: "activities", label: "활동 내역" });
+		baseTabs.push({ key: "friends", label: "팔로잉" });
+		return baseTabs;
+	}, [isMyProfile]);
 
 	// profile이 로드되기 전엔 아무것도 렌더링하지 않음
 	if (!profile || !childInfos) return null;
@@ -49,7 +64,11 @@ export default function DetailCard() {
 
 	return (
 		<>
-			<TabContainer activeTab={activeTab} setActiveTab={setActiveTab} />
+			<TabContainer
+				tabs={tabs}
+				activeTab={activeTab}
+				setActiveTab={setActiveTab}
+			/>
 
 			<div className="flex flex-col bg-white rounded-xl shadow-xl p-6 space-y-6">
 				{activeTab === "info" && (
@@ -59,12 +78,13 @@ export default function DetailCard() {
 						childInfos={childInfos}
 					/>
 				)}
-				{activeTab === "activities" && (
-					<Activities
-						key={profile.auth_id}
-						userId={profile.auth_id}
-					/>
-				)}
+				{activeTab === "activities" &&
+					profile.auth_id === currentUserId && (
+						<Activities
+							key={profile.auth_id}
+							userId={profile.auth_id}
+						/>
+					)}
 				{activeTab === "friends" && (
 					<Friends
 						key={profile.auth_id}

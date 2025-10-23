@@ -1,18 +1,16 @@
+type TabKey = "info" | "activities" | "friends";
+
 type TabContainerProps = {
-	activeTab: "info" | "activities" | "friends"; // 탭 종류
-	setActiveTab: (tab: "info" | "activities" | "friends") => void;
+	tabs: { key: TabKey; label: string }[];
+	activeTab: TabKey;
+	setActiveTab: (tab: TabKey) => void;
 };
 
 export default function TabContainer({
+	tabs,
 	activeTab,
 	setActiveTab,
 }: TabContainerProps) {
-	const tabs = [
-		{ key: "info", label: "개인 정보" },
-		{ key: "activities", label: "활동 내역" },
-		{ key: "friends", label: "친구 목록" },
-	] as const;
-
 	return (
 		<div className="relative flex flex-row justify-between w-full">
 			<div className="relative flex bg-white rounded-md">
