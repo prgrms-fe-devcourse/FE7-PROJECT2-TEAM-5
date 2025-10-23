@@ -173,6 +173,12 @@ export default function PostDetailPage() {
 									postData?.adopted_comment_id ?? null
 								}
 								writerId={postData?.user_id}
+								onCommentAdded={() => {
+									// 댓글 추가 후 게시글 정보 새로고침
+									if (id && currentUserId) {
+										fetchPost(id, currentUserId);
+									}
+								}}
 							/>
 						</div>
 					</div>
