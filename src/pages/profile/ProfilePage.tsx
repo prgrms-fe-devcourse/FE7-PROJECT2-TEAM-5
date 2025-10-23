@@ -16,12 +16,12 @@ export default function ProfilePage() {
 		loading,
 		error,
 	} = useProfileStore();
-	const { fetchUserPosts, fetchUserComments } = useActPostStore();
+	const { fetchUserPosts, fetchUserCommentsWithPosts } = useActPostStore();
 	const { id } = useParams();
 
 	const [ready, setReady] = useState(false);
 
-	// 1️⃣ 현재 유저 ID 로드
+	// 현재 유저 ID 로드
 	useEffect(() => {
 		if (!currentUserId) {
 			fetchCurrentUserId().finally(() => setReady(true));
@@ -30,7 +30,7 @@ export default function ProfilePage() {
 		}
 	}, [currentUserId, fetchCurrentUserId]);
 
-	// 2️⃣ profile / posts / comments fetch
+	// profile / posts / comments fetch
 	useEffect(() => {
 		if (!ready || !currentUserId) return;
 
@@ -38,14 +38,14 @@ export default function ProfilePage() {
 
 		fetchProfile(targetAuthId);
 		fetchUserPosts(targetAuthId);
-		fetchUserComments(targetAuthId);
+		fetchUserCommentsWithPosts(targetAuthId);
 	}, [
 		ready,
 		id,
 		currentUserId,
 		fetchProfile,
 		fetchUserPosts,
-		fetchUserComments,
+		fetchUserCommentsWithPosts,
 	]);
 
 	// 로딩 중

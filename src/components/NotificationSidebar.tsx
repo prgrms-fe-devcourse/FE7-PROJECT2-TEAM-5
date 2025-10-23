@@ -111,12 +111,6 @@ export default function NotificationSidebar({
 				onClose();
 				break;
 
-			case "NEW_MESSAGE":
-				// DM 페이지로 이동
-				navigate(`/msg/${notification.targetId}`);
-				onClose();
-				break;
-
 			case "POST_LIKE":
 				// 좋아요 받은 게시글 페이지로 이동
 				navigate(`/posts/${notification.targetId}`);
@@ -143,8 +137,6 @@ export default function NotificationSidebar({
 			case "NEW_COMMENT":
 				return <MessageCircle className="w-5 h-5 text-[#8B5CF6]" />;
 			case "NEW_REPLY":
-				return <MessageCircle className="w-5 h-5 text-[#8B5CF6]" />;
-			case "NEW_MESSAGE":
 				return <MessageCircle className="w-5 h-5 text-[#8B5CF6]" />;
 			case "POST_LIKE":
 				return <Heart className="w-5 h-5 text-[#EA489A]" />;

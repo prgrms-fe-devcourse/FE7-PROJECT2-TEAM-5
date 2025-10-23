@@ -24,8 +24,9 @@ type PostStore = {
 	isLiked: boolean;
 	comments: Comment[] | null;
 	fetchPost: (postId: string, currentUserId: string) => Promise<void>;
-	deletePost: (postId: string) => Promise<void>;
+	deletePost: (postId: string | undefined) => Promise<void>;
 	updateLike: (postId: string, currentUserId: string) => Promise<void>;
+	resetPostStore: () => void;
 };
 
 // type PostCreateData = {
@@ -46,6 +47,12 @@ export const usePostStore = create<PostStore>()(
 			currentUserId: string,
 		) => {
 			try {
+				set((state) => {
+					state.post = null;
+					state.isLoading = true;
+					state.isLiked = true;
+					state.comments = null;
+				});
 				//게시물 정보 (작성자 닉네임, 첨부 파일도)
 				const { data: post, error: postError } = await supabase
 					.from("posts")
@@ -60,9 +67,10 @@ export const usePostStore = create<PostStore>()(
 				const { data: comments, error: commentsError } = await supabase
 					.from("comments")
 					.select(
-						"*, user:users(auth_id,nickname, birth_date, representative_badge_id(badges(name,icon_url))), comment_likes(user_id)",
+						"*, user:users(auth_id,nickname, profile_image_url, birth_date, representative_badge_id(badges(name,icon_url))), comment_likes(user_id)",
 					)
-					.eq("post_id", postId);
+					.eq("post_id", postId)
+					.order("created_at");
 				if (commentsError) throw commentsError;
 
 				// 원댓글 닉네임 매핑
@@ -106,13 +114,17 @@ export const usePostStore = create<PostStore>()(
 				});
 			}
 		},
-		deletePost: async (postId: string) => {
+		deletePost: async (postId: string | undefined) => {
 			try {
-				const { error } = await supabase
-					.from("posts")
-					.delete()
-					.eq("id", postId);
-				if (error) throw error;
+				if (postId) {
+					const { error } = await supabase
+						.from("posts")
+						.delete()
+						.eq("id", postId);
+					if (error) throw error;
+				} else {
+					alert("postId 찾을 수 없음");
+				}
 			} catch (e) {
 				console.error(e);
 			}
@@ -131,5 +143,7 @@ export const usePostStore = create<PostStore>()(
 				console.error(error);
 			}
 		},
+		resetPostStore: () =>
+			set({ post: null, comments: [], isLoading: true, isLiked: false }),
 	})),
 );

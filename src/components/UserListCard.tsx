@@ -1,7 +1,8 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { getAge } from "../utils/getAge";
 import { getGrade } from "../utils/getGrade";
 import { useProfileStore } from "../stores/profileStore";
+import { useCreateChatRoom } from "../hooks/useMessages";
 import { useMemberStore } from "../stores/memberStore";
 import basicImage from "../assets/basic_image.png";
 import type { Friend } from "../types/friend";
@@ -13,6 +14,7 @@ export default function UserListCard({
 	user: User;
 	profileBeingViewedId: string;
 }) {
+	const navigate = useNavigate();
 	const { currentUserId } = useProfileStore();
 	const {
 		followStatus,
@@ -22,6 +24,7 @@ export default function UserListCard({
 		setUserFollowed,
 		setFriends,
 	} = useMemberStore();
+	const { createRoom, isLoading: isCreatingRoom } = useCreateChatRoom();
 
 	const isFollowing = followStatus[user.auth_id] || false;
 
@@ -92,10 +95,22 @@ export default function UserListCard({
 		}
 	};
 
-	const handleMessageClick = (e: React.MouseEvent) => {
+	// 메시지 버튼 클릭 시 채팅방 생성 후 이동
+	const handleMessageClick = async (e: React.MouseEvent) => {
 		e.stopPropagation();
 		e.preventDefault();
-		console.log("메시지 버튼 구현 예정");
+
+		if (!currentUserId || isCreatingRoom) return;
+
+		try {
+			const newRoom = await createRoom(user.auth_id);
+			if (newRoom && newRoom.id) {
+				// 채팅방 생성 완료 후 즉시 이동
+				navigate(`/msg/${newRoom.id}`);
+			}
+		} catch (error) {
+			console.error("채팅방 생성 실패:", error);
+		}
 	};
 
 	return (
@@ -154,8 +169,13 @@ export default function UserListCard({
 								</button>
 
 								<button
-									className="cursor-pointer px-2 py-1 bg-gray-200 rounded hover:bg-gray-300"
+									className={`cursor-pointer px-2 py-1 rounded ${
+										isCreatingRoom
+											? "bg-gray-300 cursor-not-allowed"
+											: "bg-gray-200 hover:bg-gray-300"
+									}`}
 									onClick={handleMessageClick}
+									disabled={isCreatingRoom}
 								>
 									메시지
 								</button>

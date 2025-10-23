@@ -1,22 +1,164 @@
-import { Heart, MessageSquare } from "lucide-react";
+import { useState } from "react";
+import supabase from "../../utils/supabase";
+import PostList from "../../components/PostList";
+import type { Post } from "../../types/post";
+import PageNation from "../../components/PageNation";
+import type { Friend } from "../../types/friend";
+import MemberCard from "../../components/MemberCard";
+
 export default function SearchPage() {
+	const [searchKeyword, setSearchKeyword] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
+	const [searchPostResult, setSearchPostResult] = useState<Post[]>([]);
+	const [searchUserResult, setSearchUserResult] = useState<User[]>([]);
+
+	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		setIsLoading(true);
+		const keyword = searchKeyword.trim();
+		if (!keyword || keyword === " ") {
+			setSearchUserResult([]);
+			setSearchPostResult([]);
+			setIsLoading(false);
+			return;
+		}
+		try {
+			setIsLoading(true);
+			if (keyword[0] === "@") {
+				const { data: users, error: userError } = await supabase
+					.from("users")
+					.select("*")
+					.ilike("nickname", "%" + keyword.slice(1) + "%")
+					.order("is_online", { ascending: false });
+
+				if (userError) throw userError;
+				if (users && users.length > 0) {
+					setSearchUserResult(users);
+					//유사 닉네임을 가진 유저의 id와 동일한가 or 매개변수 맵핑
+					const nicfilter = users
+						.map((user) => `user_id.eq.${user.auth_id}`)
+						.join(",");
+
+					const { data: posts, error: postError } = await supabase
+						.from("posts")
+						.select(
+							"*, users(nickname), likes:post_likes(id), comments:comments!comments_post_id_fkey(id)",
+						)
+						.is("group_id", null)
+						.or(nicfilter)
+						.order("created_at", { ascending: false });
+
+					if (postError) throw postError;
+					if (posts) {
+						setSearchPostResult(posts);
+						setIsLoading(false);
+					}
+				} else {
+					setIsLoading(false);
+				}
+			} else if (keyword[0] === "#") {
+				const { data: posts, error } = await supabase
+					.from("posts")
+					.select(
+						"*, users(nickname), likes:post_likes(id), comments:comments!comments_post_id_fkey(id)",
+					)
+					.is("group_id", null)
+					.contains("hash_tag", [keyword.slice(1)])
+					.order("created_at", { ascending: false });
+
+				if (error) throw error;
+				if (posts) {
+					setSearchPostResult(posts);
+					setSearchUserResult([]);
+					setIsLoading(false);
+				}
+			} else {
+				const { data: posts, error } = await supabase
+					.from("posts")
+					.select(
+						"*, users(nickname), likes:post_likes(id), comments:comments!comments_post_id_fkey(id)",
+					)
+					.is("group_id", null)
+					.ilike("title", "%" + keyword + "%")
+					.order("created_at", { ascending: false });
+
+				if (error) throw error;
+				if (posts) {
+					setSearchPostResult(posts);
+					setSearchUserResult([]);
+					setIsLoading(false);
+				}
+			}
+		} catch (e) {
+			console.error(e);
+		}
+	};
+	//그룹에 사용한 거 그냥 가져옴
+	const users: Friend[] = searchUserResult.map((user) => ({
+		id: crypto.randomUUID(),
+		created_at: new Date().toISOString(),
+		follower_id: "",
+		following_id: user.auth_id,
+		users: {
+			auth_id: user.auth_id,
+			nickname: user.nickname,
+			profile_image_url: user.profile_image_url ?? null,
+			is_online: user.is_online,
+		},
+	}));
+
+	const [currentPage, setCurrentPage] = useState(1);
+	const resultPerPage = 4;
+	const totalPages = Math.ceil(
+		((users.length ?? 0) + (searchPostResult.length ?? 0)) / resultPerPage,
+	);
+	console.log("슬라이스 시작", searchPostResult, searchUserResult);
+	// // 현재 노출되는 게시글, 유저 아이템
+	let displayedUsers: Friend[] = [];
+	let displayedPosts: Post[] = [];
+
+	const userPageCount = Math.ceil(users.length / resultPerPage);
+	if (currentPage > userPageCount) {
+		displayedPosts = searchPostResult.slice(
+			(currentPage - 1) * resultPerPage - users.length,
+			currentPage * resultPerPage - users.length,
+		);
+	} else if (currentPage === userPageCount) {
+		displayedUsers = users.slice((currentPage - 1) * resultPerPage);
+
+		displayedPosts = searchPostResult.slice(
+			((currentPage === 0 ? 2 : currentPage) - 1) * resultPerPage -
+				users.length +
+				(users.length % resultPerPage),
+			(currentPage === 0 ? 1 : currentPage) * resultPerPage -
+				users.length,
+		);
+	} else {
+		displayedUsers = users.slice(
+			(currentPage - 1) * resultPerPage,
+			currentPage * resultPerPage,
+		);
+	}
+
 	return (
 		<>
-			<div className="mt-10 mx-auto">
+			<div className="mx-auto">
 				<h1 className="font-bold text-[24px] text-[#8B5CF6] mb-[15px] ">
 					검색
 				</h1>
 				{/*검색 바와 검색 버튼*/}
 				<form
-					method="get"
 					className="flex rounded-xl shadow-[0_3px_6px_rgba(0,0,0,0.05)] "
+					onSubmit={handleSubmit}
 				>
 					<input
 						type="textarea"
 						id="serchBar"
+						value={searchKeyword}
+						onChange={(e) => setSearchKeyword(e.target.value)}
 						placeholder="게시글 제목, @이름, #해시태그 검색 가능..."
 						className="w-[862px] text-[14px] px-6 py-4 focus:outline-none rounded-l-xl bg-white"
-					></input>
+					/>
 					<button
 						type="submit"
 						className="p-4 rounded-r-xl bg-[#8B5CF6]
@@ -27,223 +169,42 @@ export default function SearchPage() {
 				</form>
 
 				{/* 검색 결과 영역 */}
-				<div className="flex-col mt-[40px] border-t-2 border-[#E5E7EB] pt-2">
-					{/* 사용자 1 */}
-					<div className="mb-4 px-6 py-4 flex justify-between items-center bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
-						<div className="flex ">
-							{/* 유저 프로필 이미지 */}
-							<img
-								className="w-15 h-15 rounded-[30px] object-cover"
-								src="/src/assets/image.png"
-								alt="userImg"
-							/>
-							{/* 이름과 최근 활동 */}
-							<div className="ml-4 m-auto">
-								<h2 className="text-[14px] font-Regular mb-2">
-									홍길동
-								</h2>
-								<p className="text-[12px] font-Regular text-[#6B7280]">
-									마지막 활동: 이틀 전
-								</p>
-							</div>
-						</div>
-						{/* 팔로우/팔로잉 버튼 */}
-						<button
-							type="button"
-							className="w-[117px] px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px] cursor-pointer"
-						>
-							팔로우
-						</button>
+				{isLoading && (
+					<div className="border-t border-gray-300 mt-2 pt-6">
+						로딩중...
 					</div>
-					{/* 사용자 2 */}
-					<div className="w-230 mb-4 px-6 py-4 flex justify-between items-center bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
-						<div className="flex">
-							{/* 유저 프로필 이미지 */}
-							<img
-								className="w-15 h-15 rounded-[30px] object-cover"
-								src="/src/assets/image.png"
-								alt="userImg"
-							/>
-							{/* 이름과 최근 활동 */}
-							<div className="ml-4 m-auto">
-								<h2 className="text-[14px] font-Regular mb-2">
-									홍길동2
-								</h2>
-								<p className="text-[12px] font-Regular text-[#6B7280]">
-									마지막 활동: 이틀 전
-								</p>
-							</div>
-						</div>
-						{/* 팔로우/팔로잉 버튼 */}
-						<div className="group relative">
-							<button
-								type="button"
-								className="w-[117px] px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-[12px] cursor-pointer
-                        "
-							>
-								<p className="inline">팔로잉</p>
-								<img
-									className="inline ml-2"
-									src="/src/assets/Toggle.png"
-								/>
-								<div className="absolute left-0 w-[117px] p-1 rounded-lg mt-2 mx-auto border-1 border-[#EA489A] bg-white group-hover:block hidden">
-									<ul>
-										<li className="block px-5 py-2 text-[12px] text-[#EA489A] bg-[#ffffff] rounded-lg hover:text-[#ffffff] hover:bg-[#FF81C1]">
-											DM 보내기
-										</li>
-										<li className="block px-5 py-2 text-[12px] text-[#EA489A] bg-t[#ffffff] rounded-lg hover:text-[#ffffff] hover:bg-[#FF81C1]">
-											팔로우 취소
-										</li>
-									</ul>
+				)}
+				{!isLoading && (
+					<div className="border-t border-gray-300 mt-2 pt-6">
+						{/* 검색 결과가 없을 때 */}
+						{users.length === 0 &&
+							searchPostResult.length === 0 && (
+								<div className="text-center text-gray-500 py-12">
+									검색 결과가 없습니다.
 								</div>
-							</button>
-						</div>
+							)}
+						{/* 멤버 영역 */}
+						{displayedUsers.length > 0 &&
+							displayedUsers.map((user) => (
+								<div
+									key={user.id}
+									className="bg-white rounded-xl mb-2"
+								>
+									<MemberCard friend={user} />
+								</div>
+							))}
+						{/* 게시판 영역 */}
+						{displayedPosts.length > 0 && (
+							<PostList posts={displayedPosts} />
+						)}
+						{/* 페이지 네이션 */}
+						<PageNation
+							currentPage={currentPage}
+							totalPages={totalPages}
+							onPageChange={setCurrentPage}
+						/>
 					</div>
-					{/* 글 1 */}
-					<div className="w-full mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
-						{/* 글 제목과 좋아요, 댓글 수 */}
-						<div className="flex justify-between items-start mb-1">
-							<h2 className=" text-[18px] font-bold text-[#8B5CF6]">
-								미적분 아주 쉽게 이해하기
-							</h2>
-							{/* 좋아요, 댓글 수 */}
-							<div className="flex gap-3 ">
-								{/* 좋아요 개수 표시*/}
-								<div className="flex gap-1 items-top ">
-									<Heart
-										color="red"
-										size={15}
-										className="mt-0.5"
-									/>
-									<p className="text-[14px] ">2</p>
-								</div>
-								{/* 댓글 개수 표시 */}
-								<div className="flex gap-1 items-top">
-									<MessageSquare
-										color="#8B5CF6"
-										size={15}
-										className="mt-0.5"
-									/>
-									<p className="text-[14px]">3</p>
-								</div>
-							</div>
-						</div>
-						{/* 게시글 내용 */}
-						<p className="text-xs font-Regular text-[#6B7280]">
-							안녕하세요 수학zl존 입니다 ^^ 오늘은 9등급도 이해할
-							수 있는 미적분...
-						</p>
-						{/* 작성자 이름 */}
-						<p className="mt-3 mb-6 text-[14px] font-Regular text-[#1F2937]">
-							홍길동
-						</p>
-						{/* 해시태그 */}
-						<div className="flex justify-between items-end">
-							<div className="flex gap-2">
-								<div
-									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-xs"
-								>
-									#해시태그
-								</div>
-								<div
-									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-xs"
-								>
-									#해시태그
-								</div>
-								<div
-									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-xs"
-								>
-									#해시태그
-								</div>
-								<div
-									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-xs"
-								>
-									#해시태그
-								</div>
-							</div>
-							<p className="text-[14px] text-[#6B7280]">
-								2025-10-10
-							</p>
-						</div>
-					</div>
-					{/* 글 1 */}
-					<div className="w-full mb-4 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer">
-						{/* 글 제목과 좋아요, 댓글 수 */}
-						<div className="flex justify-between items-start mb-1">
-							<h2 className=" text-[18px] font-bold text-[#8B5CF6]">
-								미적분 아주 쉽게 이해하기
-							</h2>
-							{/* 좋아요, 댓글 수 */}
-							<div className="flex gap-3 ">
-								{/* 좋아요 개수 표시*/}
-								<div className="flex gap-1 items-top ">
-									<Heart
-										color="red"
-										size={15}
-										className="mt-0.5"
-									/>
-									<p className="text-[14px] ">2</p>
-								</div>
-								{/* 댓글 개수 표시 */}
-								<div className="flex gap-1 items-top">
-									<MessageSquare
-										color="#8B5CF6"
-										size={15}
-										className="mt-0.5"
-									/>
-									<p className="text-[14px]">3</p>
-								</div>
-							</div>
-						</div>
-						{/* 게시글 내용 */}
-						<p className="text-xs font-Regular text-[#6B7280]">
-							안녕하세요 수학zl존 입니다 ^^ 오늘은 9등급도 이해할
-							수 있는 미적분...
-						</p>
-						{/* 작성자 이름 */}
-						<p className="mt-3 mb-6 text-[14px] font-Regular text-[#1F2937]">
-							홍길동
-						</p>
-						{/* 해시태그 */}
-						<div className="flex justify-between items-end">
-							<div className="flex gap-2">
-								<div
-									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-xs"
-								>
-									#해시태그
-								</div>
-								<div
-									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-xs"
-								>
-									#해시태그
-								</div>
-								<div
-									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-xs"
-								>
-									#해시태그
-								</div>
-								<div
-									className="px-4 py-2 rounded-lg bg-[#EA489A]
-                        text-white font-Regular text-xs"
-								>
-									#해시태그
-								</div>
-							</div>
-							<p className="text-[14px] text-[#6B7280]">
-								2025-10-10
-							</p>
-						</div>
-					</div>
-				</div>
+				)}
 			</div>
 		</>
 	);

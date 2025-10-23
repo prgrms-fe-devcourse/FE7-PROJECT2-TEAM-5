@@ -177,7 +177,7 @@ export default function PostCreatePage() {
 		if (tag && e.key === "Enter" && !e.nativeEvent.isComposing) {
 			e.preventDefault();
 			if (hashTag && !hashTag.includes(tag)) {
-				let hashTags = [...hashTag, tag];
+				let hashTags = [...hashTag, tag.replace(/ /g, "")];
 				setHashTag(hashTags);
 				setInputTag("");
 			} else {
@@ -305,7 +305,7 @@ export default function PostCreatePage() {
 								)}
 							</div>
 							<p className="mt-2 text-xs text-[#C8C8C8]">
-								예: 수학, AI, 공부법 (각각 태그 입력 s후 Enter)
+								예: 수학, AI, 공부법 (각각 태그 입력 후 Enter)
 							</p>
 							<div className="flex flex-wrap gap-2 mt-2 max-w-[920px]">
 								{hashTag &&

@@ -53,11 +53,24 @@ export default function DetailCard() {
 
 			<div className="flex flex-col bg-white rounded-xl shadow-xl p-6 space-y-6">
 				{activeTab === "info" && (
-					<Info profile={profile} childInfos={childInfos} />
+					<Info
+						key={profile.auth_id}
+						profile={profile}
+						childInfos={childInfos}
+					/>
 				)}
-				{activeTab === "activities" && <Activities />}
+				{activeTab === "activities" && (
+					<Activities
+						key={profile.auth_id}
+						userId={profile.auth_id}
+					/>
+				)}
 				{activeTab === "friends" && (
-					<Friends friends={friends} userId={profile.auth_id} />
+					<Friends
+						key={profile.auth_id}
+						friends={friends}
+						userId={profile.auth_id}
+					/>
 				)}
 			</div>
 		</>
