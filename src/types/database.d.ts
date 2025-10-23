@@ -381,6 +381,7 @@ export type Database = {
 					bio: string | null;
 					created_at: string;
 					id: string;
+					last_activity_at: string | null;
 					name: string;
 					profile_image_url: string | null;
 				};
@@ -388,6 +389,7 @@ export type Database = {
 					bio?: string | null;
 					created_at?: string;
 					id?: string;
+					last_activity_at?: string | null;
 					name: string;
 					profile_image_url?: string | null;
 				};
@@ -395,6 +397,7 @@ export type Database = {
 					bio?: string | null;
 					created_at?: string;
 					id?: string;
+					last_activity_at?: string | null;
 					name?: string;
 					profile_image_url?: string | null;
 				};

@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import supabase from "../../utils/supabase";
 import { useProfileStore } from "../../stores/profileStore";
 import Input from "../../components/Input";
+import { updateGroupActivity } from "../../utils/groupActivity";
 import InputFile from "../../components/InputFile";
 
 // 게시글 생성 페이지
@@ -74,6 +75,11 @@ export default function PostCreatePage() {
 
 				if (error) throw error;
 				if (data) {
+					// 그룹 게시글인 경우 그룹 활동 시간 업데이트
+					if (boardType === "group" && data[0]?.group_id) {
+						await updateGroupActivity(data[0].group_id);
+					}
+
 					alert("게시글이 수정되었습니다.");
 					navigate("/posts/" + id);
 				}
@@ -91,6 +97,11 @@ export default function PostCreatePage() {
 					])
 					.select()
 					.single();
+
+				// 그룹 게시글인 경우 그룹 활동 시간 업데이트
+				if (boardType === "group" && postData?.group_id) {
+					await updateGroupActivity(postData.group_id);
+				}
 
 				for (const file of imgFiles) {
 					const { data: fileData, error: fileError } = await supabase

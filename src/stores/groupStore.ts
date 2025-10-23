@@ -8,6 +8,7 @@ type Group = {
 	profile_image_url?: string | null;
 	created_at?: string;
 	member_count?: number; // 멤버 수 추가
+	last_activity?: string; // 최근 활동 시간 추가
 };
 
 type GroupStore = {
@@ -32,7 +33,7 @@ export const useGroupStore = create<GroupStore>((set) => ({
 		try {
 			set({ loading: true, error: null });
 
-			// 사용자가 속한 그룹들 조회 (멤버 수 포함)
+			// 사용자가 속한 그룹들 조회 (멤버 수와 최근 활동 시간 포함)
 			const { data: groupMemberships, error: membershipError } =
 				await supabase
 					.from("group_members")
@@ -44,7 +45,8 @@ export const useGroupStore = create<GroupStore>((set) => ({
             name,
             bio,
             profile_image_url,
-            created_at
+            created_at,
+            last_activity_at
           )
         `,
 					)
@@ -71,6 +73,7 @@ export const useGroupStore = create<GroupStore>((set) => ({
 					profile_image_url: group.profile_image_url,
 					created_at: group.created_at,
 					member_count: memberCount || 0,
+					last_activity: group.last_activity_at, // DB 컬럼에서 직접 가져오기
 				});
 			}
 
