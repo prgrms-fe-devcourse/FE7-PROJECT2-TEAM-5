@@ -9,7 +9,9 @@ export default function PostDetailSkeleton() {
 					<div className="w-110 h-6 rounded-xl skeleton-40"></div>
 					<div className="mt-20 w-11 h-6 rounded-xl skeleton-40"></div>
 				</div>
-				<div className="w-[500px]"></div>
+				<div className="w-[500px]">
+					<div className="bg-white"></div>
+				</div>
 			</div>
 		</>
 	);
