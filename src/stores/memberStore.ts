@@ -106,7 +106,16 @@ export const useMemberStore = create<MemberState>()(
 				const { data, error } = await supabase
 					.from("follows")
 					.select(
-						"*, users!fk_Follows_following_id_users_id(auth_id, nickname, profile_image_url, is_online, last_seen)",
+						`
+							*,
+							users!follows_following_id_fkey(
+							auth_id,
+							nickname,
+							profile_image_url,
+							is_online,
+							last_seen
+							)
+						`,
 					)
 					.eq("follower_id", userId);
 
