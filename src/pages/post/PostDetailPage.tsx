@@ -7,7 +7,7 @@ import { usePostStore } from "../../stores/postStore";
 import PostDetailSkeleton from "../../components/loading/post/PostDetailSkeleton";
 import Button from "../../components/Button";
 import supabase from "../../utils/supabase";
-import { downloadFile } from "../../utils/fileDownload";
+import { downloadFile, getFileUrl } from "../../utils/fileDownload";
 
 // 게시글 세부 페이지
 export default function PostDetailPage() {
@@ -160,13 +160,18 @@ export default function PostDetailPage() {
 										</pre>
 									</div>
 
-									{/* 이미지 파일 표시 */}
+									{/* InputFile로 업로드된 이미지 파일 표시 (base64 데이터) */}
 									<div className="mt-2">
 										{postData?.files
-											?.filter((file) =>
-												file.file_name.match(
-													/\.(jpg|jpeg|png|gif)$/i,
-												),
+											?.filter(
+												(file) =>
+													// base64 데이터인지 확인 (data:image로 시작)
+													file.file_path.startsWith(
+														"data:image",
+													) &&
+													file.file_name.match(
+														/\.(jpg|jpeg|png|gif)$/i,
+													),
 											)
 											?.map((file) => (
 												<img
@@ -178,13 +183,11 @@ export default function PostDetailPage() {
 											))}
 									</div>
 
-									{/* 첨부파일 섹션 (이미지가 아닌 파일들만) */}
+									{/* 첨부파일 섹션 (FileUpload로 업로드된 파일들) */}
 									{postData?.files &&
-										postData.files.filter(
-											(file) =>
-												!file.file_name.match(
-													/\.(jpg|jpeg|png|gif)$/i,
-												),
+										postData.files.filter((file) =>
+											// FileUpload로 업로드된 파일들 (posts/ 경로로 시작)
+											file.file_path.startsWith("posts/"),
 										).length > 0 && (
 											<div className="mt-6">
 												<h3 className="text-lg font-semibold text-[#8B5CF6] mb-3">
@@ -192,20 +195,46 @@ export default function PostDetailPage() {
 												</h3>
 												<div className="space-y-2">
 													{postData.files
-														.filter(
-															(file) =>
-																!file.file_name.match(
-																	/\.(jpg|jpeg|png|gif)$/i,
-																),
+														.filter((file) =>
+															// FileUpload로 업로드된 파일들만
+															file.file_path.startsWith(
+																"posts/",
+															),
 														)
 														.map((file, index) => {
+															const isImage =
+																file.file_name.match(
+																	/\.(jpg|jpeg|png|gif)$/i,
+																);
 															return (
 																<div
 																	key={index}
 																	className="flex items-center justify-between p-4 rounded-xl bg-white border-1 border-[#E5E7EB] shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
 																>
 																	<div className="flex items-center space-x-3">
-																		<div className="w-12 h-12 bg-[#EDE9FE] rounded-lg flex items-center justify-center">
+																		{isImage ? (
+																			<img
+																				src={getFileUrl(
+																					file.file_path,
+																				)}
+																				alt={
+																					file.file_name
+																				}
+																				className="w-12 h-12 object-cover rounded-lg"
+																				onError={(
+																					e,
+																				) => {
+																					e.currentTarget.style.display =
+																						"none";
+																					e.currentTarget.nextElementSibling?.classList.remove(
+																						"hidden",
+																					);
+																				}}
+																			/>
+																		) : null}
+																		<div
+																			className={`w-12 h-12 bg-[#EDE9FE] rounded-lg flex items-center justify-center ${isImage ? "hidden" : ""}`}
+																		>
 																			<File
 																				size={
 																					20
