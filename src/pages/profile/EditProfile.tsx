@@ -102,6 +102,7 @@ export default function EditProfile() {
 	// 프로필 DB에 나이를 0000.00.00 형태로 집어넣기
 	const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const inputAge = Number(e.target.value);
+		if (inputAge > 19) return alert("20 미만으로 입력하세요.");
 
 		console.log(ageToBirthDate(inputAge));
 		setFormData((prev) => ({
