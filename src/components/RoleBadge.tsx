@@ -14,7 +14,7 @@ export default function RoleBadge({
 					text: "학생",
 					color: "text-blue-600",
 					bgColor: "bg-blue-50",
-					borderColor: "border-green-200",
+					borderColor: "border-blue-200",
 				};
 			case "teacher":
 				return {
