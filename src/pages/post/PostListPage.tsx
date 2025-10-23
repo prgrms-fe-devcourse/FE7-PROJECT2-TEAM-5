@@ -5,18 +5,23 @@ import PostList from "../../components/PostList";
 import PageNation from "../../components/PageNation";
 import { usePostsStore } from "../../stores/postsStore";
 import PostListSkeleton from "../../components/loading/post/PostListSkeleton";
+import { useProfileStore } from "../../stores/profileStore";
 
 export default function PostListPage() {
 	const [activeTab, setActiveTab] = useState<string>("all");
+	const profile = useProfileStore((state) => state.profile);
 
-	const tabs = [
+	let tabs = [
 		{ key: "all", label: "전체게시판" },
 		{ key: "free", label: "자유게시판" },
 		{ key: "elementary", label: "초등학생 게시판" },
 		{ key: "middle", label: "중학교 게시판" },
 		{ key: "high", label: "고등학교 게시판" },
-		{ key: "resources", label: "자료 공유 게시판" },
-	] as const;
+	];
+
+	if (profile && profile.role === "teacher") {
+		tabs.push({ key: "resources", label: "자료 공유 게시판" });
+	}
 
 	const posts = usePostsStore((state) => state.posts);
 	const isLoading = usePostsStore((state) => state.isLoading);
