@@ -5,6 +5,7 @@ import { useProfileStore } from "../../stores/profileStore";
 import Input from "../../components/Input";
 import { updateGroupActivity } from "../../utils/groupActivity";
 import InputFile from "../../components/InputFile";
+import { checkAndGrantBadge } from "../../hooks/useBadgeHook";
 
 // 게시글 생성 페이지
 export default function PostCreatePage() {
@@ -36,8 +37,9 @@ export default function PostCreatePage() {
 			return;
 		}
 		try {
-			//모듈로 분리 필요함
+			let postId = id;
 			if (id) {
+				// 기존 게시글 수정
 				const { data, error } = await supabase
 					.from("posts")
 					.update({
@@ -50,11 +52,11 @@ export default function PostCreatePage() {
 					.eq("user_id", profile?.auth_id)
 					.select();
 
-				const { error: fileDeledtError } = await supabase
+				const { error: fileDeleteError } = await supabase
 					.from("files")
 					.delete()
 					.eq("post_id", id);
-				if (fileDeledtError) throw fileDeledtError;
+				if (fileDeleteError) throw fileDeleteError;
 
 				for (const file of imgFiles) {
 					const { data: fileData, error: fileError } = await supabase
@@ -74,16 +76,20 @@ export default function PostCreatePage() {
 				}
 
 				if (error) throw error;
+
 				if (data) {
 					// 그룹 게시글인 경우 그룹 활동 시간 업데이트
 					if (boardType === "group" && data[0]?.group_id) {
 						await updateGroupActivity(data[0].group_id);
 					}
 
+					postId = data[0]?.id; // postId 업데이트
 					alert("게시글이 수정되었습니다.");
+
 					navigate("/posts/" + id);
 				}
 			} else {
+				// 신규 게시글 등록
 				const { data: postData, error: postError } = await supabase
 					.from("posts")
 					.insert([
@@ -121,9 +127,15 @@ export default function PostCreatePage() {
 				}
 
 				if (postError) throw postError;
+
 				if (postData) {
+					postId = postData.id; // postId 업데이트
 					alert("게시글이 등록되었습니다.");
 					console.log(postData);
+
+					// 게시글 등록 후 뱃지 체크
+					await checkAndGrantBadge(profile.auth_id);
+
 					navigate("/posts/" + postData.id);
 				}
 			}

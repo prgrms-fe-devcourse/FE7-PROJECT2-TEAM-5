@@ -1,11 +1,13 @@
+import type { BadgeLog } from "../../types/badge";
 import type { ChildInfo } from "../../types/profile";
+import { decodeHtmlEntities } from "../../utils/codeToEmoji";
 
 interface InfoBlockProps {
 	title: string;
 	content?: string | number | null;
 	childList?: ChildInfo[];
 	tags?: string[] | null;
-	badges?: string[];
+	badges?: BadgeLog[];
 	isFullWidth?: boolean;
 }
 
@@ -47,12 +49,13 @@ export default function InfoBlock({
 			{badges && (
 				<div className="flex flex-col space-y-1 mt-1">
 					{badges.map((badge) => (
-						<div
-							key={badge}
+						<span
+							key={badge.id}
 							className="font-medium text-gray-800 whitespace-nowrap"
 						>
-							{badge}
-						</div>
+							{decodeHtmlEntities(badge.badges?.icon_url ?? "")}
+							{badge.badges?.name}
+						</span>
 					))}
 				</div>
 			)}

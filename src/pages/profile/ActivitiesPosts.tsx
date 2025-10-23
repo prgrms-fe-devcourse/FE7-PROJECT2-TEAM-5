@@ -31,8 +31,12 @@ export default function ActivitiesPosts() {
 					>
 						{/* left */}
 						<div className="flex flex-col gap-1">
-							<p className="font-bold text-lg">{post.title}</p>
-							<p className="text-gray-500">{post.content}</p>
+							<p className="font-bold text-lg line-clamp-1">
+								{post.title}
+							</p>
+							<p className="text-gray-500 line-clamp-2">
+								{post.content}
+							</p>
 							<div className="mt-1.5 flex flex-row items-center gap-1">
 								{post.hash_tag!.map((tag, index) => (
 									<span

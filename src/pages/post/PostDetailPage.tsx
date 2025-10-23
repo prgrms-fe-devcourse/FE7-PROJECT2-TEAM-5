@@ -83,7 +83,8 @@ export default function PostDetailPage() {
 										<button
 											type="button"
 											onClick={() => {
-												deletePost();
+												deletePost(postData.id);
+												navigate("/posts");
 											}}
 											className="px-4 py-2.5 text-sm text-[#8B5CF6] rounded-xl bg-white border-1 border-[#8B5CF6] cursor-pointer"
 										>
@@ -103,6 +104,7 @@ export default function PostDetailPage() {
 										type="button"
 										onClick={() => {
 											pressLike();
+											resetPostStore();
 										}}
 									>
 										{isLiked ? (
@@ -127,7 +129,11 @@ export default function PostDetailPage() {
 								</p>
 								{/* 본문 */}
 								<div className="my-8">
-									<pre>{postData?.content}</pre>
+									<div className="max-w-xl border p-4">
+										<pre className="w-full break-words whitespace-pre-wrap">
+											{postData?.content}
+										</pre>
+									</div>
 									<div className="mt-2">
 										{postData?.files?.map((file) => (
 											<img

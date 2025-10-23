@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import ProfileCadeSkeleton from "../../components/loading/profile/ProfileCadeSkeleton";
 import DetailCardSkeleton from "../../components/loading/profile/DetailCardSkeleton";
 import { useActPostStore } from "../../stores/profileActivityStore";
+import { useBadgeStore } from "../../stores/badgeStore";
 
 export default function ProfilePage() {
 	const {
@@ -16,7 +17,11 @@ export default function ProfilePage() {
 		loading,
 		error,
 	} = useProfileStore();
+
 	const { fetchUserPosts, fetchUserCommentsWithPosts } = useActPostStore();
+
+	const { badges, fetchUserBadges } = useBadgeStore();
+
 	const { id } = useParams();
 
 	const [ready, setReady] = useState(false);
@@ -39,6 +44,7 @@ export default function ProfilePage() {
 		fetchProfile(targetAuthId);
 		fetchUserPosts(targetAuthId);
 		fetchUserCommentsWithPosts(targetAuthId);
+		fetchUserBadges(targetAuthId);
 	}, [
 		ready,
 		id,
@@ -74,7 +80,11 @@ export default function ProfilePage() {
 			<div className="flex flex-row gap-10 w-full">
 				{/* 왼쪽 프로필 카드 */}
 				<div className="w-[270px]">
-					<ProfileCard key={profile.auth_id} profile={profile} />
+					<ProfileCard
+						key={profile.auth_id}
+						profile={profile}
+						badges={badges}
+					/>
 				</div>
 
 				{/* 오른쪽 상세 정보 */}
