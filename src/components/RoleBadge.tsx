@@ -12,21 +12,21 @@ export default function RoleBadge({
 			case "student":
 				return {
 					text: "학생",
-					color: "text-blue-600",
+					color: "text-[#4285F4]",
 					bgColor: "bg-blue-50",
 					borderColor: "border-blue-200",
 				};
 			case "teacher":
 				return {
 					text: "선생님",
-					color: "text-green-600",
+					color: "text-[#03C75A]",
 					bgColor: "bg-green-50",
 					borderColor: "border-green-200",
 				};
 			case "parent":
 				return {
 					text: "학부모",
-					color: "text-orange-600",
+					color: "text-[#F59E0B]",
 					bgColor: "bg-orange-50",
 					borderColor: "border-orange-200",
 				};
