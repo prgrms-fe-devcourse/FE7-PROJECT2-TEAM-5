@@ -8,6 +8,7 @@ import { getGrade } from "../../utils/getGrade";
 import { useNavigate } from "react-router";
 import Button from "../../components/Button";
 import basicImage from "../../assets/basic_image.png";
+import { updateGroupActivityFromPost } from "../../utils/groupActivity";
 import { checkAndGrantBadge } from "../../hooks/useBadgeHook";
 import { decodeHtmlEntities } from "../../utils/codeToEmoji";
 
@@ -99,6 +100,11 @@ export default function PostComments(props: PostCommentsProps) {
 
 				if (error) throw error;
 				if (commentData) {
+					// 그룹 게시글인 경우 그룹 활동 시간 업데이트
+					if (props.postId) {
+						await updateGroupActivityFromPost(props.postId);
+					}
+
 					alert("댓글이 등록되었습니다.");
 					setInputComment("");
 					location.reload();
@@ -118,6 +124,11 @@ export default function PostComments(props: PostCommentsProps) {
 
 				if (error) throw error;
 				if (commentData) {
+					// 그룹 게시글인 경우 그룹 활동 시간 업데이트
+					if (props.postId) {
+						await updateGroupActivityFromPost(props.postId);
+					}
+
 					alert("댓글이 등록되었습니다.");
 					setInputComment("");
 					// 댓글 등록 후 뱃지 체크
