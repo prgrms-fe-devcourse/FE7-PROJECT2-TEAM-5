@@ -37,8 +37,6 @@ export default function ProfileCard({ profile }: Props) {
 	const { userPosts, userComments } = useActPostStore();
 	const { representativeBadge } = useBadgeStore();
 
-	console.log(representativeBadge);
-
 	const isFollowing = followStatus[profile?.auth_id ?? ""] || false;
 
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);

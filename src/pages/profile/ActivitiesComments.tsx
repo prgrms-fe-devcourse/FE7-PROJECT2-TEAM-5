@@ -26,8 +26,6 @@ export default function ActivitiesComments() {
 		currentPage * commentsPerPage,
 	);
 
-	console.log(displayedComments);
-
 	if (!userComments.length) return <p>작성한 댓글이 없습니다.</p>;
 	return (
 		<div>

@@ -4,6 +4,6 @@ type User = {
 	nickname: string;
 	is_online: boolean;
 	role: string;
-	birth_date?: string;
+	birth_date?: Date;
 	major?: string;
 };

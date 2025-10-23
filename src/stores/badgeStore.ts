@@ -95,7 +95,6 @@ export const useBadgeStore = create<BadgeStore>((set) => ({
 				)
 				.eq("id", user.representative_badge_id)
 				.single();
-			console.log(repBadgeData);
 
 			if (!repBadgeError && repBadgeData) {
 				representativeBadge = {
