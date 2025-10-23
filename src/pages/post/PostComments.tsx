@@ -11,6 +11,8 @@ import basicImage from "../../assets/basic_image.png";
 import { updateGroupActivityFromPost } from "../../utils/groupActivity";
 import { checkAndGrantBadge } from "../../hooks/useBadgeHook";
 import { decodeHtmlEntities } from "../../utils/codeToEmoji";
+import RoleBadge from "../../components/RoleBadge";
+import type { UserRole } from "../../types/auth";
 
 type PostCommentsProps = {
 	comments: Comment[] | null;
@@ -285,6 +287,12 @@ export default function PostComments(props: PostCommentsProps) {
 							)}
 							<p className="text-sm">
 								{comment.user?.nickname}
+								{comment.user?.role && (
+									<RoleBadge
+										role={comment.user.role as UserRole}
+										className="ml-1"
+									/>
+								)}
 								<span className="text-xs text-[#6B7280] ml-1">
 									{getGrade(getAge(comment.user?.birth_date))}
 								</span>
