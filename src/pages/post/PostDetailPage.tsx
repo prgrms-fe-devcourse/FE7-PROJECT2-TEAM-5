@@ -129,7 +129,7 @@ export default function PostDetailPage() {
 								</p>
 								{/* 본문 */}
 								<div className="my-8">
-									<div className="max-w-xl border p-4">
+									<div className="max-w-xl">
 										<pre className="w-full break-words whitespace-pre-wrap">
 											{postData?.content}
 										</pre>

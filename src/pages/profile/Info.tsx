@@ -22,7 +22,6 @@ export default function Info({
 	useEffect(() => {
 		fetchUserBadges(profile.auth_id);
 	}, []);
-	console.log(badges);
 	return (
 		<>
 			<div>

@@ -60,8 +60,6 @@ export default function EditProfile() {
 		setRepresentativeBadge,
 	} = useBadgeStore();
 
-	console.log(badges[0]?.badges?.name);
-
 	const [formData, setFormData] = useState<Partial<UserProfile>>({});
 	const [childInfos, setChildInfos] = useState<ChildInfo[]>([]); // 자녀 정보
 
@@ -101,10 +99,11 @@ export default function EditProfile() {
 			setFormData((prev) => ({ ...prev, [key]: e.target.value }));
 
 	const age = formData.birth_date ? getAge(formData.birth_date) : undefined;
-
 	// 프로필 DB에 나이를 0000.00.00 형태로 집어넣기
 	const handleAgeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const inputAge = Number(e.target.value);
+
+		console.log(ageToBirthDate(inputAge));
 		setFormData((prev) => ({
 			...prev,
 			birth_date: !isNaN(inputAge) ? ageToBirthDate(inputAge) : undefined,
