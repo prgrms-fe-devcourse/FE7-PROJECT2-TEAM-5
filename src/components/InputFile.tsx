@@ -19,17 +19,22 @@ export default function InputFile(props: InputFileProps) {
 		const files = e.target.files;
 		if (files) {
 			Array.from(files).map((file) => {
-				const reader = new FileReader();
-				reader.onload = (e) => {
-					props.setImgFiles((prev) => [
-						...prev,
-						{
-							file: e.target?.result as string,
-							fileName: file.name,
-						},
-					]);
-				};
-				reader.readAsDataURL(file);
+				const fileExt = file.name.split(".").pop();
+				if (fileExt && ["png", "jpeg", "jpg"].includes(fileExt)) {
+					const reader = new FileReader();
+					reader.onload = (e) => {
+						props.setImgFiles((prev) => [
+							...prev,
+							{
+								file: e.target?.result as string,
+								fileName: file.name,
+							},
+						]);
+					};
+					reader.readAsDataURL(file);
+				} else {
+					alert("이미지 파일만 선택 가능합니다.");
+				}
 			});
 		}
 	};
