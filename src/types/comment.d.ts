@@ -3,11 +3,7 @@ import type { Database } from "./database";
 type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
 	user?: {
 		auth_id: string;
-<<<<<<< HEAD
-		nickname?: string;
-=======
 		nickname: string;
->>>>>>> main
 		birth_date: string;
 		representative_badge_id: {
 			badges: {

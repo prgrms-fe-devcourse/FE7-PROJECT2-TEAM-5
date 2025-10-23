@@ -1,22 +1,13 @@
-<<<<<<< HEAD
-import { Heart, MessageSquare } from "lucide-react";
-import { useState } from "react";
-=======
 import { Heart, MessageSquare, Smile } from "lucide-react";
 import type { Comment } from "../../types/comment";
 import { useEffect, useRef, useState } from "react";
->>>>>>> main
 import supabase from "../../utils/supabase";
 import { useProfileStore } from "../../stores/profileStore";
 import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
 import { useNavigate } from "react-router";
-<<<<<<< HEAD
-import type { Comment } from "../../types/comment";
-=======
-import basicImage from "../../assets/basic_image.png";
 import Button from "../../components/Button";
->>>>>>> main
+import basicImage from "../../assets/basic_image.png";
 
 type PostCommentsProps = {
 	comments: Comment[] | null;
