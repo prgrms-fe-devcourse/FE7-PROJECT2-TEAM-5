@@ -24,13 +24,15 @@ export default function PostCreatePage() {
 	>([]);
 	const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
-	const boardTypes = [
+	let boardTypes = [
 		{ key: "free", label: "자유게시판" },
 		{ key: "elementary", label: "초등학생 게시판" },
 		{ key: "middle", label: "중학교 게시판" },
 		{ key: "high", label: "고등학교 게시판" },
-		{ key: "resources", label: "자료 공유 게시판" },
 	];
+	if (profile && profile.role === "teacher") {
+		boardTypes.push({ key: "resources", label: "자료 공유 게시판" });
+	}
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();

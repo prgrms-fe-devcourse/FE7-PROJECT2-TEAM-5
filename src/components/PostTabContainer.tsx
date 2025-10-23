@@ -56,12 +56,12 @@ export default function PostTabContainer({
 						{/* 일반 게시판 전용: 검색 + 글 작성 */}
 						{isNormalBoard && (
 							<>
-								<Button
+								{/* <Button
 									type="button"
 									className="px-4 py-2 rounded-xl bg-[#8B5CF6] text-white text-xs hover:bg-[#B08DFF] transition-colors"
 								>
 									검색
-								</Button>
+								</Button> */}
 								{currentUserId && (
 									<Link
 										to="create"
