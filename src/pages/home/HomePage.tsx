@@ -1,6 +1,7 @@
 import { MessageCircle, Milestone, UsersRound } from "lucide-react";
 import { Link } from "react-router";
 import { useProfileStore } from "../../stores/profileStore";
+import { useGroupStore } from "../../stores/groupStore";
 import { useEffect } from "react";
 import { useSetOnlineStatus } from "../../hooks/useSetOnlineStatus";
 import HomePageSkeleton from "../../components/loading/home/HomePageSkeleton";
@@ -9,6 +10,14 @@ export default function HomePage() {
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 	const loading = useProfileStore((state) => state.loading);
 	const fetchProfile = useProfileStore((state) => state.fetchProfile);
+
+	// 그룹 상태 관리
+	const {
+		groups,
+		currentGroup,
+		loading: groupLoading,
+		fetchUserGroups,
+	} = useGroupStore();
 
 	const { logout } = useProfileStore();
 	const { logoutOffline } = useSetOnlineStatus(
@@ -21,7 +30,14 @@ export default function HomePage() {
 		}
 	}, [currentUserId, fetchProfile]);
 
-	if (loading) {
+	// 사용자 그룹 정보 로드
+	useEffect(() => {
+		if (currentUserId) {
+			fetchUserGroups(currentUserId);
+		}
+	}, [currentUserId, fetchUserGroups]);
+
+	if (loading || groupLoading) {
 		return <HomePageSkeleton />;
 	}
 
@@ -103,28 +119,60 @@ export default function HomePage() {
 						</div>
 					</Link>
 					{/* 그룹 카드 */}
-					{/* 그룹 활동 x */}
-					<div className="w-[320px] h-full flex-grow py-7 px-6 border-2 border-dashed border-[#8B5CF6] bg-white rounded-xl shadow-md text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-						<div className="flex flex-col items-center gap-3">
-							<div className="flex items-center gap-2">
+					{currentGroup ? (
+						<Link
+							to={`/groups/${currentGroup.id}/posts`}
+							className="w-[320px] h-full px-6 py-7 bg-white rounded-xl shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+						>
+							<div className="flex items-center gap-2 mb-4">
 								<UsersRound size={18} />
 								<h3 className="font-bold text-xl text-[#8B5CF6]">
-									가입한 그룹이 없습니다
+									{currentGroup.name}
 								</h3>
 							</div>
-							<p className="text-[#6B7280] text-sm mb-0.5">
-								아직 참여 중인 그룹이 없습니다.
-								<br />
-								관심 있는 그룹을 찾아 가입해보세요!
-							</p>
-							<Link
-								to="/groups"
-								className="inline-block px-5 py-3 bg-[#8B5CF6] text-sm text-white font-bold rounded-xl"
-							>
-								그룹 목록 보기
-							</Link>
+							<div className="text-[#6B7280] space-y-2 mb-3">
+								<p className="text-sm">
+									{currentGroup.bio || "함께 학습하는 그룹"}
+								</p>
+								<p className="text-xs">
+									멤버 {groups.length}명 · 최근 활동 중
+								</p>
+							</div>
+							<div className="flex flex-row gap-2 text-xs text-[#8B5CF6]">
+								<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
+									#그룹
+								</span>
+								<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
+									#학습
+								</span>
+								<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
+									#커뮤니티
+								</span>
+							</div>
+						</Link>
+					) : (
+						<div className="w-[320px] h-full flex-grow py-7 px-6 border-2 border-dashed border-[#8B5CF6] bg-white rounded-xl shadow-md text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+							<div className="flex flex-col items-center gap-3">
+								<div className="flex items-center gap-2">
+									<UsersRound size={18} />
+									<h3 className="font-bold text-xl text-[#8B5CF6]">
+										가입한 그룹이 없습니다
+									</h3>
+								</div>
+								<p className="text-[#6B7280] text-sm mb-0.5">
+									아직 참여 중인 그룹이 없습니다.
+									<br />
+									관심 있는 그룹을 찾아 가입해보세요!
+								</p>
+								<Link
+									to="/groups"
+									className="inline-block px-5 py-3 bg-[#8B5CF6] text-sm text-white font-bold rounded-xl"
+								>
+									그룹 목록 보기
+								</Link>
+							</div>
 						</div>
-					</div>
+					)}
 					{/* 그룹활동 o */}
 					{/* <Link
 						to="groups"
