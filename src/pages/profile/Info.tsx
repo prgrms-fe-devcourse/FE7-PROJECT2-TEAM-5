@@ -3,6 +3,8 @@ import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
 import InfoBlock from "./InfoBlock";
 import type { ChildInfo, UserProfile } from "../../types/profile";
+import { useEffect } from "react";
+import { useBadgeStore } from "../../stores/badgeStore";
 
 export default function Info({
 	profile,
@@ -11,10 +13,16 @@ export default function Info({
 	profile: UserProfile;
 	childInfos: ChildInfo[];
 }) {
+	const { fetchUserBadges, badges } = useBadgeStore();
+
 	const isMe = "me" === useParams().id;
 	const age = profile.birth_date ? getAge(profile.birth_date) : 0;
 	const grade = profile.role === "student" ? getGrade(age) : "";
 
+	useEffect(() => {
+		fetchUserBadges(profile.auth_id);
+	}, []);
+	console.log(badges);
 	return (
 		<>
 			<div>
@@ -43,10 +51,7 @@ export default function Info({
 								.split(",")
 								.join(", ")}
 						/>
-						<InfoBlock
-							title="활동 뱃지"
-							badges={["🏆 초보 수학 마스터"]}
-						/>
+						<InfoBlock title="활동 뱃지" badges={badges} />
 						{/* 관심 분야 / 가입일 */}
 						<InfoBlock title="관심 분야" tags={profile.interests} />
 						<InfoBlock
