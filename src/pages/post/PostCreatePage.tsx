@@ -5,7 +5,9 @@ import { useProfileStore } from "../../stores/profileStore";
 import Input from "../../components/Input";
 import { updateGroupActivity } from "../../utils/groupActivity";
 import InputFile from "../../components/InputFile";
+import FileUpload from "../../components/FileUpload";
 import { checkAndGrantBadge } from "../../hooks/useBadgeHook";
+import { uploadFile } from "../../utils/fileUpload";
 
 // 게시글 생성 페이지
 export default function PostCreatePage() {
@@ -20,7 +22,7 @@ export default function PostCreatePage() {
 	const [imgFiles, setImgFiles] = useState<
 		{ file: string; fileName: string }[]
 	>([]);
-	// const [imgFileNames, setImgFileNames] = useState<string[]>([]);
+	const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
 	const boardTypes = [
 		{ key: "free", label: "자유게시판" },
@@ -37,7 +39,6 @@ export default function PostCreatePage() {
 			return;
 		}
 		try {
-			let postId = id;
 			if (id) {
 				// 기존 게시글 수정
 				const { data, error } = await supabase
@@ -58,6 +59,7 @@ export default function PostCreatePage() {
 					.eq("post_id", id);
 				if (fileDeleteError) throw fileDeleteError;
 
+				// 기존 이미지 파일 처리
 				for (const file of imgFiles) {
 					const { data: fileData, error: fileError } = await supabase
 						.from("files")
@@ -75,6 +77,28 @@ export default function PostCreatePage() {
 					}
 				}
 
+				// 새로 업로드된 파일 처리
+				for (const uploadedFile of uploadedFiles) {
+					const uploadResult = await uploadFile(uploadedFile, id);
+					if (uploadResult) {
+						const { data: fileData, error: fileError } =
+							await supabase
+								.from("files")
+								.insert([
+									{
+										post_id: id,
+										file_path: uploadResult.filePath,
+										file_name: uploadResult.fileName,
+									},
+								])
+								.select();
+						if (fileError) throw fileError;
+						if (!fileData) {
+							alert("파일 등록 실패");
+						}
+					}
+				}
+
 				if (error) throw error;
 
 				if (data) {
@@ -83,7 +107,6 @@ export default function PostCreatePage() {
 						await updateGroupActivity(data[0].group_id);
 					}
 
-					postId = data[0]?.id; // postId 업데이트
 					alert("게시글이 수정되었습니다.");
 
 					navigate("/posts/" + id);
@@ -109,6 +132,7 @@ export default function PostCreatePage() {
 					await updateGroupActivity(postData.group_id);
 				}
 
+				// 기존 이미지 파일 처리
 				for (const file of imgFiles) {
 					const { data: fileData, error: fileError } = await supabase
 						.from("files")
@@ -126,10 +150,34 @@ export default function PostCreatePage() {
 					}
 				}
 
+				// 새로 업로드된 파일 처리
+				for (const uploadedFile of uploadedFiles) {
+					const uploadResult = await uploadFile(
+						uploadedFile,
+						postData.id,
+					);
+					if (uploadResult) {
+						const { data: fileData, error: fileError } =
+							await supabase
+								.from("files")
+								.insert([
+									{
+										post_id: postData.id,
+										file_path: uploadResult.filePath,
+										file_name: uploadResult.fileName,
+									},
+								])
+								.select();
+						if (fileError) throw fileError;
+						if (!fileData) {
+							alert("파일 등록 실패");
+						}
+					}
+				}
+
 				if (postError) throw postError;
 
 				if (postData) {
-					postId = postData.id; // postId 업데이트
 					alert("게시글이 등록되었습니다.");
 					console.log(postData);
 
@@ -260,12 +308,28 @@ export default function PostCreatePage() {
 							</Input>
 						</div>
 
-						{/* 파일 업로드 */}
+						{/* 이미지 업로드 */}
 						<InputFile
 							imgFiles={imgFiles}
 							setImgFiles={setImgFiles}
 							isMulti={true}
 						/>
+
+						{/* 자료공유 게시판일 때만 파일 업로드 표시 */}
+						{boardType === "resources" && (
+							<div>
+								<h3 className="text-lg font-semibold text-gray-800 mb-3">
+									파일 첨부
+								</h3>
+								<FileUpload
+									uploadedFiles={uploadedFiles}
+									setUploadedFiles={setUploadedFiles}
+									isMulti={true}
+									maxFileSizeMB={10}
+									label="자료 파일을 업로드하세요"
+								/>
+							</div>
+						)}
 
 						<div className="relative w-full px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB] outline-none user-invalid:border-red-500">
 							<textarea
