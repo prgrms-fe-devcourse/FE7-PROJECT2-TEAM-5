@@ -10,7 +10,9 @@ export default function SearchPage() {
 	const [searchKeyword, setSearchKeyword] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [searchPostResult, setSearchPostResult] = useState<Post[]>([]);
-	const [searchUserResult, setSearchUserResult] = useState<User[]>([]);
+	const [searchUserResult, setSearchUserResult] = useState<
+		(User & { last_seen: string })[]
+	>([]);
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -104,6 +106,7 @@ export default function SearchPage() {
 			nickname: user.nickname,
 			profile_image_url: user.profile_image_url ?? null,
 			is_online: user.is_online,
+			last_seen: user.last_seen,
 		},
 	}));
 
@@ -112,7 +115,6 @@ export default function SearchPage() {
 	const totalPages = Math.ceil(
 		((users.length ?? 0) + (searchPostResult.length ?? 0)) / resultPerPage,
 	);
-	console.log("슬라이스 시작", searchPostResult, searchUserResult);
 	// // 현재 노출되는 게시글, 유저 아이템
 	let displayedUsers: Friend[] = [];
 	let displayedPosts: Post[] = [];
@@ -142,7 +144,7 @@ export default function SearchPage() {
 
 	return (
 		<>
-			<div className="mx-auto">
+			<div className="max-w-[920px] mx-auto">
 				<h1 className="font-bold text-[24px] text-[#8B5CF6] mb-[15px] ">
 					검색
 				</h1>
@@ -190,7 +192,10 @@ export default function SearchPage() {
 									key={user.id}
 									className="bg-white rounded-xl mb-2"
 								>
-									<MemberCard friend={user} />
+									<MemberCard
+										friend={user}
+										onUnfollow={() => {}}
+									/>
 								</div>
 							))}
 						{/* 게시판 영역 */}
