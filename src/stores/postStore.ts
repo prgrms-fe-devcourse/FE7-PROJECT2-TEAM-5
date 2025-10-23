@@ -60,7 +60,7 @@ export const usePostStore = create<PostStore>()(
 				const { data: comments, error: commentsError } = await supabase
 					.from("comments")
 					.select(
-						"*, user:users(auth_id,nickname, profile_image_url, birth_date, representative_badge_id(badges(name,icon_url))), comment_likes(user_id)",
+						"*, user:users(auth_id,nickname, profile_image_url, birth_date, role, representative_badge_id(badges(name,icon_url))), comment_likes(user_id)",
 					)
 					.eq("post_id", postId)
 					.order("created_at");
