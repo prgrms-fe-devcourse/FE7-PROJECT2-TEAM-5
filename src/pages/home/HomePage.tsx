@@ -1,8 +1,13 @@
-import { MessageCircle, Milestone, UsersRound } from "lucide-react";
+import {
+	MessageCircle,
+	Milestone,
+	UsersRound,
+	ChevronRight,
+} from "lucide-react";
 import { Link } from "react-router";
 import { useProfileStore } from "../../stores/profileStore";
 import { useGroupStore } from "../../stores/groupStore";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSetOnlineStatus } from "../../hooks/useSetOnlineStatus";
 import HomePageSkeleton from "../../components/loading/home/HomePageSkeleton";
 
@@ -13,10 +18,33 @@ export default function HomePage() {
 
 	// 그룹 상태 관리
 	const {
+		groups,
 		currentGroup,
 		loading: groupLoading,
 		fetchUserGroups,
+		setCurrentGroup,
 	} = useGroupStore();
+
+	// 현재 표시할 그룹 인덱스
+	const [currentGroupIndex, setCurrentGroupIndex] = useState(0);
+
+	// 그룹이 변경될 때마다 currentGroup 업데이트
+	useEffect(() => {
+		if (groups.length > 0) {
+			setCurrentGroup(groups[currentGroupIndex]);
+		}
+	}, [groups, currentGroupIndex, setCurrentGroup]);
+
+	// 다음 그룹으로 이동
+	const goToNextGroup = (e: React.MouseEvent) => {
+		e.preventDefault(); // Link 클릭 방지
+		e.stopPropagation();
+
+		if (groups.length > 0) {
+			const nextIndex = (currentGroupIndex + 1) % groups.length;
+			setCurrentGroupIndex(nextIndex);
+		}
+	};
 
 	// 시간 포맷팅 함수
 	const formatTimeAgo = (dateString: string): string => {
@@ -142,41 +170,72 @@ export default function HomePage() {
 					</Link>
 					{/* 그룹 카드 */}
 					{currentGroup ? (
-						<Link
-							to={`/groups/${currentGroup.id}/posts`}
-							className="w-[320px] h-full px-6 py-7 bg-white rounded-xl shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
-						>
-							<div className="flex items-center gap-2 mb-4">
-								<UsersRound size={18} />
-								<h3 className="font-bold text-xl text-[#8B5CF6]">
-									{currentGroup.name}
-								</h3>
-							</div>
-							<div className="text-[#6B7280] space-y-2 mb-3">
-								<p className="text-sm">
-									{currentGroup.bio || "함께 학습하는 그룹"}
-								</p>
-								<p className="text-xs">
-									멤버 {currentGroup.member_count || 0}명 ·{" "}
-									{currentGroup.last_activity
-										? formatTimeAgo(
-												currentGroup.last_activity,
-											)
-										: "활동 없음"}
-								</p>
-							</div>
-							<div className="flex flex-row gap-2 text-xs text-[#8B5CF6]">
-								<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
-									#그룹
-								</span>
-								<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
-									#학습
-								</span>
-								<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
-									#커뮤니티
-								</span>
-							</div>
-						</Link>
+						<div className="relative w-[320px] h-full">
+							<Link
+								to={`/groups/${currentGroup.id}/posts`}
+								className="block w-full h-full px-6 py-7 bg-white rounded-xl shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+							>
+								<div className="flex items-center gap-2 mb-4">
+									<UsersRound size={18} />
+									<h3 className="font-bold text-xl text-[#8B5CF6]">
+										{currentGroup.name}
+									</h3>
+								</div>
+								<div className="text-[#6B7280] space-y-2 mb-3">
+									<p className="text-sm">
+										{currentGroup.bio ||
+											"함께 학습하는 그룹"}
+									</p>
+									<p className="text-xs">
+										멤버 {currentGroup.member_count || 0}명
+										·{" "}
+										{currentGroup.last_activity
+											? formatTimeAgo(
+													currentGroup.last_activity,
+												)
+											: "활동 없음"}
+									</p>
+								</div>
+								<div className="flex flex-row gap-2 text-xs text-[#8B5CF6]">
+									<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
+										#그룹
+									</span>
+									<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
+										#학습
+									</span>
+									<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
+										#커뮤니티
+									</span>
+								</div>
+							</Link>
+
+							{/* 다음 그룹 버튼 (그룹이 2개 이상일 때만 보이도록) */}
+							{groups.length > 1 && (
+								<button
+									onClick={goToNextGroup}
+									className="absolute top-1/2 -right-4 transform -translate-y-1/2 w-8 h-8 bg-[#8B5CF6] text-white rounded-full shadow-lg hover:bg-[#B08DFF] transition-colors flex items-center justify-center z-10"
+									title="다음 그룹 보기"
+								>
+									<ChevronRight size={16} />
+								</button>
+							)}
+
+							{/* 그룹 하단 인디케이터 (그룹이 2개 이상일 때만 표시) */}
+							{groups.length > 1 && (
+								<div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1">
+									{groups.map((_, index) => (
+										<div
+											key={index}
+											className={`w-2 h-2 rounded-full transition-colors ${
+												index === currentGroupIndex
+													? "bg-[#8B5CF6]"
+													: "bg-gray-300"
+											}`}
+										/>
+									))}
+								</div>
+							)}
+						</div>
 					) : (
 						<div className="w-[320px] h-full flex-grow py-7 px-6 border-2 border-dashed border-[#8B5CF6] bg-white rounded-xl shadow-md text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
 							<div className="flex flex-col items-center gap-3">
