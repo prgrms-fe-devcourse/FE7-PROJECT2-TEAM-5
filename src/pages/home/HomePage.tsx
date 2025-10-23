@@ -207,6 +207,22 @@ export default function HomePage() {
 										#커뮤니티
 									</span>
 								</div>
+
+								{/* 그룹 인디케이터 (카드 안으로 이동) */}
+								{groups.length > 1 && (
+									<div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1">
+										{groups.map((_, index) => (
+											<div
+												key={index}
+												className={`w-2 h-2 rounded-full transition-colors ${
+													index === currentGroupIndex
+														? "bg-[#8B5CF6]"
+														: "bg-gray-300"
+												}`}
+											/>
+										))}
+									</div>
+								)}
 							</Link>
 
 							{/* 다음 그룹 버튼 (그룹이 2개 이상일 때만 보이도록) */}
@@ -218,22 +234,6 @@ export default function HomePage() {
 								>
 									<ChevronRight size={16} />
 								</button>
-							)}
-
-							{/* 그룹 하단 인디케이터 (그룹이 2개 이상일 때만 표시) */}
-							{groups.length > 1 && (
-								<div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-1">
-									{groups.map((_, index) => (
-										<div
-											key={index}
-											className={`w-2 h-2 rounded-full transition-colors ${
-												index === currentGroupIndex
-													? "bg-[#8B5CF6]"
-													: "bg-gray-300"
-											}`}
-										/>
-									))}
-								</div>
 							)}
 						</div>
 					) : (
