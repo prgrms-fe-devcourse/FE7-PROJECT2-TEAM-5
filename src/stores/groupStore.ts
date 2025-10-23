@@ -7,6 +7,7 @@ type Group = {
 	bio?: string | null;
 	profile_image_url?: string | null;
 	created_at?: string;
+	member_count?: number; // 멤버 수 추가
 };
 
 type GroupStore = {
@@ -31,7 +32,7 @@ export const useGroupStore = create<GroupStore>((set) => ({
 		try {
 			set({ loading: true, error: null });
 
-			// 사용자가 속한 그룹들 조회
+			// 사용자가 속한 그룹들 조회 (멤버 수 포함)
 			const { data: groupMemberships, error: membershipError } =
 				await supabase
 					.from("group_members")
@@ -51,15 +52,27 @@ export const useGroupStore = create<GroupStore>((set) => ({
 
 			if (membershipError) throw membershipError;
 
-			const groups: Group[] = (groupMemberships || [])
-				.map((membership: any) => ({
-					id: membership.groups.id,
-					name: membership.groups.name,
-					bio: membership.groups.bio,
-					profile_image_url: membership.groups.profile_image_url,
-					created_at: membership.groups.created_at,
-				}))
-				.filter((group: Group) => group.id); // 유효한 그룹만 필터링
+			// 각 그룹별로 멤버 수 조회
+			const groups: Group[] = [];
+			for (const membership of groupMemberships || []) {
+				const group = (membership as any).groups;
+				if (!group?.id) continue;
+
+				// 해당 그룹의 멤버 수 조회
+				const { count: memberCount } = await supabase
+					.from("group_members")
+					.select("*", { count: "exact", head: true })
+					.eq("group_id", group.id);
+
+				groups.push({
+					id: group.id,
+					name: group.name,
+					bio: group.bio,
+					profile_image_url: group.profile_image_url,
+					created_at: group.created_at,
+					member_count: memberCount || 0,
+				});
+			}
 
 			set({
 				groups,

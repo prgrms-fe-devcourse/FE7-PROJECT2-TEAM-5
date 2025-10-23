@@ -135,7 +135,8 @@ export default function HomePage() {
 									{currentGroup.bio || "함께 학습하는 그룹"}
 								</p>
 								<p className="text-xs">
-									멤버 {groups.length}명 · 최근 활동 중
+									멤버 {currentGroup.member_count || 0}명 ·
+									최근 활동 중
 								</p>
 							</div>
 							<div className="flex flex-row gap-2 text-xs text-[#8B5CF6]">
