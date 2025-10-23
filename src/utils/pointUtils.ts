@@ -75,3 +75,20 @@ export const getCurrentPoints = async (userId: string): Promise<number> => {
 		return 0;
 	}
 };
+
+// 포인트 기록 조회 함수
+export const getPointHistory = async (userId: string) => {
+	try {
+		const { data, error } = await supabase
+			.from("point_logs")
+			.select("*")
+			.eq("user_id", userId)
+			.order("created_at", { ascending: false });
+
+		if (error) throw error;
+		return data || [];
+	} catch (error) {
+		console.error("포인트 기록 조회 실패:", error);
+		return [];
+	}
+};
