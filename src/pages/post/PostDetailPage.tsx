@@ -1,7 +1,6 @@
 import { Heart, MoveLeft } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router";
 import { useEffect } from "react";
-import supabase from "../../utils/supabase";
 import PostComments from "./PostComments";
 import { useProfileStore } from "../../stores/profileStore";
 import { usePostStore } from "../../stores/postStore";
@@ -18,6 +17,8 @@ export default function PostDetailPage() {
 	const comments = usePostStore((state) => state.comments);
 	const fetchPost = usePostStore((state) => state.fetchPost);
 	const updateLike = usePostStore((state) => state.updateLike);
+	const deletePost = usePostStore((state) => state.deletePost);
+	const resetPostStore = usePostStore((state) => state.resetPostStore);
 
 	useEffect(() => {
 		const loadPost = async () => {
@@ -46,21 +47,6 @@ export default function PostDetailPage() {
 		if (id) {
 			updateLike(id, currentUserId);
 			alert("좋아요 완료");
-		}
-	};
-
-	const deletePost = async () => {
-		console.log(postData?.id);
-		try {
-			const { error } = await supabase
-				.from("posts")
-				.delete()
-				.eq("id", postData?.id);
-			if (error) throw error;
-			alert("게시물이 삭제되었습니다");
-			navigate("/posts");
-		} catch (e) {
-			console.error(e);
 		}
 	};
 
@@ -94,7 +80,7 @@ export default function PostDetailPage() {
 									<button
 										type="button"
 										onClick={() => {
-											deletePost();
+											deletePost(id);
 										}}
 										className="px-4 py-2.5 text-sm text-[#8B5CF6] rounded-xl bg-white border-1 border-[#8B5CF6] cursor-pointer"
 									>
