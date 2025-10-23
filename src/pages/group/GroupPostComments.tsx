@@ -29,7 +29,7 @@ export default function GroupPostComments({
   const [mention, setMention] = useState({ nickname: "", userId: "", commentId: "" });
   const currentUserId = useProfileStore((s) => s.currentUserId);
 
-  // 이모지 피커
+
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const emojiPickerRef = useRef<HTMLDivElement | null>(null);
   const emojis = ["😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇","🙂","🙃","😉","😌","😍"];
