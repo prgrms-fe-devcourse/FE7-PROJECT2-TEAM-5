@@ -8,6 +8,7 @@ import PostDetailSkeleton from "../../components/loading/post/PostDetailSkeleton
 import Button from "../../components/Button";
 import supabase from "../../utils/supabase";
 import { downloadFile, getFileUrl } from "../../utils/fileDownload";
+import { deductPoints } from "../../utils/pointUtils";
 
 // 게시글 세부 페이지
 export default function PostDetailPage() {
@@ -25,10 +26,47 @@ export default function PostDetailPage() {
 	const deletePost = usePostStore((state) => state.deletePost);
 	const resetPostStore = usePostStore((state) => state.resetPostStore);
 
-	// 파일 다운로드 권한 확인 함수
-	const canDownloadFile = () => {
-		// 선생님만 파일을 다운로드할 수 있음
-		return profile?.role === "teacher";
+	// 파일 다운로드 함수 (포인트 차감 포함)
+	const handleFileDownload = async (filePath: string, fileName: string) => {
+		if (!currentUserId) {
+			alert("로그인이 필요합니다.");
+			return;
+		}
+
+		if (profile?.role !== "teacher") {
+			alert("선생님만 파일을 다운로드할 수 있습니다.");
+			return;
+		}
+
+		try {
+			// 포인트 차감
+			const result = await deductPoints(
+				currentUserId,
+				30,
+				`파일 다운로드: ${fileName}`,
+			);
+
+			if (!result.success) {
+				alert(result.message);
+				return;
+			}
+
+			// 포인트 차감 성공 시 파일 다운로드
+			await downloadFile(filePath, fileName);
+
+			// 성공 메시지 표시
+			alert(result.message);
+
+			// 프로필 정보 새로고침 (포인트 업데이트 반영)
+			if (profile?.auth_id) {
+				// 프로필 스토어에서 현재 사용자 정보 새로고침
+				const { fetchProfile } = useProfileStore.getState();
+				await fetchProfile();
+			}
+		} catch (error) {
+			console.error("다운로드 실패:", error);
+			alert("다운로드 중 오류가 발생했습니다.");
+		}
 	};
 
 	useEffect(() => {
@@ -253,11 +291,12 @@ export default function PostDetailPage() {
 																			</p>
 																		</div>
 																	</div>
-																	{canDownloadFile() ? (
+																	{profile?.role ===
+																	"teacher" ? (
 																		<button
 																			type="button"
 																			onClick={() =>
-																				downloadFile(
+																				handleFileDownload(
 																					file.file_path,
 																					file.file_name,
 																				)
