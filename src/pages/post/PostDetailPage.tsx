@@ -163,7 +163,7 @@ export default function PostDetailPage() {
 									{postData?.files &&
 										postData.files.length > 0 && (
 											<div className="mt-6">
-												<h3 className="text-lg font-semibold text-gray-800 mb-3">
+												<h3 className="text-lg font-semibold text-[#8B5CF6] mb-3">
 													첨부파일
 												</h3>
 												<div className="space-y-2">
@@ -181,7 +181,7 @@ export default function PostDetailPage() {
 															return (
 																<div
 																	key={index}
-																	className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"
+																	className="flex items-center justify-between p-4 rounded-xl bg-white border-1 border-[#E5E7EB] shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
 																>
 																	<div className="flex items-center space-x-3">
 																		{isImage ? (
@@ -192,7 +192,7 @@ export default function PostDetailPage() {
 																				alt={
 																					file.file_name
 																				}
-																				className="w-12 h-12 object-cover rounded"
+																				className="w-12 h-12 object-cover rounded-lg"
 																				onError={(
 																					e,
 																				) => {
@@ -206,13 +206,13 @@ export default function PostDetailPage() {
 																			/>
 																		) : null}
 																		<div
-																			className={`w-12 h-12 bg-gray-200 rounded flex items-center justify-center ${isImage ? "hidden" : ""}`}
+																			className={`w-12 h-12 bg-[#EDE9FE] rounded-lg flex items-center justify-center ${isImage ? "hidden" : ""}`}
 																		>
 																			<File
 																				size={
 																					20
 																				}
-																				className="text-gray-500"
+																				className="text-[#8B5CF6]"
 																			/>
 																		</div>
 																		<div>
@@ -221,7 +221,7 @@ export default function PostDetailPage() {
 																					file.file_name
 																				}
 																			</p>
-																			<p className="text-xs text-gray-500">
+																			<p className="text-xs text-[#6B7280]">
 																				첨부파일
 																			</p>
 																		</div>
@@ -235,7 +235,7 @@ export default function PostDetailPage() {
 																					file.file_name,
 																				)
 																			}
-																			className="flex items-center space-x-2 px-3 py-2 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors cursor-pointer"
+																			className="flex items-center space-x-2 px-4 py-2 text-sm text-white bg-[#8B5CF6] hover:bg-[#B08DFF] rounded-xl transition-colors cursor-pointer"
 																		>
 																			<Download
 																				size={
@@ -247,7 +247,7 @@ export default function PostDetailPage() {
 																			</span>
 																		</button>
 																	) : (
-																		<div className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-500 bg-gray-200 rounded-lg">
+																		<div className="flex items-center space-x-2 px-4 py-2 text-sm text-[#6B7280] bg-[#EDE9FE] rounded-xl">
 																			<Download
 																				size={
 																					16
