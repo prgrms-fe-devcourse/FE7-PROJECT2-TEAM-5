@@ -196,17 +196,6 @@ export default function HomePage() {
 											: "활동 없음"}
 									</p>
 								</div>
-								<div className="flex flex-row gap-2 text-xs text-[#8B5CF6]">
-									<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
-										#그룹
-									</span>
-									<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
-										#학습
-									</span>
-									<span className="px-2 py-1 bg-[#ede9fe] rounded-xl">
-										#커뮤니티
-									</span>
-								</div>
 
 								{/* 그룹 인디케이터 (카드 안으로 이동) */}
 								{groups.length > 1 && (
