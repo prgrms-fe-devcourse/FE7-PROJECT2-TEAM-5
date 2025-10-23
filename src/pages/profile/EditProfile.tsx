@@ -6,6 +6,7 @@ import { ageToBirthDate } from "../../utils/ageToBirthDate";
 import EditProfileSkeleton from "../../components/loading/profile/EditProfileSkeleton";
 import { ChevronDown, X } from "lucide-react";
 import type { ChildInfo, UserProfile } from "../../types/profile";
+import { useBadgeStore } from "../../stores/badgeStore";
 
 const ALL_INTERESTS: string[] = [
 	"국어",
@@ -34,6 +35,13 @@ const ALL_INTERESTS: string[] = [
 	"동아리활동",
 ];
 
+// 유니코드 => 이모지
+function decodeHtmlEntities(str: string) {
+	const textarea = document.createElement("textarea");
+	textarea.innerHTML = str;
+	return textarea.value;
+}
+
 export default function EditProfile() {
 	const navigate = useNavigate();
 	const {
@@ -44,13 +52,37 @@ export default function EditProfile() {
 		childInfos: storeChildInfos,
 	} = useProfileStore();
 
+	const {
+		badges,
+		representativeBadge,
+		loading: badgeLoading,
+		fetchUserBadges,
+		setRepresentativeBadge,
+	} = useBadgeStore();
+
+	console.log(badges[0]?.badges?.name);
+
 	const [formData, setFormData] = useState<Partial<UserProfile>>({});
 	const [childInfos, setChildInfos] = useState<ChildInfo[]>([]); // 자녀 정보
 
 	// 페이지 로드 시 프로필 세팅 및 부모 자녀 코드 fetch
 	useEffect(() => {
 		if (!profile) return;
-		setFormData(profile);
+
+		setFormData((prev) => {
+			// 이미 formData가 초기화되어 있으면 덮어쓰지 않음
+			if (Object.keys(prev).length) return prev;
+
+			return {
+				...profile,
+				representative_badge_id: representativeBadge?.id ?? undefined,
+			};
+		});
+
+		// 뱃지 fetch
+		fetchUserBadges(profile.auth_id);
+
+		// 자녀 정보 초기 세팅
 		if (storeChildInfos.length && childInfos.length === 0) {
 			setChildInfos(storeChildInfos);
 		}
@@ -128,6 +160,10 @@ export default function EditProfile() {
 			} else {
 				await updateProfile(formData);
 			}
+			setRepresentativeBadge(
+				formData.auth_id,
+				formData.representative_badge_id,
+			);
 			alert("수정이 완료되었습니다!");
 			navigate(`/profile/me`);
 		} catch (err: any) {
@@ -293,6 +329,48 @@ export default function EditProfile() {
 							</div>
 						</div>
 					)}
+
+					{/* 뱃지 */}
+					<div>
+						<label className="block mb-1 text-gray-600 text-sm">
+							내가 획득한 뱃지
+						</label>
+						{badgeLoading ? (
+							<p>불러오는 중...</p>
+						) : badges.length === 0 ? (
+							<p>아직 획득한 뱃지가 없습니다.</p>
+						) : (
+							<div className="relative">
+								<select
+									value={
+										formData.representative_badge_id ??
+										representativeBadge?.id ??
+										""
+									}
+									onChange={handleChange(
+										"representative_badge_id",
+									)}
+									className="w-full border border-gray-300 rounded-lg px-3 py-2 appearance-none focus:outline-none focus:border-2 focus:border-violet-400"
+								>
+									<option value="" disabled>
+										선택해주세요
+									</option>
+									{badges.map((b) => (
+										<option key={b.id} value={b.id}>
+											{decodeHtmlEntities(
+												b.badges?.icon_url ?? "",
+											)}{" "}
+											{b.badges?.name}
+										</option>
+									))}
+								</select>
+								<ChevronDown
+									size={18}
+									className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+								/>
+							</div>
+						)}
+					</div>
 				</div>
 
 				{/* 우측 폼: 자기소개 + 관심 분야 */}

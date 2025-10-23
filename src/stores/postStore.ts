@@ -122,6 +122,7 @@ export const usePostStore = create<PostStore>()(
 						.delete()
 						.eq("id", postId);
 					if (error) throw error;
+					alert("삭제 완료");
 				} else {
 					alert("postId 찾을 수 없음");
 				}

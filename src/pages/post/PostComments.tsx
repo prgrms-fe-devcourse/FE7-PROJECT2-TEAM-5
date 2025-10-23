@@ -8,6 +8,8 @@ import { getGrade } from "../../utils/getGrade";
 import { useNavigate } from "react-router";
 import Button from "../../components/Button";
 import basicImage from "../../assets/basic_image.png";
+import { checkAndGrantBadge } from "../../hooks/useBadgeHook";
+import { decodeHtmlEntities } from "../../utils/codeToEmoji";
 
 type PostCommentsProps = {
 	comments: Comment[] | null;
@@ -118,6 +120,8 @@ export default function PostComments(props: PostCommentsProps) {
 				if (commentData) {
 					alert("댓글이 등록되었습니다.");
 					setInputComment("");
+					// 댓글 등록 후 뱃지 체크
+					await checkAndGrantBadge(currentUserId);
 					location.reload();
 				}
 			}
@@ -258,12 +262,10 @@ export default function PostComments(props: PostCommentsProps) {
 						<div>
 							{comment.user?.representative_badge_id && (
 								<p className="text-xs font-medium">
-									<img
-										src={
-											comment.user.representative_badge_id
-												.badges.icon_url
-										}
-									/>
+									{decodeHtmlEntities(
+										comment.user.representative_badge_id
+											.badges.icon_url,
+									)}
 									{comment.user.representative_badge_id.badges
 										.name ?? ""}
 								</p>
