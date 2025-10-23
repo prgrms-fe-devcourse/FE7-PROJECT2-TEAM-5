@@ -135,7 +135,6 @@ export const useMemberStore = create<MemberState>()(
 				set((state) => {
 					state.userFollowed = sortedData;
 					state.friendsByProfileId[userId] = sortedData;
-					state.followStatus = statusMap;
 				});
 
 				result = [...result, ...sortedData];
