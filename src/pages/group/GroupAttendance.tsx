@@ -369,7 +369,7 @@ export default function GroupAttendancePage() {
 												{c.user.nickname}
 											</span>
 											{c.user.badge ? (
-												<span className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700">
+												<span className="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded ">
 													{c.user.badge.icon_url ? (
 														<img
 															src={
