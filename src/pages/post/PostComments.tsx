@@ -228,7 +228,6 @@ export default function PostComments(props: PostCommentsProps) {
 	};
 
 	function Comment({ comment }: { comment: Comment }) {
-		console.log(comment);
 		const adoptedStyle =
 			props.adopted_comment_id === comment.id &&
 			"border-1 border-[#EA489A]";
