@@ -19,11 +19,21 @@ type Post = {
 
 type PostListProps = {
 	posts: Post[];
+	groupId?: string; // 그룹 ID 추가
 };
 
-function PostItem({ post }: { post: Post }) {
+function PostItem({ post, groupId }: { post: Post; groupId?: string }) {
+	// 그룹 게시글인지 확인
+	const isGroupPost = post.board_type === "group" && post.group_id;
+
+	// 링크 URL 결정
+	const linkUrl =
+		isGroupPost && groupId
+			? `/groups/${groupId}/posts/${post.id}`
+			: `/posts/${post.id}`;
+
 	return (
-		<Link to={`/posts/${post.id}`}>
+		<Link to={linkUrl}>
 			<div className="w-full mb-2 px-6 py-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] cursor-pointer hover:shadow-[0_4px_30px_rgba(0,0,0,0.08)] transition-shadow">
 				{/* 제목 + 좋아요/댓글 */}
 				<div className="flex justify-between items-start mb-1">
@@ -80,7 +90,7 @@ function PostItem({ post }: { post: Post }) {
 	);
 }
 
-export default function PostList({ posts }: PostListProps) {
+export default function PostList({ posts, groupId }: PostListProps) {
 	if (posts.length === 0) {
 		return (
 			<div className="text-center text-gray-500 py-12">
@@ -92,7 +102,7 @@ export default function PostList({ posts }: PostListProps) {
 	return (
 		<div className="w-full">
 			{posts.map((post) => (
-				<PostItem key={post.id} post={post} />
+				<PostItem key={post.id} post={post} groupId={groupId} />
 			))}
 		</div>
 	);
