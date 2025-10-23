@@ -17,6 +17,7 @@ type PostCommentsProps = {
 	postId: string | undefined;
 	adopted_comment_id: string | null;
 	writerId: string | undefined;
+	onCommentAdded?: () => void; // 댓글 추가 후 콜백 함수
 };
 
 export default function PostComments(props: PostCommentsProps) {
@@ -109,7 +110,8 @@ export default function PostComments(props: PostCommentsProps) {
 					setInputComment("");
 					// 댓글 등록 후 뱃지 체크
 					await checkAndGrantBadge(currentUserId);
-					location.reload();
+					// 부모 컴포넌트에 댓글 추가 완료 알림
+					props.onCommentAdded?.();
 				}
 			} else {
 				const { data: commentData, error } = await supabase
@@ -135,7 +137,8 @@ export default function PostComments(props: PostCommentsProps) {
 					setInputComment("");
 					// 댓글 등록 후 뱃지 체크
 					await checkAndGrantBadge(currentUserId);
-					location.reload();
+					// 부모 컴포넌트에 댓글 추가 완료 알림
+					props.onCommentAdded?.();
 				}
 			}
 		} catch (e) {
