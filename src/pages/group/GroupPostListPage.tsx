@@ -1,330 +1,265 @@
-import { Heart, MessageSquare, Smile } from "lucide-react";
-import { useMemo, useRef, useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router";
 import supabase from "../../utils/supabase";
+import PostTabContainer from "../../components/PostTabContainer";
+import PostList from "../../components/PostList";
+import PageNation from "../../components/PageNation";
+import GroupAttendancePage from "./GroupAttendance";
+import GroupMembers from "./GroupMembers";
 import { useProfileStore } from "../../stores/profileStore";
-import { getAge } from "../../utils/getAge";
-import { getGrade } from "../../utils/getGrade";
-import { useNavigate } from "react-router";
-import type { CommentRowForGroup } from "./GroupPostDetailPage";
-import basicImage from "../../assets/basic_image.png";
-import Button from "../../components/Button";
+import type { Friend } from "../../types/friend";
+import { useMemberStore } from "../../stores/memberStore";
+import PostListSkeleton from "../../components/loading/post/PostListSkeleton";
+import GroupMemberSkeleton from "../../components/loading/group/GroupMemberSkeleton";
+import GroupAttendanceSkeleton from "../../components/loading/group/GroupAttendanceSkeleton";
 
-type Props = {
-  comments: CommentRowForGroup[];
-  postId: string;
-  adopted_comment_id: string | null;
-  writerId: string;                 
-  onReload: () => Promise<void>;
+type GroupRow = {
+	id: string;
+	name: string | null;
 };
 
-export default function GroupPostComments({
-  comments,
-  postId,
-  adopted_comment_id,
-  writerId,
-  onReload,
-}: Props) {
-  const navigate = useNavigate();
-  const [inputComment, setInputComment] = useState("");
-  const [mention, setMention] = useState({ nickname: "", userId: "", commentId: "" });
-  const currentUserId = useProfileStore((s) => s.currentUserId);
+const TABS = [
+	{ key: "notice", label: "공지사항" },
+	{ key: "activity", label: "활동게시판" },
+	{ key: "attendance", label: "출석" },
+	{ key: "members", label: "멤버" },
+] as const;
 
-  
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const emojiPickerRef = useRef<HTMLDivElement | null>(null);
-  const emojis = ["😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇","🙂","🙃","😉","😌","😍"];
+const looksLikeUUID = (s: string) =>
+	/^[0-9a-fA-F-]{36}$/.test(s) && (s.match(/-/g)?.length ?? 0) === 4;
 
-  const addEmoji = (emoji: string) => {
-    setInputComment((v) => v + emoji);
-    setShowEmojiPicker(false);
-  };
+export default function GroupPostListPage() {
+	const navigate = useNavigate();
+	const { groupId: groupParam = "" } = useParams();
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
-        setShowEmojiPicker(false);
-      }
-    };
-    if (showEmojiPicker) document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showEmojiPicker]);
+	const [activeTab, setActiveTab] = useState<string>(TABS[0].key);
+	const [group, setGroup] = useState<GroupRow | null>(null);
+	const [members, setMembers] = useState<Friend[]>([]);
 
-  const replyCounts = useMemo(() => {
-  const acc: Record<string, string[]> = {};
-  const list = Array.isArray(comments) ? comments : []; 
-  list.forEach((c) => {
-    if (!c?.parent_comment_id) return;
-    if (!acc[c.parent_comment_id]) acc[c.parent_comment_id] = [];
-    acc[c.parent_comment_id].push(c.id);
-  });
-  return acc;
-}, [comments]);
+	const [posts, setPosts] = useState<any[]>([]);
+	const [loading, setLoading] = useState(true);
 
+	const { currentUserId } = useProfileStore();
+	if (!currentUserId) return "";
+	const isLoggedIn = useProfileStore((s) => s.isLoggedIn);
 
-  const writeComment = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!currentUserId) {
-      alert("로그인이 필요합니다.");
-      navigate("/login");
-      return;
-    }
-    const text = inputComment.trim();
-    if (!text) return;
-    try {
-      if (!mention.userId) {
-        const { error } = await supabase.from("comments").insert([
-          { post_id: postId, user_id: currentUserId, content: text },
-        ]);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("comments").insert([
-          { post_id: postId, user_id: currentUserId, content: text, parent_comment_id: mention.commentId },
-        ]);
-        if (error) throw error;
-        setMention({ nickname: "", userId: "", commentId: "" });
-      }
-      setInputComment("");
-      await onReload(); 
-      alert("댓글이 등록되었습니다.");
-    } catch (e) {
-      console.error(e);
-      alert("댓글 등록에 실패했습니다.");
-    }
-  };
+	const { fetchUserFollowings } = useMemberStore();
 
-  const pressLike = async (comment: CommentRowForGroup) => {
-    if (!currentUserId) {
-      alert("로그인이 필요합니다.");
-      navigate("/login");
-      return;
-    }
-    if (comment.comment_likes?.some((l) => l.user_id === currentUserId)) {
-      alert("이미 좋아요를 눌렀습니다.");
-      return;
-    }
-    try {
-      const { error } = await supabase
-        .from("comment_likes")
-        .insert([{ user_id: currentUserId, comment_id: comment.id }]);
-      if (error) throw error;
-      await onReload();
-      alert("좋아요 완료");
-    } catch (e) {
-      console.error(e);
-      alert("좋아요 실패");
-    }
-  };
+	// 페이지네이션
+	const postsPerPage = 4;
+	const [currentPage, setCurrentPage] = useState(1);
 
-  const createMention = (comment: CommentRowForGroup) => {
-    if (comment.user.nickname) {
-      setMention({
-        nickname: comment.user.nickname,
-        userId: comment.user.auth_id,
-        commentId: comment.id,
-      });
-    }
-  };
+	const totalPages = useMemo(
+		() => Math.ceil(posts.length / postsPerPage),
+		[posts.length],
+	);
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "Backspace" && !inputComment) {
-      setMention({ nickname: "", userId: "", commentId: "" });
-    }
-  };
+	const displayedPosts = useMemo(
+		() =>
+			posts.slice(
+				(currentPage - 1) * postsPerPage,
+				currentPage * postsPerPage,
+			),
+		[posts, currentPage, postsPerPage],
+	);
 
-  const adoptComment = async (comment: CommentRowForGroup) => {
-    try {
-      const { error } = await supabase
-        .from("posts")
-        .update({ adopted_comment_id: comment.id })
-        .eq("id", postId);
-      if (error) throw error;
-      await onReload();
-      alert("채택되었습니다.");
-    } catch (e) {
-      console.error(e);
-      alert("채택 실패");
-    }
-  };
+	const resolveGroup = async (raw: string) => {
+		const key = decodeURIComponent(raw);
 
-  function Comment({ comment }: { comment: CommentRowForGroup }) {
-    const adoptedStyle =
-      adopted_comment_id === comment.id ? "border-1 border-[#EA489A]" : "";
+		if (looksLikeUUID(key)) {
+			const { data, error } = await supabase
+				.from("groups")
+				.select("id,name")
+				.eq("id", key)
+				.maybeSingle();
+			if (error) throw error;
+			if (data) return data as GroupRow;
+		}
 
-    const canAdopt =
-      !!writerId &&
-      !!currentUserId &&
-      currentUserId === writerId &&
-      currentUserId !== comment.user_id &&
-      !adopted_comment_id;
+		const { data: byName, error: nErr } = await supabase
+			.from("groups")
+			.select("id,name")
+			.eq("name", key)
+			.maybeSingle();
+		if (nErr) throw nErr;
+		if (!byName) throw new Error("그룹을 찾을 수 없습니다.");
+		return byName as GroupRow;
+	};
 
-    return (
-      <div
-        className={
-          "relative z-10 group w-full px-4 py-3 mt-4 rounded-xl bg-white shadow-[0_4px_20px_rgba(0,0,0,0.05)] " +
-          adoptedStyle
-        }
-      >
-        
-        {canAdopt && (
-          <Button
-            type="button"
-            onClick={() => adoptComment(comment)}
-            className="absolute -top-4 right-4 z-10 opacity-0 translate-y-[-10px] group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200 hover:bg-[#8B5CF6] hover:text-white px-3 py-1 text-xs border-1 border-[#8B5CF6] rounded-2xl bg-white"
-          >
-            채택
-          </Button>
-        )}
+	const fetchGroupPosts = async (gid: string, tab: string) => {
+		if (tab === "attendance" || tab === "members") return [] as any[];
 
-        {adopted_comment_id === comment.id && (
-          <span className="flex items-center absolute -top-4 left-4 z-10 px-3 py-1 text-xs rounded-2xl bg-linear-to-r text-white from-[#EA489A] to-[#FF84C2]">
-            채택된 댓글
-            <img src="/src/assets/fire.png" className="ml-0.5 mb-0.5" />
-          </span>
-        )}
+		let query = supabase
+			.from("posts")
+			.select(
+				`
+        id, user_id, board_type, title, content, created_at,
+        adopted_comment_id, hash_tag, group_id, group_board_type,
+        users(nickname),
+        likes:post_likes(id),
+        comments:comments!comments_post_id_fkey(id)
+        `,
+			)
+			.eq("group_id", gid)
+			.eq("board_type", "group")
+			.order("created_at", { ascending: false });
 
-        <div className="flex justify-between items-start mb-1">
-          
-          <div className="flex gap-1 items-center">
-            <div className="w-[35px] h-[35px]">
-              <img
-                className="w-full h-full rounded-full object-cover"
-                src={basicImage}
-                alt="userImg"
-              />
-            </div>
-            <div>
-              <p className="text-sm">
-                {comment.user.nickname ?? "unknown"}
-                <span className="text-xs text-[#6B7280] ml-1">
-                  {comment.user.birth_date ? getGrade(getAge(comment.user.birth_date)) : ""}
-                </span>
-              </p>
-            </div>
-          </div>
+		if (tab === "notice") query = query.eq("group_board_type", "notice");
+		if (tab === "activity")
+			query = query.eq("group_board_type", "activity");
 
-         
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => pressLike(comment)}
-              className="flex gap-1 items-start cursor-pointer"
-            >
-              <Heart color="red" size={15} className="mt-0.5" />
-              <p className="text-[14px]">{comment.comment_likes?.length ?? 0}</p>
-            </button>
+		const { data, error } = await query;
+		if (error) throw error;
 
-            {!comment.parent_comment_id && (
-              <button
-                type="button"
-                onClick={() => createMention(comment)}
-                className="flex gap-1 items-start cursor-pointer"
-              >
-                <MessageSquare color="#8B5CF6" size={15} className="mt-0.5" />
-                <p className="text-[14px]">{replyCounts[comment.id]?.length ?? 0}</p>
-              </button>
-            )}
-          </div>
-        </div>
+		return (data ?? []) as any[];
+	};
 
-      
-        <p className="mt-3 mb-2 text-sm font-Regular text-[#6B7280]">
-          {comment.parent_comment_id && comment.parentNickname && (
-            <span className="text-[#8B5CF6] text-sm mr-1 font-medium">
-              @{comment.parentNickname}
-            </span>
-          )}
-          {comment.content}
-        </p>
+	// 그룹 & 게시글 로딩
+	useEffect(() => {
+		let alive = true;
 
-        <div className="flex justify-end">
-          <p className="text-xs text-[#6B7280]">{(comment.created_at ?? "").slice(0, 10)}</p>
-        </div>
-      </div>
-    );
-  }
+		(async () => {
+			try {
+				setLoading(true);
+				setCurrentPage(1);
 
-  function CommentItem({ items }: { items: CommentRowForGroup[] }) {
-    return (
-      <>
-        {items.map((comment) => (
-          <div key={comment.id} className="flex flex-col">
-            {!comment.parent_comment_id && <Comment comment={comment} />}
-            {replyCounts[comment.id]?.map((rid) => {
-              const reply = items.find((c) => c.id === rid);
-              return reply ? <Comment key={reply.id} comment={reply} /> : null;
-            })}
-          </div>
-        ))}
-      </>
-    );
-  }
+				if (!isLoggedIn || !currentUserId) {
+					alert("로그인 후 이용할 수 있습니다.");
+					navigate("/groups", { replace: true });
+					return;
+				}
 
-  const adopted = useMemo(
-    () => comments.find((c) => c.id === adopted_comment_id) || null,
-    [comments, adopted_comment_id]
-  );
+				const g = await resolveGroup(groupParam);
+				if (!alive) return;
+				setGroup(g);
 
-  return (
-    <div className="h-full flex flex-col justify-between">
-      {/* 댓글 리스트 */}
-      {!comments || comments.length === 0 ? (
-        <div className="text-center text-gray-500 py-12">현재 게시물에 등록된 댓글이 없습니다.</div>
-      ) : (
-        <div className="flex flex-col pr-2 overflow-y-auto scrollbar-custom">
-          {/* 채택 댓글 */}
-          {adopted && <Comment comment={adopted} />}
-          {!adopted && (
-            <div className="text-center text-gray-500 py-10">채택된 댓글이 없습니다.</div>
-          )}
-          <div className="border-t border-gray-300 mt-3.5" />
-          {/* 일반 댓글 */}
-          <CommentItem items={comments} />
-        </div>
-      )}
+				const { data: membership, error: mErr } = await supabase
+					.from("group_members")
+					.select("*")
+					.eq("group_id", g.id)
+					.eq("user_id", currentUserId)
+					.maybeSingle();
 
-      {/* 댓글 입력 폼 (PostComments와 동일한 이모지 UX) */}
-      <form className="flex gap-2 mt-4 w-full" onSubmit={writeComment}>
-        <div className="relative flex-1 text-sm px-6 py-3 border-1 border-[#E5E7EB] rounded-xl bg-white" onKeyDown={handleKeyDown}>
-          {mention.nickname && (
-            <span className="text-[#8B5CF6] text-sm mr-1 font-medium">@{mention.nickname}</span>
-          )}
-          <input
-            placeholder="댓글을 작성해주세요."
-            value={inputComment}
-            onChange={(e) => setInputComment(e.target.value)}
-            className="w-full focus:outline-none"
-          />
-          <Button
-            type="button"
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#8B5CF6]"
-            onClick={() => setShowEmojiPicker((prev) => !prev)}
-          >
-            <Smile size={20} />
-          </Button>
+				if (mErr) throw mErr;
+				if (!membership) {
+					alert("이 그룹의 멤버만 접근할 수 있어요.");
+					navigate("/groups", { replace: true });
+					return;
+				}
 
-          {showEmojiPicker && (
-            <div
-              ref={emojiPickerRef}
-              className="absolute z-30 bottom-full right-0 mb-2 bg-white border rounded-lg shadow-md p-2 grid grid-cols-10 gap-1"
-            >
-              {emojis.map((emoji) => (
-                <Button
-                  key={emoji}
-                  type="button"
-                  onClick={() => addEmoji(emoji)}
-                  className="text-lg hover:bg-gray-100 rounded p-1"
-                >
-                  {emoji}
-                </Button>
-              ))}
-            </div>
-          )}
-        </div>
+				if (activeTab === "members") {
+					const memberList = await fetchUserFollowings(
+						currentUserId,
+						g.id,
+					);
+					if (!memberList) return;
+					setMembers(memberList);
+					console.log(memberList);
+				}
 
-        <Button type="submit" className="px-4 py-2 text-sm text-white rounded-xl bg-[#8B5CF6]">
-          등록
-        </Button>
-      </form>
-    </div>
-  );
+				const list = await fetchGroupPosts(g.id, activeTab);
+				if (!alive) return;
+				setPosts(list);
+			} catch (e) {
+				console.error("[group list error]", e);
+				if (alive) {
+					setGroup(null);
+					setPosts([]);
+					alert("그룹 게시글을 불러오지 못했어요.");
+					navigate("/groups", { replace: true });
+				}
+			} finally {
+				if (alive) setLoading(false);
+			}
+		})();
+
+		return () => {
+			alive = false;
+		};
+	}, [groupParam, activeTab, isLoggedIn, currentUserId, navigate]);
+
+	return (
+		<div className="w-[920px]">
+			{loading ? (
+				// 로딩 상태
+				activeTab === "notice" || activeTab === "activity" ? (
+					<PostListSkeleton />
+				) : activeTab === "attendance" ? (
+					<GroupAttendanceSkeleton />
+				) : (
+					<GroupMemberSkeleton />
+				)
+			) : (
+				<>
+					{/* 헤더 */}
+					<div className="flex items-center justify-between">
+						<h2 className="text-[28px] md:text-[32px] font-semibold tracking-tight">
+							{group?.name ?? "그룹"}
+						</h2>
+
+						{activeTab !== "attendance" &&
+							activeTab !== "members" &&
+							group?.id && (
+								<button
+									type="button"
+									onClick={() =>
+										navigate(
+											`/groups/${group.id}/posts/create`,
+										)
+									}
+									className="inline-flex h-9 items-center rounded-xl bg-[#8B5CF6] px-4 text-sm font-medium text-white hover:bg-[#7C3AED] focus:outline-none focus:ring-2 focus:ring-violet-300"
+								>
+									새 글 작성
+								</button>
+							)}
+					</div>
+
+					{/* 탭 */}
+					<div className="mt-4">
+						<PostTabContainer
+							activeTab={activeTab}
+							setActiveTab={setActiveTab}
+							title=""
+							tabs={
+								TABS as unknown as {
+									key: string;
+									label: string;
+								}[]
+							}
+						/>
+					</div>
+					<div className="border-t border-gray-300 mt-2 pt-6">
+						{(activeTab === "notice" ||
+							activeTab === "activity") && (
+							<div>
+								{posts.length === 0 ? (
+									<p className="mt-12 text-center text-sm text-gray-500">
+										게시글이 없습니다.
+									</p>
+								) : (
+									<PostList
+										posts={displayedPosts as any}
+										groupId={group?.id}
+									/>
+								)}
+
+								<PageNation
+									currentPage={currentPage}
+									totalPages={totalPages}
+									onPageChange={setCurrentPage}
+								/>
+							</div>
+						)}
+						{activeTab === "attendance" && <GroupAttendancePage />}
+						{activeTab === "members" && (
+							<GroupMembers
+								members={members}
+								userId={currentUserId}
+							/>
+						)}
+					</div>
+				</>
+			)}
+		</div>
+	);
 }
