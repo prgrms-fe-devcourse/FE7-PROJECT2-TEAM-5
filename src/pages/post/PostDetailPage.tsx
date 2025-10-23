@@ -22,6 +22,11 @@ export default function PostDetailPage() {
 	const resetPostStore = usePostStore((state) => state.resetPostStore);
 
 	useEffect(() => {
+		if (!currentUserId) {
+			alert("로그인이 필요합니다.");
+			navigate("/login");
+			return;
+		}
 		const loadPost = async () => {
 			if (id && currentUserId) {
 				await fetchPost(id, currentUserId);

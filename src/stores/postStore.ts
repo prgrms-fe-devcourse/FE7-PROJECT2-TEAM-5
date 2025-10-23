@@ -29,13 +29,6 @@ type PostStore = {
 	resetPostStore: () => void;
 };
 
-// type PostCreateData = {
-// 	boardType: string | null;
-// 	title: string | null;
-// 	content: string | null;
-// 	hashTag: string[] | null;
-// 	imgFiles: { file: string; fileName: string }[];
-// };
 export const usePostStore = create<PostStore>()(
 	immer((set) => ({
 		post: null,
@@ -63,7 +56,7 @@ export const usePostStore = create<PostStore>()(
 					.single();
 				if (postError) throw postError;
 
-				//댓글과 댓글 작성자 정보 및 댓글 좋아요 (뱃지 현재 착용 뱃지 컬럼이 없는 것 같아서 아직 안가져옴)
+				//댓글과 댓글 작성자 정보 및 댓글 좋아요
 				const { data: comments, error: commentsError } = await supabase
 					.from("comments")
 					.select(
