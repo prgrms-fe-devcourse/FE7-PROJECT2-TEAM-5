@@ -386,7 +386,7 @@ export default function ProfileCard({ profile }: Props) {
 					{/* 선생님 포인트 */}
 					{profile.role === "teacher" ? (
 						<div
-							className={`w-full rounded-xl mt-6 px-6 py-4 bg-violet-500 text-white space-y-1 ${
+							className={`w-full rounded-xl mt-6 px-6 py-4 bg-violet-500 text-white ${
 								isMyProfile
 									? "cursor-pointer hover:bg-violet-600 transition-colors"
 									: ""
@@ -397,15 +397,17 @@ export default function ProfileCard({ profile }: Props) {
 								}
 							}}
 						>
-							<p>보유 포인트</p>
-							<span className="text-xl font-medium">
-								{profile.current_point} point
-							</span>
-							{isMyProfile && (
-								<p className="text-sm opacity-80">
-									포인트 내역
-								</p>
-							)}
+							<p className="text-sm mb-1">보유 포인트</p>
+							<div className="flex items-end justify-between">
+								<span className="text-xl font-medium">
+									{profile.current_point}p
+								</span>
+								{isMyProfile && (
+									<span className="text-[12px] underline">
+										내역보기
+									</span>
+								)}
+							</div>
 						</div>
 					) : (
 						""
