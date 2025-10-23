@@ -12,9 +12,13 @@ import { useCreateChatRoom } from "../../hooks/useMessages";
 import { useMemberStore } from "../../stores/memberStore";
 import type { Friend } from "../../types/friend";
 import { useActPostStore } from "../../stores/profileActivityStore";
+import { useBadgeStore } from "../../stores/badgeStore";
+import type { BadgeLog } from "../../types/badge";
+import { decodeHtmlEntities } from "../../utils/codeToEmoji";
 
 type Props = {
 	profile: UserProfile | null;
+	badges: BadgeLog[] | null;
 };
 
 export default function ProfileCard({ profile }: Props) {
@@ -31,6 +35,9 @@ export default function ProfileCard({ profile }: Props) {
 	const { createRoom, isLoading: isCreatingRoom } = useCreateChatRoom();
 	const userFollowed = useMemberStore((state) => state.userFollowed);
 	const { userPosts, userComments } = useActPostStore();
+	const { representativeBadge } = useBadgeStore();
+
+	console.log(representativeBadge);
 
 	const isFollowing = followStatus[profile?.auth_id ?? ""] || false;
 
@@ -289,7 +296,17 @@ export default function ProfileCard({ profile }: Props) {
 					{/* 이름 및 뱃지 */}
 					<div className="flex flex-col items-center text-center">
 						<div className="text-sm font-medium text-gray-800 mb-1">
-							🏆 초보 수학 마스터
+							{representativeBadge?.badges ? (
+								<>
+									{decodeHtmlEntities(
+										representativeBadge.badges?.icon_url ??
+											"",
+									)}{" "}
+									{representativeBadge.badges?.name}
+								</>
+							) : (
+								<span>뱃지 없음</span>
+							)}
 						</div>
 						<div className="text-3xl font-bold text-gray-800 mb-2.5">
 							{profile.nickname}

@@ -48,7 +48,7 @@ export default function ActivitiesComments() {
 						>
 							{/* left: 게시판명 + 댓글 내용 */}
 							<div className="flex-1 flex flex-col gap-1">
-								<p className="font-bold text-lg">
+								<p className="font-bold text-lg line-clamp-1">
 									{boardLabel}: "
 									{comment.post?.title ?? "제목 없음"}"
 								</p>
