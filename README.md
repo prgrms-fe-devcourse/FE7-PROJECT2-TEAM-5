@@ -25,109 +25,213 @@ npm run dev
 ```
 src/
  ├─ assets/              # 이미지, 아이콘, 글로벌 스타일 등
+ │   ├─ basic_image.png
+ │   ├─ fire.png
+ │   ├─ Heart.png
+ │   ├─ image.png
+ │   ├─ SpeechBubble.png
+ │   └─ Toggle.png
+ │
  ├─ components/          # 재사용 가능한 UI 컴포넌트
  │   ├─ layout/
- │   │   ├─ Header.tsx
- │   │   └─ Sidebar.tsx
- │   └─ 추가 예정
+ │   │   ├─ Footer.tsx
+ │   │   └─ Header.tsx
+ │   ├─ loading/         # 스켈레톤 로딩 컴포넌트
+ │   │   ├─ group/
+ │   │   │   ├─ GroupAttendanceSkeleton.tsx
+ │   │   │   ├─ GroupMemberSkeleton.tsx
+ │   │   │   └─ GroupPageCardSkeleton.tsx
+ │   │   ├─ home/
+ │   │   │   └─ HomePageSkeleton.tsx
+ │   │   ├─ message/
+ │   │   │   ├─ ChatRoomListSkeleton.tsx
+ │   │   │   └─ MessageListSkeleton.tsx
+ │   │   ├─ NotificationSkeleton.tsx
+ │   │   ├─ PointHistorySkeleton.tsx
+ │   │   ├─ post/
+ │   │   │   ├─ PostDetailSkeleton.tsx
+ │   │   │   └─ PostListSkeleton.tsx
+ │   │   └─ profile/
+ │   │       ├─ DetailCardSkeleton.tsx
+ │   │       ├─ EditProfileSkeleton.tsx
+ │   │       └─ ProfileCadeSkeleton.tsx
+ │   ├─ message/         # 메시지 관련 컴포넌트
+ │   │   ├─ ChatRoomItem.tsx
+ │   │   ├─ ChatRoomList.tsx
+ │   │   ├─ MessageBubble.tsx
+ │   │   └─ MessageList.tsx
+ │   ├─ Button.tsx
+ │   ├─ FileUpload.tsx
+ │   ├─ FormErrorMessage.tsx
+ │   ├─ Input.tsx
+ │   ├─ InputFile.tsx
+ │   ├─ MemberCard.tsx
+ │   ├─ Modal.tsx
+ │   ├─ NotificationSidebar.tsx
+ │   ├─ PageNation.tsx
+ │   ├─ PointHistoryModal.tsx
+ │   ├─ PostList.tsx
+ │   ├─ PostTabContainer.tsx
+ │   ├─ RoleBadge.tsx
+ │   ├─ UserList.tsx
+ │   └─ UserListCard.tsx
  │
- │─ hooks/          # 커스텀 훅
- │   └── useCheckProfileCompleted.tsx
+ ├─ css/                 # 스타일 파일
+ │   ├─ index.css
+ │   └─ tailwind.css
+ │
+ ├─ hooks/               # 커스텀 훅
+ │   ├─ useBadgeHook.ts
+ │   ├─ useCheckProfileCompleted.ts
+ │   ├─ useMessages.ts
+ │   ├─ useNotifications.ts
+ │   ├─ useOnlineUsers.ts
+ │   ├─ useSetOnlineStatus.ts
+ │   └─ useUnreadMessages.ts
+ │
+ ├─ layouts/             # 페이지 레이아웃 (공통 구조)
+ │   ├─ AuthLayout.tsx   # 로그인/회원가입 전용
+ │   ├─ MainLayout.tsx   # Header + Sidebar + Content
+ │   └─ NotFoundPage.tsx
  │
  ├─ pages/               # 페이지 단위
  │   ├─ auth/            # 로그인/회원가입
  │   │   ├─ LoginPage.tsx
+ │   │   ├─ RegisterEmailPage.tsx
  │   │   ├─ RegisterPage.tsx
- │   │   └─ RoleSelectPage.tsx
+ │   │   └─ SocialSignupInfo.tsx
+ │   ├─ dm/              # DM
+ │   │   └─ DmPage.tsx
+ │   ├─ group/           # 그룹 관련 페이지
+ │   │   ├─ CreateGroup.tsx
+ │   │   ├─ GroupAttendance.tsx
+ │   │   ├─ GroupCard.tsx
+ │   │   ├─ GroupMembers.tsx
+ │   │   ├─ GroupPage.tsx
+ │   │   ├─ GroupPostComments.tsx
+ │   │   ├─ GroupPostCreatePage.tsx
+ │   │   ├─ GroupPostDetailPage.tsx
+ │   │   └─ GroupPostListPage.tsx
  │   ├─ home/            # 홈
  │   │   └─ HomePage.tsx
- │   ├─ profile/         # 프로필 페이지
- │   │   └─ ProfilePage.tsx
  │   ├─ post/            # 게시글
- │   │   ├─ PostDetailPage.tsx
+ │   │   ├─ PostComments.tsx
  │   │   ├─ PostCreatePage.tsx
+ │   │   ├─ PostDetailPage.tsx
  │   │   └─ PostListPage.tsx
- │   └─ dm/              # DM
- │       ├─ DmListPage.tsx
- │       └─ DmDetailPage.tsx
+ │   ├─ profile/         # 프로필 페이지
+ │   │   ├─ Activities.tsx
+ │   │   ├─ ActivitiesComments.tsx
+ │   │   ├─ ActivitiesPosts.tsx
+ │   │   ├─ ActivitiesTab.tsx
+ │   │   ├─ DetailCard.tsx
+ │   │   ├─ EditProfile.tsx
+ │   │   ├─ Friends.tsx
+ │   │   ├─ Info.tsx
+ │   │   ├─ InfoBlock.tsx
+ │   │   ├─ ProfileCard.tsx
+ │   │   ├─ ProfilePage.tsx
+ │   │   └─ TabContainer.tsx
+ │   └─ search/          # 검색
+ │       └─ SearchPage.tsx
  │
- ├─ layouts/             # 페이지 레이아웃 (공통 구조)
- │   ├─ AuthLayout.tsx   # 로그인/회원가입 전용
- │   └─ MainLayout.tsx   # Header + Sidebar + Content
+ ├─ stores/              # Zustand 전역 상태 관리
+ │   ├─ badgeStore.ts
+ │   ├─ groupStore.ts
+ │   ├─ memberStore.ts
+ │   ├─ notificationStore.ts
+ │   ├─ postsStore.ts
+ │   ├─ postStore.ts
+ │   ├─ profileActivityStore.ts
+ │   ├─ profileStore.ts
+ │   └─ userListStore.ts
  │
- ├─ store/               # Zustand 전역 상태 관리
- │   ├─
- │   └─
+ ├─ types/               # 전역 타입 정의
+ │   ├─ auth.d.ts
+ │   ├─ badge.d.ts
+ │   ├─ comment.d.ts
+ │   ├─ database.d.ts
+ │   ├─ file.d.ts
+ │   ├─ friend.d.ts
+ │   ├─ message.d.ts
+ │   ├─ notification.d.ts
+ │   ├─ post.d.ts
+ │   ├─ profile.d.ts
+ │   └─ user.d.ts
  │
- ├─ api/                 # Axios API 모듈
- │   ├─
- │   └─
+ ├─ utils/               # 유틸 함수
+ │   ├─ ageToBirthDate.ts
+ │   ├─ authValidation.ts
+ │   ├─ codeToEmoji.ts
+ │   ├─ fileDownload.ts
+ │   ├─ fileUpload.ts
+ │   ├─ getAge.ts
+ │   ├─ getGrade.ts
+ │   ├─ groupActivity.ts
+ │   ├─ messageUtils.ts
+ │   ├─ pointUtils.ts
+ │   ├─ supabase.ts
+ │   ├─ timeAgoIntl.ts
+ │   └─ useSocialAuth.ts
  │
- ├─ utils/               # 유틸 함수 (date-fns, formatter 등)
- ├─ types/               # 전역 타입 정의 (User, Post, Group 등)
  ├─ App.tsx              # 라우팅 설정
- └─ main.tsx
+ └─ main.tsx             # React 엔트리 포인트
 
 ```
 
 ### 디렉터리 가이드
 
-- assets/
+- **assets/**
+    - 이미지, 아이콘, 글로벌 스타일(CSS, 폰트 등) 관리
+    - 프로젝트에서 사용하는 모든 정적 자원들
 
-    이미지, 아이콘, 글로벌 스타일(CSS, 폰트 등) 관리
+- **components/**
+    - 재사용 가능한 UI 컴포넌트 모음
+    - layout/: Header, Footer 등 레이아웃 단위 컴포넌트
+    - loading/: 스켈레톤 로딩 컴포넌트들 (group, home, message, post, profile)
+    - message/: 메시지 관련 컴포넌트들 (채팅방, 메시지 버블 등)
 
-- components/
+- **css/**
+    - 스타일 파일 관리
+    - Tailwind CSS 설정 및 글로벌 스타일
 
-    재사용 가능한 UI 컴포넌트 모음
-    - layout/: Header, Sidebar 등 레이아웃 단위 컴포넌트
+- **hooks/**
+    - 커스텀 훅 모음
+    - 배지, 메시지, 알림, 온라인 상태 등 다양한 기능별 훅
 
-- hooks/
-
-    커스텀 훅
-
-- pages/
-
-    라우팅되는 페이지 단위 컴포넌트
-    - auth/: 로그인, 회원가입, 역할 선택
-
-    - home/: 홈 화면
-
-    - profile/: 프로필 페이지
-
-    - post/: 게시글 관련 (리스트, 작성, 상세)
-
-    - dm/: DM 목록 및 상세
-
-- layouts/
-
-    페이지 레이아웃 정의
+- **layouts/**
+    - 페이지 레이아웃 정의
     - AuthLayout.tsx: 로그인/회원가입 전용
-
     - MainLayout.tsx: 공통 구조 (Header + Sidebar + Content)
+    - NotFoundPage.tsx: 404 페이지
 
-- store/
+- **pages/**
+    - 라우팅되는 페이지 단위 컴포넌트
+    - auth/: 로그인, 회원가입, 소셜 회원가입 정보 입력
+    - dm/: DM 페이지
+    - group/: 그룹 관련 페이지 (생성, 출석, 멤버, 포스트 등)
+    - home/: 홈 화면
+    - post/: 게시글 관련 (리스트, 작성, 상세, 댓글)
+    - profile/: 프로필 페이지 (활동, 친구, 정보, 편집 등)
+    - search/: 검색 페이지
 
-    Zustand 기반 전역 상태 관리
+- **stores/**
+    - Zustand 기반 전역 상태 관리
+    - 배지, 그룹, 멤버, 알림, 포스트, 프로필 등 기능별 스토어
 
-- api/
+- **types/**
+    - 전역 타입 정의
+    - 인증, 배지, 댓글, 데이터베이스, 파일, 친구, 메시지, 알림, 포스트, 프로필, 사용자 등
 
-    Axios API 모듈 (요청/응답 관리)
+- **utils/**
+    - 공통 유틸 함수
+    - 날짜 변환, 인증 검증, 파일 업로드/다운로드, 포인트 관리, 메시지 유틸 등
 
-- utils/
+- **App.tsx**
+    - 라우팅 및 전역 레이아웃 설정
 
-    공통 유틸 함수 (날짜 포맷, 문자열 처리 등)
-
-- types/
-
-    전역 타입 정의 (User, Post, Group 등)
-
-- App.tsx
-
-    라우팅 및 전역 레이아웃 설정
-
-- main.tsx
-
-    React 엔트리 포인트 (앱 초기화)
+- **main.tsx**
+    - React 엔트리 포인트 (앱 초기화)
 
 # 커밋 메시지 컨벤션
 
