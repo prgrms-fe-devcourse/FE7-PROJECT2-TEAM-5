@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getPointHistory } from "../utils/pointUtils";
+import PointHistorySkeleton from "./loading/PointHistorySkeleton";
 
 type PointLog = {
 	id: string;
@@ -74,9 +75,7 @@ export default function PointHistoryModal({
 				{/* 내용 */}
 				<div className="overflow-y-auto max-h-[45vh]">
 					{loading ? (
-						<div className="flex items-center justify-center py-8">
-							<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#8B5CF6]"></div>
-						</div>
+						<PointHistorySkeleton />
 					) : pointHistory.length === 0 ? (
 						<div className="text-center py-8 text-gray-500">
 							포인트 기록이 없습니다.
