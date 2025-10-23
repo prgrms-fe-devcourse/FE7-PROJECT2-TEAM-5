@@ -127,7 +127,11 @@ export default function PostDetailPage() {
 								</p>
 								{/* 본문 */}
 								<div className="my-8">
-									<pre>{postData?.content}</pre>
+									<div className="max-w-xl border p-4">
+										<pre className="w-full break-words whitespace-pre-wrap">
+											{postData?.content}
+										</pre>
+									</div>
 									<div className="mt-2">
 										{postData?.files?.map((file) => (
 											<img
