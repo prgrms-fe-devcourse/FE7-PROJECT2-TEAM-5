@@ -107,6 +107,8 @@ export default function PostComments(props: PostCommentsProps) {
 
 					alert("댓글이 등록되었습니다.");
 					setInputComment("");
+					// 댓글 등록 후 뱃지 체크
+					await checkAndGrantBadge(currentUserId);
 					location.reload();
 				}
 			} else {
