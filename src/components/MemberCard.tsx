@@ -5,8 +5,9 @@ import { useMemberStore } from "../stores/memberStore";
 import { useProfileStore } from "../stores/profileStore";
 import { useEffect, useState } from "react";
 import Button from "./Button";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { timeAgoIntl } from "../utils/timeAgoIntl";
+import { useCreateChatRoom } from "../hooks/useMessages";
 
 type MemberCardProps = {
 	friend: Friend;
@@ -21,6 +22,8 @@ export default function MemberCard({
 }: MemberCardProps) {
 	const { followStatus, followedUserFnc, unFollowUserFnc } = useMemberStore();
 	const { currentUserId } = useProfileStore();
+	const { createRoom, isLoading: isCreatingRoom } = useCreateChatRoom();
+	const navigate = useNavigate();
 	const isFollowing = followStatus[friend.users?.auth_id ?? ""] || false;
 
 	const [openId, setOpenId] = useState<string | null>(null);
@@ -59,6 +62,21 @@ export default function MemberCard({
 
 		await unFollowUserFnc(currentUserId, friend.users.auth_id);
 		onUnfollow?.(friend.users.auth_id);
+	};
+
+	const handleSendMessage = async () => {
+		if (!friend.users?.auth_id || !currentUserId) return;
+
+		try {
+			const room = await createRoom(friend.users.auth_id);
+			if (room) {
+				navigate(`/msg/${room.id}`);
+				setOpenId(null); // 드롭다운 닫기
+			}
+		} catch (error) {
+			console.error("채팅방 생성 실패:", error);
+			alert("메시지 전송에 실패했습니다.");
+		}
 	};
 
 	return (
@@ -135,7 +153,11 @@ export default function MemberCard({
 						>
 							프로필 보기
 						</Link>
-						<Button className="block w-full text-left p-2 hover:bg-gray-100 text-gray-800 text-xs">
+						<Button
+							onClick={handleSendMessage}
+							disabled={isCreatingRoom}
+							className="block w-full text-left p-2 hover:bg-gray-100 text-gray-800 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+						>
 							메시지 보내기
 						</Button>
 						{userId === currentUserId ? (
