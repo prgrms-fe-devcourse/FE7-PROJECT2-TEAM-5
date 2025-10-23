@@ -144,7 +144,7 @@ export default function SearchPage() {
 
 	return (
 		<>
-			<div className="mx-auto">
+			<div className="max-w-[920px] mx-auto">
 				<h1 className="font-bold text-[24px] text-[#8B5CF6] mb-[15px] ">
 					검색
 				</h1>
