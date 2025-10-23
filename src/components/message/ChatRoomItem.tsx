@@ -1,4 +1,4 @@
-import type { ChatRoom } from "../types/message";
+import type { ChatRoom } from "../../types/message";
 
 interface ChatRoomItemProps {
 	room: ChatRoom;
@@ -84,7 +84,14 @@ export default function ChatRoomItem({
 				{/* 마지막 메시지 내용 */}
 				{room.last_message && (
 					<p className="text-sm text-gray-600 truncate mt-1">
-						{room.last_message.message}
+						{/* 사진이면 URL 대신 "사진을 보냈습니다"라고 표시 */}
+						{room.last_message.message.startsWith("data:image/") ? (
+							<span className="font-bold">
+								사진을 보냈습니다.
+							</span>
+						) : (
+							room.last_message.message
+						)}
 					</p>
 				)}
 
