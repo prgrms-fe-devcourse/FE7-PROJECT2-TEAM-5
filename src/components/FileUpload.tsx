@@ -77,77 +77,55 @@ export default function FileUpload(props: FileUploadProps) {
 
 	return (
 		<>
-			{/* 업로드된 파일 목록 표시 */}
-			{props.uploadedFiles.length > 0 && (
-				<div className="space-y-2">
-					{props.uploadedFiles.map((file, index) => (
-						<div
-							key={index}
-							className="relative flex items-center justify-between p-4 rounded-xl bg-white border border-[#E5E7EB]"
-						>
-							<div className="flex items-center space-x-3">
-								<div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center">
-									<File size={20} className="text-gray-500" />
+			{props.uploadedFiles[0] && (
+				<div className="relative flex flex-col items-center px-6 py-4 rounded-xl bg-white border-1 border-[#E5E7EB]">
+					<div className="relative pb-2">
+						<div className="relative z-2 max-h-50 min-h-30 object-cover bg-white flex items-center justify-center">
+							<File size={40} className="text-gray-500" />
+						</div>
+						{props.uploadedFiles.length > 1 && (
+							<div>
+								<div className="absolute top-2 left-2 z-1 max-h-50 min-h-30 object-cover opacity-50 flex items-center justify-center">
+									<File size={40} className="text-gray-500" />
 								</div>
-								<div>
-									<p className="text-sm font-medium text-gray-900">
-										{file.name}
-									</p>
-									<p className="text-xs text-gray-500">
-										{formatFileSize(file.size)}
-									</p>
+								<div className="absolute z-2 -bottom-2 -right-4 px-3.5 py-1.5 text-xm text-[#6B7280] font-bold bg-white border-1 border-[#E5E7EB] rounded-3xl">
+									{props.uploadedFiles.length}
 								</div>
 							</div>
-							<button
-								type="button"
-								className="p-1 text-red-500 hover:text-red-700"
-								onClick={() => removeFile(index)}
-							>
-								<X size={18} />
-							</button>
-						</div>
-					))}
-					{props.uploadedFiles.length > 1 && (
-						<button
-							type="button"
-							className="text-sm text-red-500 hover:text-red-700"
-							onClick={removeAllFiles}
-						>
-							모든 파일 제거
-						</button>
-					)}
+						)}
+					</div>
+
+					<button
+						type="button"
+						className="absolute top-1.5 right-1.5 p-1 rounded-xl text-red-500 border-1 border-[#E5E7EB] cursor-pointer"
+						onClick={removeAllFiles}
+					>
+						<X size={18} />
+					</button>
 				</div>
 			)}
-
-			{/* 파일 업로드 영역 */}
-			<div className="flex flex-col items-center px-6 py-4 rounded-xl bg-white border-2 border-[#E5E7EB] border-dashed">
-				<input
-					id="fileUpload"
-					accept="*"
-					className="hidden"
-					type="file"
-					name="fileUpload"
-					onChange={handleFileUpload}
-					multiple={props.isMulti || false}
-				/>
-				<div className="text-center">
-					<Upload size={32} className="mx-auto text-gray-400 mb-2" />
-					<p className="text-[#6B7280] mb-2">
-						{props.label || "파일을 업로드하세요"}
-					</p>
-					<p className="text-xs text-gray-400 mb-4">
-						최대 {props.maxFileSizeMB || 10}MB,{" "}
-						{props.isMulti ? "여러 파일" : "단일 파일"} 업로드 가능
+			{!props.uploadedFiles[0] && (
+				<div className="flex flex-col items-center px-6 py-4 rounded-xl bg-white border-2 border-[#E5E7EB] border-dashed">
+					<input
+						id="fileUpload"
+						accept="*"
+						className="hidden"
+						type="file"
+						name="fileUpload"
+						onChange={handleFileUpload}
+						multiple={props.isMulti || false}
+					/>
+					<p className="text-[#6B7280]">
+						{props.label || "Upload file"}
 					</p>
 					<label
 						htmlFor="fileUpload"
-						className="inline-flex items-center px-4 py-2 rounded-xl text-[#6B7280] bg-[#E5E7EB] hover:bg-[#D1D5DB] cursor-pointer transition-colors"
+						className="px-6 py-4 rounded-xl text-[#6B7280] bg-[#E5E7EB] cursor-pointer"
 					>
-						<Upload size={16} className="mr-2" />
-						파일 선택
+						Choose File
 					</label>
 				</div>
-			</div>
+			)}
 		</>
 	);
 }
