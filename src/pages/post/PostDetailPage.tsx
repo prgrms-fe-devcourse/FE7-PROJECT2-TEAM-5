@@ -7,7 +7,7 @@ import { usePostStore } from "../../stores/postStore";
 import PostDetailSkeleton from "../../components/loading/post/PostDetailSkeleton";
 import Button from "../../components/Button";
 import supabase from "../../utils/supabase";
-import { downloadFile, getFileUrl } from "../../utils/fileDownload";
+import { downloadFile } from "../../utils/fileDownload";
 
 // 게시글 세부 페이지
 export default function PostDetailPage() {
@@ -159,55 +159,53 @@ export default function PostDetailPage() {
 											{postData?.content}
 										</pre>
 									</div>
-									{/* 첨부파일 섹션 */}
+
+									{/* 이미지 파일 표시 */}
+									<div className="mt-2">
+										{postData?.files
+											?.filter((file) =>
+												file.file_name.match(
+													/\.(jpg|jpeg|png|gif)$/i,
+												),
+											)
+											?.map((file) => (
+												<img
+													key={file.file_path}
+													src={file.file_path}
+													alt={file.file_name}
+													className="max-h-80"
+												/>
+											))}
+									</div>
+
+									{/* 첨부파일 섹션 (이미지가 아닌 파일들만) */}
 									{postData?.files &&
-										postData.files.length > 0 && (
+										postData.files.filter(
+											(file) =>
+												!file.file_name.match(
+													/\.(jpg|jpeg|png|gif)$/i,
+												),
+										).length > 0 && (
 											<div className="mt-6">
 												<h3 className="text-lg font-semibold text-[#8B5CF6] mb-3">
 													첨부파일
 												</h3>
 												<div className="space-y-2">
-													{postData.files.map(
-														(file, index) => {
-															const isImage =
-																file.file_name.match(
+													{postData.files
+														.filter(
+															(file) =>
+																!file.file_name.match(
 																	/\.(jpg|jpeg|png|gif)$/i,
-																);
-															const fileUrl =
-																getFileUrl(
-																	file.file_path,
-																);
-
+																),
+														)
+														.map((file, index) => {
 															return (
 																<div
 																	key={index}
 																	className="flex items-center justify-between p-4 rounded-xl bg-white border-1 border-[#E5E7EB] shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
 																>
 																	<div className="flex items-center space-x-3">
-																		{isImage ? (
-																			<img
-																				src={
-																					fileUrl
-																				}
-																				alt={
-																					file.file_name
-																				}
-																				className="w-12 h-12 object-cover rounded-lg"
-																				onError={(
-																					e,
-																				) => {
-																					// 이미지 로드 실패 시 파일 아이콘으로 대체
-																					e.currentTarget.style.display =
-																						"none";
-																					e.currentTarget.nextElementSibling?.classList.remove(
-																						"hidden",
-																					);
-																				}}
-																			/>
-																		) : null}
-																		<div
-																			className={`w-12 h-12 bg-[#EDE9FE] rounded-lg flex items-center justify-center ${isImage ? "hidden" : ""}`}
-																		>
+																		<div className="w-12 h-12 bg-[#EDE9FE] rounded-lg flex items-center justify-center">
 																			<File
 																				size={
 																					20
@@ -262,8 +260,7 @@ export default function PostDetailPage() {
 																	)}
 																</div>
 															);
-														},
-													)}
+														})}
 												</div>
 											</div>
 										)}
