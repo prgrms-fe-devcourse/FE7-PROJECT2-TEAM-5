@@ -6,8 +6,8 @@ import { useProfileStore } from "../../stores/profileStore";
 import { getAge } from "../../utils/getAge";
 import { getGrade } from "../../utils/getGrade";
 import { useNavigate } from "react-router";
-import basicImage from "../../assets/basic_image.png";
 import Button from "../../components/Button";
+import basicImage from "../../assets/basic_image.png";
 
 type PostCommentsProps = {
 	comments: Comment[] | null;

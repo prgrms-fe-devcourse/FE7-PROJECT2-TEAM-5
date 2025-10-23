@@ -144,6 +144,7 @@ export default function ProfileCard({ profile }: Props) {
 					nickname: profile.nickname,
 					profile_image_url: profile.profile_image_url ?? null,
 					is_online: profile.is_online ?? false,
+					last_seen: profile.last_seen ?? Date(),
 				},
 				created_at: new Date().toISOString(),
 				follower_id: currentUserId,
