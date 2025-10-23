@@ -1,11 +1,12 @@
 import { Heart, MoveLeft } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import PostComments from "./PostComments";
 import { useProfileStore } from "../../stores/profileStore";
 import { usePostStore } from "../../stores/postStore";
 import PostDetailSkeleton from "../../components/loading/post/PostDetailSkeleton";
 import Button from "../../components/Button";
+import supabase from "../../utils/supabase";
 
 // 게시글 세부 페이지
 export default function PostDetailPage() {
@@ -13,6 +14,7 @@ export default function PostDetailPage() {
 	const { id } = useParams();
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 	const isLoading = usePostStore((state) => state.isLoading);
+	const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 	const postData = usePostStore((state) => state.post);
 	const isLiked = usePostStore((state) => state.isLiked);
 	const comments = usePostStore((state) => state.comments);
@@ -22,18 +24,28 @@ export default function PostDetailPage() {
 	const resetPostStore = usePostStore((state) => state.resetPostStore);
 
 	useEffect(() => {
-		if (!currentUserId) {
-			alert("로그인이 필요합니다.");
-			navigate("/login");
-			return;
-		}
-		const loadPost = async () => {
-			if (id && currentUserId) {
-				await fetchPost(id, currentUserId);
+		const checkAuth = async () => {
+			// Supabase 세션 직접 확인
+			const {
+				data: { session },
+			} = await supabase.auth.getSession();
+
+			if (!session) {
+				alert("로그인이 필요합니다.");
+				navigate("/login");
+				return;
+			}
+
+			setIsCheckingAuth(false);
+
+			// 게시글 로드
+			if (id) {
+				await fetchPost(id, session.user.id);
 			}
 		};
-		loadPost();
-	}, [id, currentUserId]);
+
+		checkAuth();
+	}, [id, navigate, fetchPost]);
 
 	const pressLike = () => {
 		if (!currentUserId) {
@@ -58,7 +70,7 @@ export default function PostDetailPage() {
 
 	return (
 		<>
-			{isLoading ? (
+			{isLoading || isCheckingAuth ? (
 				<PostDetailSkeleton />
 			) : (
 				<>
