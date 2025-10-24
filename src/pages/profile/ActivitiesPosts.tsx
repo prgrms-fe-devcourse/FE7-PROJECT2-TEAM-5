@@ -30,7 +30,7 @@ export default function ActivitiesPosts() {
 						}`}
 					>
 						{/* left */}
-						<div className="flex flex-col gap-1">
+						<div className="flex-1 flex flex-col gap-1">
 							<p className="font-bold text-lg line-clamp-1">
 								{post.title}
 							</p>
