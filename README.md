@@ -251,11 +251,6 @@ src/
 
 PR 제목: [feat/edit] ..., [feat/src] ...
 
-# 기능
-
-# API
-
-API 정리해서 작성
 
 ## 주요 라이브러리
 
