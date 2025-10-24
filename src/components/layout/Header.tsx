@@ -53,7 +53,6 @@ export default function Header() {
 					) : (
 						<></>
 					)}
-					<button className="cursor-pointer">다크모드</button>
 				</nav>
 			</header>
 
