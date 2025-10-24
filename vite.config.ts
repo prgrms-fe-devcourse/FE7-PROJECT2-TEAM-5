@@ -12,5 +12,5 @@ export default defineConfig({
 		}),
 		tailwindcss(),
 	],
-	base: process.env.NODE_ENV === "production" ? "/FE7-PROJECT2-TEAM-5/" : "/",
+	base: "/",
 });
