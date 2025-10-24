@@ -11,11 +11,14 @@ import { useEffect, useState } from "react";
 import { useSetOnlineStatus } from "../../hooks/useSetOnlineStatus";
 import HomePageSkeleton from "../../components/loading/home/HomePageSkeleton";
 import Button from "../../components/Button";
+import { usePostsStore } from "../../stores/postsStore";
 
 export default function HomePage() {
 	const currentUserId = useProfileStore((state) => state.currentUserId);
 	const loading = useProfileStore((state) => state.loading);
 	const fetchProfile = useProfileStore((state) => state.fetchProfile);
+	const posts = usePostsStore((state) => state.posts);
+	const fetchPosts = usePostsStore((state) => state.fetchPosts);
 
 	// 그룹 상태 관리
 	const {
@@ -46,6 +49,11 @@ export default function HomePage() {
 			setCurrentGroupIndex(nextIndex);
 		}
 	};
+
+	// 전체 게시글
+	useEffect(() => {
+		fetchPosts("all");
+	}, [fetchPosts]);
 
 	// 시간 포맷팅 함수
 	const formatTimeAgo = (dateString: string): string => {
@@ -151,10 +159,7 @@ export default function HomePage() {
 							<p className="text-sm">
 								질문과 답변, 학습 팁, 경험담을 나누는 공간
 							</p>
-							<p className="text-xs">
-								게시글 120개 · 최근 글 2시간 전 · 💬 8개 · ❤️
-								15개
-							</p>
+							<p className="text-xs">게시글 {posts.length} 개</p>
 						</div>
 						<div className="flex flex-row gap-2 text-xs text-[#8B5CF6]">
 							{/* 반복 함수 구현 예정 */}
