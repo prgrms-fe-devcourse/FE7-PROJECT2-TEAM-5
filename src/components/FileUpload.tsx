@@ -1,4 +1,4 @@
-import { X, Upload, File } from "lucide-react";
+import { X, File } from "lucide-react";
 import { validateFileSize, validateFileType } from "../utils/fileUpload";
 
 type FileUploadProps = {
@@ -55,10 +55,6 @@ export default function FileUpload(props: FileUploadProps) {
 		}
 	};
 
-	const removeFile = (index: number) => {
-		props.setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
-	};
-
 	const removeAllFiles = () => {
 		props.setUploadedFiles([]);
 	};
@@ -93,6 +89,23 @@ export default function FileUpload(props: FileUploadProps) {
 								</div>
 							</div>
 						)}
+					</div>
+
+					{/* 파일 정보 표시 */}
+					<div className="w-full mt-2 space-y-1">
+						{props.uploadedFiles.map((file, index) => (
+							<div
+								key={index}
+								className="flex items-center justify-between text-xs"
+							>
+								<span className="text-gray-700 font-medium truncate flex-1 mr-2">
+									{file.name}
+								</span>
+								<span className="text-gray-500 flex-shrink-0">
+									{formatFileSize(file.size)}
+								</span>
+							</div>
+						))}
 					</div>
 
 					<button
