@@ -55,15 +55,11 @@ export default function FileUpload(props: FileUploadProps) {
 		}
 	};
 
-	/* const removeFile = (index: number) => {
-		props.setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
-	}; */
-
 	const removeAllFiles = () => {
 		props.setUploadedFiles([]);
 	};
 
-	/* const formatFileSize = (bytes: number): string => {
+	const formatFileSize = (bytes: number): string => {
 		if (bytes === 0) return "0 Bytes";
 		const k = 1024;
 		const sizes = ["Bytes", "KB", "MB", "GB"];
@@ -73,7 +69,7 @@ export default function FileUpload(props: FileUploadProps) {
 			" " +
 			sizes[allowsFileSize]
 		);
-	}; */
+	};
 
 	return (
 		<>

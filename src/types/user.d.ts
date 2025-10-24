@@ -8,3 +8,4 @@ type User = {
 	major?: string;
 	last_seen: Date;
 };
+z;
