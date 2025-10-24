@@ -266,13 +266,15 @@ API 정리해서 작성
 2. **Tailwind CSS**
     - 유틸리티 클래스 기반 CSS 프레임워크
 
-3. **Axios**
-    - API 요청을 위해 사용
-
-4. **React Router**
+3. **React Router**
     - SPA 라우팅을 위해 사용
 
-5. **Prettier**
+4. **Prettier, ESLint**
     - 코드 스타일 통일을 위해 사용
 
-6. **ESLint**
+5. **Supabase (Auth, DB, Storage, Realtime)**
+    - 데이터베이스, 인증, 실시간 기능을 위해 사용
+
+6. **Lucide React**
+    - 아이콘 라이브러리로 사용
+    - 일관된 UI 디자인을 위해 사용
