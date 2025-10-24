@@ -122,7 +122,7 @@ export default function App() {
 				{/* Auth */}
 				<Route element={<AuthLayout />}>
 					{/* Login */}
-					<Route index path="login" element={<LoginPage />} />
+					<Route path="login" element={<LoginPage />} />
 
 					{/* Register */}
 					<Route path="register">
