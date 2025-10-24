@@ -95,6 +95,23 @@ export default function FileUpload(props: FileUploadProps) {
 						)}
 					</div>
 
+					{/* 파일 정보 표시 */}
+					<div className="w-full mt-2 space-y-1">
+						{props.uploadedFiles.map((file, index) => (
+							<div
+								key={index}
+								className="flex items-center justify-between text-xs"
+							>
+								<span className="text-gray-700 font-medium truncate flex-1 mr-2">
+									{file.name}
+								</span>
+								<span className="text-gray-500 flex-shrink-0">
+									{formatFileSize(file.size)}
+								</span>
+							</div>
+						))}
+					</div>
+
 					<button
 						type="button"
 						className="absolute top-1.5 right-1.5 p-1 rounded-xl text-red-500 border-1 border-[#E5E7EB] cursor-pointer"
