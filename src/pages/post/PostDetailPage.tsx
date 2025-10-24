@@ -111,6 +111,7 @@ export default function PostDetailPage() {
 		if (id) {
 			updateLike(id, currentUserId);
 			alert("좋아요 완료");
+			window.location.reload();
 		}
 	};
 

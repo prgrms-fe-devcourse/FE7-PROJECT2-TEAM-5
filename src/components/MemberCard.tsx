@@ -20,7 +20,7 @@ export default function MemberCard({
 	userId,
 	onUnfollow,
 }: MemberCardProps) {
-	const { followStatus, followedUserFnc, unFollowUserFnc } = useMemberStore();
+	const { followStatus } = useMemberStore();
 	const { currentUserId } = useProfileStore();
 	const { createRoom, isLoading: isCreatingRoom } = useCreateChatRoom();
 	const navigate = useNavigate();
@@ -48,20 +48,72 @@ export default function MemberCard({
 			document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
 
-	const handleFollow = () => {
-		if (!friend.users?.auth_id) return;
+	useEffect(() => {
+		const fetchFollowStatus = async () => {
+			if (!currentUserId) return;
 
-		if (!isFollowing) {
-			followedUserFnc(currentUserId!, friend.users.auth_id);
+			try {
+				// 서버에서 로그인한 사용자가 팔로우한 목록 가져오기
+				const friends = await useMemberStore
+					.getState()
+					.fetchUserFollowings(currentUserId);
+
+				// followStatus 맵 세팅
+				friends.forEach((friend) => {
+					if (friend.users?.auth_id) {
+						useMemberStore
+							.getState()
+							.setFollowStatus(friend.users.auth_id, true);
+					}
+				});
+			} catch (err) {
+				console.error("팔로우 상태 초기화 실패:", err);
+			}
+		};
+
+		fetchFollowStatus();
+	}, [currentUserId]);
+
+	const handleFollow = async () => {
+		if (!friend.users?.auth_id || !currentUserId) return;
+
+		// 1️⃣ 화면에서 바로 팔로우 상태 변경 (Optimistic Update)
+		useMemberStore.getState().setFollowStatus(friend.users.auth_id, true);
+
+		try {
+			// 2️⃣ 서버에 팔로우 요청
+			await useMemberStore
+				.getState()
+				.followedUserFnc(currentUserId, friend.users.auth_id);
+		} catch (err) {
+			// 실패 시 상태 롤백
+			useMemberStore
+				.getState()
+				.setFollowStatus(friend.users.auth_id, false);
+			alert("팔로우에 실패했습니다. 다시 시도해주세요.");
 		}
+
 		setOpenId(null);
 	};
 
 	const handleUnfollowClick = async () => {
 		if (!friend.users?.auth_id || !currentUserId) return;
 
-		await unFollowUserFnc(currentUserId, friend.users.auth_id);
-		onUnfollow?.(friend.users.auth_id);
+		useMemberStore.getState().setFollowStatus(friend.users.auth_id, false);
+
+		try {
+			await useMemberStore
+				.getState()
+				.unFollowUserFnc(currentUserId, friend.users.auth_id);
+			onUnfollow?.(friend.users.auth_id);
+		} catch (err) {
+			useMemberStore
+				.getState()
+				.setFollowStatus(friend.users.auth_id, true);
+			alert("팔로우 취소에 실패했습니다. 다시 시도해주세요.");
+		}
+
+		setOpenId(null);
 	};
 
 	const handleSendMessage = async () => {
@@ -71,7 +123,7 @@ export default function MemberCard({
 			const room = await createRoom(friend.users.auth_id);
 			if (room) {
 				navigate(`/msg/${room.id}`);
-				setOpenId(null); // 드롭다운 닫기
+				setOpenId(null);
 			}
 		} catch (error) {
 			console.error("채팅방 생성 실패:", error);
