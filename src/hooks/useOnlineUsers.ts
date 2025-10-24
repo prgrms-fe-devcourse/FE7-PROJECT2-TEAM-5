@@ -1,16 +1,6 @@
 import { useEffect, useState } from "react";
 import supabase from "../utils/supabase";
 
-export interface User {
-	auth_id: string;
-	nickname: string;
-	profile_image_url?: string;
-	role: string;
-	birth_date?: string;
-	major?: string;
-	is_online: boolean;
-}
-
 export function useOnlineUsers() {
 	const [userList, setUserList] = useState<User[]>([]);
 
