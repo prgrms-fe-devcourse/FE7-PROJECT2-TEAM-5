@@ -73,6 +73,7 @@ export default function UserListCard({
 					nickname: user.nickname,
 					profile_image_url: user.profile_image_url ?? null,
 					is_online: user.is_online ?? false,
+					last_seen: user.last_seen ?? "",
 				},
 				created_at: new Date().toISOString(),
 				follower_id: currentUserId,
