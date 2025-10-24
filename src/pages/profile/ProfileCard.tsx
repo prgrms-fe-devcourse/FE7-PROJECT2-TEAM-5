@@ -15,6 +15,7 @@ import { useActPostStore } from "../../stores/profileActivityStore";
 import { useBadgeStore } from "../../stores/badgeStore";
 import type { BadgeLog } from "../../types/badge";
 import { decodeHtmlEntities } from "../../utils/codeToEmoji";
+import PointHistoryModal from "../../components/PointHistoryModal";
 
 type Props = {
 	profile: UserProfile | null;
@@ -41,6 +42,8 @@ export default function ProfileCard({ profile }: Props) {
 
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 	const [isImgModalOpen, setIsImgModalOpen] = useState(false);
+	const [isPointHistoryModalOpen, setIsPointHistoryModalOpen] =
+		useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [isUpdating, setIsUpdating] = useState(false);
 	const [imgFile, setImgFile] = useState<string | null>(null);
@@ -382,11 +385,29 @@ export default function ProfileCard({ profile }: Props) {
 
 					{/* 선생님 포인트 */}
 					{profile.role === "teacher" ? (
-						<div className="w-full rounded-xl mt-6 px-6 py-4 bg-violet-500 text-white space-y-1">
-							<p>보유 포인트</p>
-							<span className="text-xl font-medium">
-								{profile.current_point} point
-							</span>
+						<div
+							className={`w-full rounded-xl mt-6 px-6 py-4 bg-violet-500 text-white ${
+								isMyProfile
+									? "cursor-pointer hover:bg-violet-600 transition-colors"
+									: ""
+							}`}
+							onClick={() => {
+								if (isMyProfile) {
+									setIsPointHistoryModalOpen(true);
+								}
+							}}
+						>
+							<p className="text-sm mb-1">보유 포인트</p>
+							<div className="flex items-end justify-between">
+								<span className="text-xl font-medium">
+									{profile.current_point}p
+								</span>
+								{isMyProfile && (
+									<span className="text-[12px] underline">
+										내역보기
+									</span>
+								)}
+							</div>
 						</div>
 					) : (
 						""
@@ -435,6 +456,13 @@ export default function ProfileCard({ profile }: Props) {
 					</Button>
 				</div>
 			</Modal>
+
+			{/* 포인트 기록 모달 */}
+			<PointHistoryModal
+				isOpen={isPointHistoryModalOpen}
+				onClose={() => setIsPointHistoryModalOpen(false)}
+				userId={profile.auth_id}
+			/>
 		</>
 	);
 }

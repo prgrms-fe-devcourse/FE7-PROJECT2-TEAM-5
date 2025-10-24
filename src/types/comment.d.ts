@@ -5,6 +5,7 @@ type Comment = Database["public"]["Tables"]["comments"]["Row"] & {
 		auth_id: string;
 		nickname: string;
 		birth_date: string;
+		role?: string;
 		representative_badge_id: {
 			badges: {
 				name: string;

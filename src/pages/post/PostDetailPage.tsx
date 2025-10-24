@@ -1,18 +1,23 @@
-import { Heart, MoveLeft } from "lucide-react";
+import { Heart, MoveLeft, Download, File } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import PostComments from "./PostComments";
 import { useProfileStore } from "../../stores/profileStore";
 import { usePostStore } from "../../stores/postStore";
 import PostDetailSkeleton from "../../components/loading/post/PostDetailSkeleton";
 import Button from "../../components/Button";
+import supabase from "../../utils/supabase";
+import { downloadFile, getFileUrl } from "../../utils/fileDownload";
+import { deductPoints } from "../../utils/pointUtils";
 
 // 게시글 세부 페이지
 export default function PostDetailPage() {
 	const navigate = useNavigate();
 	const { id } = useParams();
 	const currentUserId = useProfileStore((state) => state.currentUserId);
+	const profile = useProfileStore((state) => state.profile);
 	const isLoading = usePostStore((state) => state.isLoading);
+	const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 	const postData = usePostStore((state) => state.post);
 	const isLiked = usePostStore((state) => state.isLiked);
 	const comments = usePostStore((state) => state.comments);
@@ -21,19 +26,72 @@ export default function PostDetailPage() {
 	const deletePost = usePostStore((state) => state.deletePost);
 	const resetPostStore = usePostStore((state) => state.resetPostStore);
 
-	useEffect(() => {
+	// 파일 다운로드 함수 (포인트 차감 포함)
+	const handleFileDownload = async (filePath: string, fileName: string) => {
 		if (!currentUserId) {
 			alert("로그인이 필요합니다.");
-			navigate("/login");
 			return;
 		}
-		const loadPost = async () => {
-			if (id && currentUserId) {
-				await fetchPost(id, currentUserId);
+
+		if (profile?.role !== "teacher") {
+			alert("선생님만 파일을 다운로드할 수 있습니다.");
+			return;
+		}
+
+		try {
+			// 포인트 차감
+			const result = await deductPoints(
+				currentUserId,
+				30,
+				`파일 다운로드: ${fileName}`,
+			);
+
+			if (!result.success) {
+				alert(result.message);
+				return;
+			}
+
+			// 포인트 차감 성공 시 파일 다운로드
+			await downloadFile(filePath, fileName);
+
+			// 성공 메시지 표시
+			alert(result.message);
+
+			// 프로필 정보 새로고침 (포인트 업데이트 반영)
+			if (profile?.auth_id) {
+				// 프로필 스토어에서 현재 사용자 정보 새로고침
+				const { fetchProfile } = useProfileStore.getState();
+				await fetchProfile();
+			}
+		} catch (error) {
+			console.error("다운로드 실패:", error);
+			alert("다운로드 중 오류가 발생했습니다.");
+		}
+	};
+
+	useEffect(() => {
+		const checkAuth = async () => {
+			// Supabase 세션 직접 확인
+			const {
+				data: { session },
+			} = await supabase.auth.getSession();
+
+			if (!session) {
+				alert("로그인이 필요합니다.");
+				navigate("/login");
+				return;
+			}
+
+			setIsCheckingAuth(false);
+
+			// 게시글 로드
+			if (id) {
+				await fetchPost(id, session.user.id);
 			}
 		};
-		loadPost();
-	}, [id, currentUserId]);
+
+		checkAuth();
+	}, [id, navigate, fetchPost]);
 
 	const pressLike = () => {
 		if (!currentUserId) {
@@ -58,7 +116,7 @@ export default function PostDetailPage() {
 
 	return (
 		<>
-			{isLoading ? (
+			{isLoading || isCheckingAuth ? (
 				<PostDetailSkeleton />
 			) : (
 				<>
@@ -139,16 +197,141 @@ export default function PostDetailPage() {
 											{postData?.content}
 										</pre>
 									</div>
+
+									{/* InputFile로 업로드된 이미지 파일 표시 (base64 데이터) */}
 									<div className="mt-2">
-										{postData?.files?.map((file) => (
-											<img
-												key={file.file_path}
-												src={file.file_path}
-												alt={file.file_name}
-												className="max-h-80"
-											/>
-										))}
+										{postData?.files
+											?.filter(
+												(file) =>
+													// base64 데이터인지 확인 (data:image로 시작)
+													file.file_path.startsWith(
+														"data:image",
+													) &&
+													file.file_name.match(
+														/\.(jpg|jpeg|png|gif)$/i,
+													),
+											)
+											?.map((file) => (
+												<img
+													key={file.file_path}
+													src={file.file_path}
+													alt={file.file_name}
+													className="max-h-80"
+												/>
+											))}
 									</div>
+
+									{/* 첨부파일 섹션 (FileUpload로 업로드된 파일들) */}
+									{postData?.files &&
+										postData.files.filter((file) =>
+											// FileUpload로 업로드된 파일들 (posts/ 경로로 시작)
+											file.file_path.startsWith("posts/"),
+										).length > 0 && (
+											<div className="mt-6">
+												<h3 className="text-lg font-semibold text-[#8B5CF6] mb-3">
+													첨부파일
+												</h3>
+												<div className="space-y-2">
+													{postData.files
+														.filter((file) =>
+															// FileUpload로 업로드된 파일들만
+															file.file_path.startsWith(
+																"posts/",
+															),
+														)
+														.map((file, index) => {
+															const isImage =
+																file.file_name.match(
+																	/\.(jpg|jpeg|png|gif)$/i,
+																);
+															return (
+																<div
+																	key={index}
+																	className="flex items-center justify-between p-4 rounded-xl bg-white border-1 border-[#E5E7EB] shadow-[0_2px_8px_rgba(0,0,0,0.05)]"
+																>
+																	<div className="flex items-center space-x-3">
+																		{isImage ? (
+																			<img
+																				src={getFileUrl(
+																					file.file_path,
+																				)}
+																				alt={
+																					file.file_name
+																				}
+																				className="w-12 h-12 object-cover rounded-lg"
+																				onError={(
+																					e,
+																				) => {
+																					e.currentTarget.style.display =
+																						"none";
+																					e.currentTarget.nextElementSibling?.classList.remove(
+																						"hidden",
+																					);
+																				}}
+																			/>
+																		) : null}
+																		<div
+																			className={`w-12 h-12 bg-[#EDE9FE] rounded-lg flex items-center justify-center ${isImage ? "hidden" : ""}`}
+																		>
+																			<File
+																				size={
+																					20
+																				}
+																				className="text-[#8B5CF6]"
+																			/>
+																		</div>
+																		<div>
+																			<p className="text-sm font-medium text-gray-900">
+																				{
+																					file.file_name
+																				}
+																			</p>
+																			<p className="text-xs text-[#6B7280]">
+																				첨부파일
+																			</p>
+																		</div>
+																	</div>
+																	{profile?.role ===
+																	"teacher" ? (
+																		<button
+																			type="button"
+																			onClick={() =>
+																				handleFileDownload(
+																					file.file_path,
+																					file.file_name,
+																				)
+																			}
+																			className="flex items-center space-x-2 px-4 py-2 text-sm text-white bg-[#8B5CF6] hover:bg-[#B08DFF] rounded-xl transition-colors cursor-pointer"
+																		>
+																			<Download
+																				size={
+																					16
+																				}
+																			/>
+																			<span>
+																				다운로드
+																			</span>
+																		</button>
+																	) : (
+																		<div className="flex items-center space-x-2 px-4 py-2 text-sm text-[#6B7280] bg-[#EDE9FE] rounded-xl">
+																			<Download
+																				size={
+																					16
+																				}
+																			/>
+																			<span>
+																				선생님만
+																				다운로드
+																				가능
+																			</span>
+																		</div>
+																	)}
+																</div>
+															);
+														})}
+												</div>
+											</div>
+										)}
 								</div>
 								{/* 해시태그 */}
 								<div className="flex gap-2">
@@ -173,6 +356,12 @@ export default function PostDetailPage() {
 									postData?.adopted_comment_id ?? null
 								}
 								writerId={postData?.user_id}
+								onCommentAdded={() => {
+									// 댓글 추가 후 게시글 정보 새로고침
+									if (id && currentUserId) {
+										fetchPost(id, currentUserId);
+									}
+								}}
 							/>
 						</div>
 					</div>

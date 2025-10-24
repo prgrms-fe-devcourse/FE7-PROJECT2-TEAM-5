@@ -11,12 +11,15 @@ import basicImage from "../../assets/basic_image.png";
 import { updateGroupActivityFromPost } from "../../utils/groupActivity";
 import { checkAndGrantBadge } from "../../hooks/useBadgeHook";
 import { decodeHtmlEntities } from "../../utils/codeToEmoji";
+import RoleBadge from "../../components/RoleBadge";
+import type { UserRole } from "../../types/auth";
 
 type PostCommentsProps = {
 	comments: Comment[] | null;
 	postId: string | undefined;
 	adopted_comment_id: string | null;
 	writerId: string | undefined;
+	onCommentAdded?: () => void; // 댓글 추가 후 콜백 함수
 };
 
 export default function PostComments(props: PostCommentsProps) {
@@ -109,7 +112,8 @@ export default function PostComments(props: PostCommentsProps) {
 					setInputComment("");
 					// 댓글 등록 후 뱃지 체크
 					await checkAndGrantBadge(currentUserId);
-					location.reload();
+					// 부모 컴포넌트에 댓글 추가 완료 알림
+					props.onCommentAdded?.();
 				}
 			} else {
 				const { data: commentData, error } = await supabase
@@ -135,7 +139,8 @@ export default function PostComments(props: PostCommentsProps) {
 					setInputComment("");
 					// 댓글 등록 후 뱃지 체크
 					await checkAndGrantBadge(currentUserId);
-					location.reload();
+					// 부모 컴포넌트에 댓글 추가 완료 알림
+					props.onCommentAdded?.();
 				}
 			}
 		} catch (e) {
@@ -223,7 +228,6 @@ export default function PostComments(props: PostCommentsProps) {
 	};
 
 	function Comment({ comment }: { comment: Comment }) {
-		console.log(comment);
 		const adoptedStyle =
 			props.adopted_comment_id === comment.id &&
 			"border-1 border-[#EA489A]";
@@ -285,6 +289,12 @@ export default function PostComments(props: PostCommentsProps) {
 							)}
 							<p className="text-sm">
 								{comment.user?.nickname}
+								{comment.user?.role && (
+									<RoleBadge
+										role={comment.user.role as UserRole}
+										className="ml-1"
+									/>
+								)}
 								<span className="text-xs text-[#6B7280] ml-1">
 									{getGrade(getAge(comment.user?.birth_date))}
 								</span>

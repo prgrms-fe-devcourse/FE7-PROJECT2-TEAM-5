@@ -18,7 +18,7 @@ export default function UserList({
 	}, [location.pathname]);
 
 	return (
-		<div className="fixed left-10 bottom-0 w-90 bg-white rounded-t-xl flex flex-col">
+		<div className="fixed left-10 bottom-0 w-90 bg-white rounded-t-xl flex flex-col z-50">
 			{/* 헤더 */}
 			<div
 				className="cursor-pointer flex flex-row justify-between items-center px-5 py-3 w-full bg-violet-500 rounded-t-xl"
