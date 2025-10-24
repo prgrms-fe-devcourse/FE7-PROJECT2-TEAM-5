@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>404</title>
     <script type="text/javascript">
-      // GitHub Pages에서 SPA 라우팅을 위한 리다이렉트 스크립트
-      // 현재 URL을 확인하고 해당 경로로 리다이렉트
-      var pathSegmentsToKeep = 0;
-
+      // GitHub Pages SPA 라우팅을 위한 리다이렉트
+      var pathSegmentsToKeep = 1;
       var l = window.location;
       l.replace(
         l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
@@ -19,5 +18,6 @@
     </script>
   </head>
   <body>
+    <div>리다이렉트 중...</div>
   </body>
 </html>
